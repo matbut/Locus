@@ -100,12 +100,16 @@ db.sqlite3
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/**/*.iml
+.idea/**/misc.xml
+
 
 # Generated files
 .idea/**/contentModel.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
+.idea/**/dataSources.xml
 .idea/**/dataSources.ids
 .idea/**/dataSources.local.xml
 .idea/**/sqlDataSources.xml
