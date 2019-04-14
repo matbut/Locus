@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Search example</title>
+    <link href="{% static "locus/css/loader.css" %}" rel="stylesheet">
+</head>
+<body>
+
+<h1>Search form</h1>
+
+<div id="content">
+    <form action="/search/" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Search" onclick="display_loading()">
+    </form>
+</div>
+
+<div id="wait"></div>
+<script src="{% static 'locus/js/crawler_example/channel.js' %}"></script>
+<script src="{% static 'locus/js/crawler_example/loader_display.js' %}"></script>
+</body>
+</html>

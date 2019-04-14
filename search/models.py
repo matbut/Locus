@@ -1,3 +1,6 @@
-from django.db import models
+from django import forms
 
-# Create your models here.
+
+class UrlForm(forms.Form):
+    duration = forms.CharField(label='Duration of simulated work in seconds', max_length=100)
+
