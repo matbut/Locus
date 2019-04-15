@@ -122,10 +122,14 @@ STATICFILES_DIRS = [
     '/var/www/static/',
 ]
 
+
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)]
+        }
+    }
 }
 
 ASGI_APPLICATION = 'search.routing.application'

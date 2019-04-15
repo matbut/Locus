@@ -13,15 +13,13 @@
 <h1>Search form</h1>
 
 <div id="content">
-    <form action="/search/" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="Search" onclick="display_loading()">
-    </form>
+    <label for="search-input"></label><input id="search-input" type="text" size="100"/>
+    <br/>
+    <input id="search-submit" type="button" value="Search"/>
 </div>
 
 <div id="wait"></div>
-<script src="{% static 'locus/js/crawler_example/channel.js' %}"></script>
-<script src="{% static 'locus/js/crawler_example/loader_display.js' %}"></script>
+
+<script src="{% static "locus/js/crawler_example/websocket.js" %}"></script>
 </body>
 </html>
