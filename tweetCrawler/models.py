@@ -8,3 +8,9 @@ class Tweet(models.Model):
     time = models.TimeField()
     username = models.CharField(max_length=30)
     link = models.CharField(max_length=60)
+
+
+class CrawlParameters:
+    Url = None
+    Title = None
+    Content = None
