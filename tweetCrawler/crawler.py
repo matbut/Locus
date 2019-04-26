@@ -1,5 +1,7 @@
 import twint
 from .models import Tweet
+import asyncio
+from datetime import datetime
 
 
 def crawl(crawl_parameters):
@@ -11,15 +13,11 @@ def crawl(crawl_parameters):
     c.Hide_output = False
     c.Store_object = True
 
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
     # Search
     if crawl_parameters.Content is not None:
         c.Search = crawl_parameters.Content
-        twint.run.Search(c)
-    if crawl_parameters.Url is not None:
-        c.Search = crawl_parameters.Url
-        twint.run.Search(c)
-    if crawl_parameters.Title is not None:
-        c.Search = crawl_parameters.Title
         twint.run.Search(c)
 
     tweets = twint.output.tweets_object
@@ -27,11 +25,10 @@ def crawl(crawl_parameters):
 
     # Save
     for tweet in tweets:
-        print(dir(tweet))
         new_tweet = Tweet(
             content=tweet.tweet,
-            date=tweet.date,
-            time=tweet.time,
+            date=datetime.utcfromtimestamp(tweet.datetime/1000.0).date(),
+            time=datetime.utcfromtimestamp(tweet.datetime/1000.0).time(),
             username=tweet.username,
             link=tweet.link
         )
