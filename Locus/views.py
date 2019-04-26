@@ -4,7 +4,6 @@ from datetime import datetime
 
 from tweetCrawler.models import Tweet
 
-
 def charts(request):
     tweets = Tweet.objects
     my_date = datetime.now()
