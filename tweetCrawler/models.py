@@ -11,6 +11,14 @@ class Tweet(models.Model):
 
 
 class CrawlParameters:
-    Url = None
-    Title = None
-    Content = None
+    def __init__(self, dictionary=None):
+        if dictionary:
+            self.url = dictionary['url']
+            self.title = dictionary['title']
+            self.content = dictionary['content']
+            self.twitter = dictionary['twitter']
+        else:
+            self.url = None
+            self.title = None
+            self.content = None
+            self.twitter = None

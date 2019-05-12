@@ -7,13 +7,13 @@ from .models import Tweet
 import asyncio
 from datetime import datetime
 
+
 class Crawler(SyncConsumer):
     def crawl(self, data):
 
         sender_id = data["id"]
 
-        crawl_parameters = CrawlParameters()
-        crawl_parameters.Url = data["url"]
+        crawl_parameters = CrawlParameters(data["parameters"])
 
         # Configure
         c = twint.Config()
@@ -25,8 +25,8 @@ class Crawler(SyncConsumer):
         asyncio.set_event_loop(asyncio.new_event_loop())
 
         # Search
-        if crawl_parameters.Url is not None:
-            c.Search = crawl_parameters.Url
+        if crawl_parameters.url is not None:
+            c.Search = crawl_parameters.url
             twint.run.Search(c)
 
         tweets = twint.output.tweets_object
@@ -36,19 +36,18 @@ class Crawler(SyncConsumer):
         for tweet in tweets:
             new_tweet = Tweet(
                 content=tweet.tweet,
-                date=datetime.utcfromtimestamp(tweet.datetime/1000.0).date(),
-                time=datetime.utcfromtimestamp(tweet.datetime/1000.0).time(),
+                date=datetime.utcfromtimestamp(tweet.datetime / 1000.0).date(),
+                time=datetime.utcfromtimestamp(tweet.datetime / 1000.0).time(),
                 username=tweet.username,
                 link=tweet.link
             )
             new_tweet.save()
 
-
-        # Send message to group
+        # Send message
         async_to_sync(self.channel_layer.group_send)(
             sender_id,
             {
-                'type': 'components',
-                'message': 'done'
+                'type': 'send_done',
+                'message': 'tweet_crawler'
             }
         )

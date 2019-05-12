@@ -5,6 +5,8 @@ import string
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
+from tweetCrawler.models import CrawlParameters
+
 
 class WSConsumer(WebsocketConsumer):
     def connect(self):
@@ -23,19 +25,13 @@ class WSConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
-        print("RECEIVE")
         text_data_json = json.loads(text_data)
-        url = text_data_json['url']
-        #cp = CrawlParameters()
-        #cp.Url = url
+        cp = CrawlParameters(text_data_json)
 
-        # Send message to room group
-        print("Sending messages to tweeter component")
+        if cp.twitter:
+            print("Sending parameters to tweeter component")
+            async_to_sync(self.channel_layer.send)("tweet_crawler",
+                                                   {"type": "crawl", "parameters": cp.__dict__, "id": self.id})
 
-        async_to_sync(self.channel_layer.send)("tweet_crawler",
-                                               {"type": "crawl", "url": url, "id": self.id})
-        print("Sent: ",url)
-
-    # Receive message from room group
-    def components(self, event):
+    def send_done(self, event):
         self.send("done")
