@@ -1,3 +1,5 @@
+asgiref
+channels
 -i https://pypi.org/simple
 -e git+https://github.com/twintproject/twint.git@7a502776f769bdd142aa5013aa36e0258d957be6#egg=twint
 aiodns==2.0.0

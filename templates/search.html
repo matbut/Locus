@@ -21,6 +21,8 @@
   <!-- Custom styles for this template-->
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
 
+  <link href="{% static "locus/css/loader.css" %}" rel="stylesheet">
+
 </head>
 
 <body id="page-top">
@@ -86,7 +88,7 @@
 
   </nav>
 
-  <div id="wrapper">
+  <center id="wrapper">
 
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
@@ -114,7 +116,7 @@
     </ul>
 
     <div id="content-wrapper">
-      <div class="container-fluid">
+      <center class="container-fluid">
 
         <!-- Breadcrumbs
         <ol class="breadcrumb">
@@ -128,9 +130,7 @@
           <center>
            <h1 class="display-1">Locus</h1>
           </center>
-
-
-
+        <div id="loader"><img id="loader-img" src="{% static "locus/loader.gif" %}" alt="Processing"></div>
         <div class="card card-login mx-auto mt-5">
           <div class="card-header">
             Search
@@ -139,21 +139,33 @@
             <form>
               <div class="form-group">
                 <div class="form-label-group">
-                  <input type="search" id="search" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
-                  <label for="search">Search</label>
+                  <input type="search" id="url" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
+                  <label for="url">Url</label>
+                </div>
+                <br/>
+                <div class="form-label-group">
+                  <input type="search" id="title" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
+                  <label for="title">Title</label>
+                </div>
+                <br/>
+                <div class="form-label-group">
+                  <input type="search" id="art-content" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
+                  <label for="art-content">Content</label>
                 </div>
               </div>
               <div class="form-group">
                 <div class="checkbox">
                   <label>
-                    <input type="checkbox" value="Twitter">
+                    <input type="checkbox" value="Twitter" id="twitter-checkbox">
                     Twitter
                   </label>
                 </div>
               </div>
-              <a class="btn btn-primary btn-block" href="{% url 'charts' %}">Search</a>
+              <input class="btn btn-primary btn-block" id="search-submit" type="button" value="Search"/>
             </form>
+          </div>
         </div>
+      </center>
       </div>
       <!-- /.container-fluid -->
 
@@ -166,7 +178,7 @@
         </div>
       </footer>
 
-    </div>
+  </center></div>
     <!-- /.content-wrapper -->
 
   </div>
@@ -214,6 +226,7 @@
   <!-- Demo scripts for this page-->
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
   <script src="{% static "locus/js/demo/chart-area-demo.js" %}"></script>
+  <script src="{% static "locus/js/search/websocket.js" %}"></script>
 
 </body>
 

@@ -1,0 +1,13 @@
+div#loader {
+    position: absolute;
+    margin: auto;
+    top: 350px;
+    left: 100px;
+    width: 100%;
+    display: none;
+}
+div#loader#loader-img{
+    position: absolute;
+    margin: auto;
+    display: none;
+}
