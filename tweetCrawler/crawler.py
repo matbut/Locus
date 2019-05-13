@@ -9,7 +9,6 @@ def crawl(crawl_parameters):
     # Configure
     c = twint.Config()
     c.Limit = 20
-    c.Format = "Tweet id: {id} | Tweet: {tweet}"
     c.Hide_output = False
     c.Store_object = True
 
@@ -25,6 +24,7 @@ def crawl(crawl_parameters):
 
     # Save
     for tweet in tweets:
+        print(dir(tweet))
         new_tweet = Tweet(
             content=tweet.tweet,
             date=datetime.utcfromtimestamp(tweet.datetime/1000.0).date(),

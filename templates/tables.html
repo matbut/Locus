@@ -144,23 +144,11 @@
                     <th>Content</th>
                   </tr>
                 </thead>
-                <!--
-                <tfoot>
-                  <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Office</th>
-                    <th>Age</th>
-                    <th>Start date</th>
-                    <th>Salary</th>
-                  </tr>
-                </tfoot>
-                -->
                 <tbody>
                 {% for tweet in tweets.all %}
                   <tr>
                     <td>{{ tweet.id }}</td>
-                    <td>{{ tweet.link }}</td>
+                    <td><a href={{ tweet.link }}>click</a></td>
                     <td>{{ tweet.date }}</td>
                     <td>{{ tweet.time }}</td>
                     <td>{{ tweet.username }}</td>
