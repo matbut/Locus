@@ -32,6 +32,7 @@ class Crawler(SyncConsumer):
         print(len(tweets), 'tweets were downloaded.')
 
         # Save
+        Tweet.objects.all().delete()
         for tweet in tweets:
             new_tweet = Tweet(
                 id=tweet.id,

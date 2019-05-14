@@ -126,6 +126,14 @@
           <li class="breadcrumb-item active">Charts</li>
         </ol>-->
 
+        <script src="{% static "locus/vendor/jquery/jquery.min.js" %}"></script>
+        <script>
+            {% block jquery %}
+
+
+            {% endblock %}
+        </script>
+
         <!-- Area Chart Example-->
         <div class="card mb-3">
           <div class="card-header">
@@ -222,7 +230,7 @@
 
   <!-- Demo scripts for this page-->
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
-  <script src="{% static "locus/js/demo/chart-area-demo.js" %}"></script>
+  <script src="{% static "locus/js/demo/chart-bar-demo.js" %}"></script>
 
 </body>
 
