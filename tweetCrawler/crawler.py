@@ -17,9 +17,8 @@ class Crawler(SyncConsumer):
 
         # Configure
         c = twint.Config()
-        c.Limit = 1
-        c.Format = "Tweet id: {id} | Tweet: {tweet}"
-        c.Hide_output = False
+        c.Limit = 20
+        c.Hide_output = True
         c.Store_object = True
 
         asyncio.set_event_loop(asyncio.new_event_loop())
@@ -35,11 +34,16 @@ class Crawler(SyncConsumer):
         # Save
         for tweet in tweets:
             new_tweet = Tweet(
+                id=tweet.id,
                 content=tweet.tweet,
                 date=datetime.utcfromtimestamp(tweet.datetime / 1000.0).date(),
                 time=datetime.utcfromtimestamp(tweet.datetime / 1000.0).time(),
                 username=tweet.username,
-                link=tweet.link
+                userlink= f"https://twitter.com/{tweet.username}",
+                link=tweet.link,
+                likes=tweet.likes_count,
+                replies=tweet.replies_count,
+                retweets=tweet.retweets_count
             )
             new_tweet.save()
 

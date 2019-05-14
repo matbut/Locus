@@ -136,35 +136,27 @@
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <th>Id</th>
-                    <th>Link</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Username</th>
                     <th>Content</th>
+                    <th>Likes</th>
+                    <th>Replies</th>
+                    <th>Retweets</th>
+                    <th>Link</th>
                   </tr>
                 </thead>
-                <!--
-                <tfoot>
-                  <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Office</th>
-                    <th>Age</th>
-                    <th>Start date</th>
-                    <th>Salary</th>
-                  </tr>
-                </tfoot>
-                -->
                 <tbody>
                 {% for tweet in tweets.all %}
                   <tr>
-                    <td>{{ tweet.id }}</td>
-                    <td>{{ tweet.link }}</td>
                     <td>{{ tweet.date }}</td>
                     <td>{{ tweet.time }}</td>
-                    <td>{{ tweet.username }}</td>
+                    <td><a href={{ tweet.userlink }}>{{ tweet.username }}</a></td>
                     <td>{{ tweet.content }}</td>
+                    <td>{{ tweet.likes }}</td>
+                    <td>{{ tweet.retweets }}</td>
+                    <td>{{ tweet.replies }}</td>
+                    <td><a href={{ tweet.link }}>link</a></td>
                   </tr>
                 {% endfor %}
                 </tbody>

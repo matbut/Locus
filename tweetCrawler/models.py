@@ -6,9 +6,12 @@ class Tweet(models.Model):
     content = models.TextField()
     date = models.DateField()
     time = models.TimeField()
-    username = models.CharField(max_length=30)
-    link = models.CharField(max_length=60)
-
+    username = models.CharField(max_length=60)
+    userlink = models.URLField()
+    link = models.URLField()
+    likes = models.IntegerField()
+    replies = models.IntegerField()
+    retweets = models.IntegerField()
 
 class CrawlParameters:
     def __init__(self, dictionary=None):
