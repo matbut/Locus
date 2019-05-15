@@ -2,26 +2,33 @@
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#292b2c';
 
-var endpoint = '/api/chart/tweets/monthly';
-var chartData = [];
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+const tweetsEndpoint = '/api/tweets';
+const monthlyTweetsEndpoint = tweetsEndpoint + '/monthly';
+const dailyTweetsEndpoint = tweetsEndpoint + '/daily';
+
+let dailyActiveChart;
+
 $.ajax({
     method: "GET",
-    url: endpoint,
+    url: monthlyTweetsEndpoint,
     success: function (data) {
-      chartData = data;
-      setBarChart(data)
+      setMonthlyActiveChart(data)
     },
     error: function (errorData) {
       console.error(errorData)
     }
 });
 
-function setBarChart(chartData) {
-  var ctx = document.getElementById("monthlyActiveChart");
-  var myLineChart = new Chart(ctx, {
+function setMonthlyActiveChart(chartData) {
+  let ctx = document.getElementById("monthlyActiveChart");
+  let myLineChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      labels: months.map(function(month) {
+        return month.substr(0,3);
+      }),
       datasets: [{
         label: "Tweets",
         backgroundColor: "rgba(2,117,216,1)",
@@ -58,22 +65,19 @@ function setBarChart(chartData) {
       },
       events: ['click'],
       onClick: function(c,i) {
-          e = i[0];
-          console.log(e._index)
-          var x_value = this.data.labels[e._index];
-          var y_value = this.data.datasets[0].data[e._index];
-          console.log(x_value);
-          console.log(y_value);
-
+          let e = i[0];
+          let x_value = this.data.labels[e._index];
+          let y_value = this.data.datasets[0].data[e._index];
 
           $.ajax({
             method: "GET",
-            url: '/api/chart/tweets/daily',
+            url: dailyTweetsEndpoint,
             data: {
               "month": e._index + 1,
             },
             success: function (data) {
-              updateLineChart(data);
+              document.getElementById("month").innerHTML = months[e._index];
+              setDailyActiveChart(data);
             },
             error: function (errorData) {
               console.error(errorData)
@@ -83,18 +87,13 @@ function setBarChart(chartData) {
     }
   });
 }
-setLineChart(chartData);
 
-var myLineChart;
-
-function updateLineChart(data) {
-  myLineChart.destroy();
-  setLineChart(data);
-}
-
-function setLineChart(chartData){
-  var ctx = document.getElementById("dailyActiveChart");
-  myLineChart = new Chart(ctx, {
+function setDailyActiveChart(chartData){
+  let ctx = document.getElementById("dailyActiveChart");
+  if (dailyActiveChart !== undefined) {
+    dailyActiveChart.destroy();
+  }
+  dailyActiveChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: Array.from({length: 31}, (v, k) => k+1),
@@ -134,56 +133,4 @@ function setLineChart(chartData){
       }
     }
   });
-
-  /*
-  var ctx = document.getElementById("dailyActiveChart");
-  var myLineChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: Array.from({length: 31}, (v, k) => k+1),
-    datasets: [{
-      label: "Tweets",
-      lineTension: 0.3,
-      backgroundColor: "rgba(2,117,216,0.2)",
-      borderColor: "rgba(2,117,216,1)",
-      pointRadius: 5,
-      pointBackgroundColor: "rgba(2,117,216,1)",
-      pointBorderColor: "rgba(255,255,255,0.8)",
-      pointHoverRadius: 5,
-      pointHoverBackgroundColor: "rgba(2,117,216,1)",
-      pointHitRadius: 50,
-      pointBorderWidth: 2,
-      data: chartData,
-    }],
-  },
-  options: {
-    scales: {
-      xAxes: [{
-        time: {
-          unit: 'date'
-        },
-        gridLines: {
-          display: false
-        },
-        ticks: {
-          maxTicksLimit: 31
-        }
-      }],
-      yAxes: [{
-        ticks: {
-          min: 0,
-          //max: 40000,
-          //maxTicksLimit: 5
-        },
-        gridLines: {
-          color: "rgba(0, 0, 0, .125)",
-        }
-      }],
-    },
-    legend: {
-      display: false
-    }
-  }
-});
-*/
 }
