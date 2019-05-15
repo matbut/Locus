@@ -22,7 +22,7 @@ def search(request):
     return render(request, 'search.html')
 
 
-class ChartData(APIView):
+class ChartTweetsMonthly(APIView):
 
     authentication_classes = []
     permission_classes = []
@@ -31,3 +31,15 @@ class ChartData(APIView):
         dates = [tweet.date.month for tweet in Tweet.objects.all()]
         months = [dates.count(month) for month in range(1, 12)]
         return Response(months)
+
+
+class ChartTweetsDaily(APIView):
+
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        month = int(request.query_params['month'])
+        dates = [tweet.date.day for tweet in Tweet.objects.all() if tweet.date.month == month]
+        days = [dates.count(day) for day in range(1, 31)]
+        return Response(days)
