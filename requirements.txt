@@ -1,7 +1,7 @@
 asgiref
 channels
 -i https://pypi.org/simple
--e git+https://github.com/twintproject/twint.git@7a502776f769bdd142aa5013aa36e0258d957be6#egg=twint
+-e git+https://github.com/twintproject/twint.git@origin/master#egg=twint
 aiodns==2.0.0
 aiohttp-socks==0.2.2
 aiohttp==3.5.4
@@ -15,6 +15,7 @@ chardet==3.0.4
 channels_redis==2.4.0
 Django==2.2
 elasticsearch==6.3.1
+fake-useragent==0.1.11
 geographiclib==1.49
 geopy==1.18.1
 idna-ssl==1.1.0 ; python_version < '3.7'

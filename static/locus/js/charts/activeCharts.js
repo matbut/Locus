@@ -5,55 +5,42 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const tweetsEndpoint = '/api/tweets';
+const yearlyTweetsEndpoint = tweetsEndpoint + '/yearly';
 const monthlyTweetsEndpoint = tweetsEndpoint + '/monthly';
 const dailyTweetsEndpoint = tweetsEndpoint + '/daily';
 
 let dailyActiveChart;
+let monthlyActiveChart;
 
-$.ajax({
-    method: "GET",
-    url: monthlyTweetsEndpoint,
-    success: function (data) {
-      setMonthlyActiveChart(data)
-    },
-    error: function (errorData) {
-      console.error(errorData)
-    }
-});
-
-function setMonthlyActiveChart(chartData) {
-  let ctx = document.getElementById("monthlyActiveChart");
-  let myLineChart = new Chart(ctx, {
+let defaultChartConfig = {
     type: 'bar',
     data: {
-      labels: months.map(function(month) {
-        return month.substr(0,3);
-      }),
       datasets: [{
         label: "Tweets",
         backgroundColor: "rgba(2,117,216,1)",
         borderColor: "rgba(2,117,216,1)",
-        data: chartData,
       }],
     },
     options: {
       scales: {
         xAxes: [{
           time: {
-            unit: 'month'
           },
           gridLines: {
             display: false
           },
+          /*
           ticks: {
             maxTicksLimit: 12
           }
+          */
+          maxBarThickness: 20,
         }],
         yAxes: [{
           ticks: {
             min: 0,
-            //max: 40000,
-            //maxTicksLimit: 5
+            suggestedMax: 5,
+            precision: 0
           },
           gridLines: {
             display: true
@@ -63,29 +50,97 @@ function setMonthlyActiveChart(chartData) {
       legend: {
         display: false
       },
-      events: ['click'],
-      onClick: function(c,i) {
+    }
+  };
+
+function initYearlyActiveChart(year){
+  $.ajax({
+    method: "GET",
+    url: yearlyTweetsEndpoint,
+    success: function (data) {
+      setYearlyActiveChart(data.activity, data.minYear, data.maxYear);
+      initMonthlyActiveChart(data.minYear)
+    },
+    error: function (errorData) {
+      console.error(errorData)
+    }
+});
+}
+
+function initMonthlyActiveChart(year){
+  $.ajax({
+    method: "GET",
+    url: monthlyTweetsEndpoint,
+    data: {
+      "year": year,
+    },
+    success: function (data) {
+        var ele= document.getElementsByClassName("year")
+        for(var i=0;i<ele.length;i++)
+        {
+          ele[i].innerHTML=year;
+        }
+      setMonthlyActiveChart(data);
+      initDailyActiveChart(1)
+    },
+    error: function (errorData) {
+      console.error(errorData)
+    }
+  });
+}
+
+function initDailyActiveChart(month){
+  $.ajax({
+    method: "GET",
+    url: dailyTweetsEndpoint,
+    data: {
+      "month": month,
+    },
+    success: function (data) {
+      document.getElementById("month").innerHTML = months[month-1];
+      setDailyActiveChart(data);
+    },
+    error: function (errorData) {
+      console.error(errorData)
+    }
+});
+}
+
+function setYearlyActiveChart(chartData, minYear, maxYear) {
+  let ctx = document.getElementById("yearlyActiveChart");
+
+  let chartConfig = JSON.parse(JSON.stringify(defaultChartConfig));
+  chartConfig.data.labels = Array.from({length: maxYear - minYear + 1}, (v, k) => k+minYear);
+  chartConfig.data.datasets[0].data = chartData;
+  chartConfig.options.scales.xAxes[0].time.unit = 'year';
+  chartConfig.options.onClick = function(c,i) {
           let e = i[0];
           let x_value = this.data.labels[e._index];
           let y_value = this.data.datasets[0].data[e._index];
+          initMonthlyActiveChart(x_value)
+      };
+  let yearlyActiveChart = new Chart(ctx, chartConfig);
+}
 
-          $.ajax({
-            method: "GET",
-            url: dailyTweetsEndpoint,
-            data: {
-              "month": e._index + 1,
-            },
-            success: function (data) {
-              document.getElementById("month").innerHTML = months[e._index];
-              setDailyActiveChart(data);
-            },
-            error: function (errorData) {
-              console.error(errorData)
-            }
-        });
-      }
-    }
-  });
+function setMonthlyActiveChart(chartData) {
+  let ctx = document.getElementById("monthlyActiveChart");
+  if (monthlyActiveChart !== undefined) {
+    monthlyActiveChart.destroy();
+  }
+
+  let chartConfig = JSON.parse(JSON.stringify(defaultChartConfig));
+  chartConfig.data.labels = months.map(function(month) {
+        return month.substr(0,3);
+      });
+  chartConfig.data.datasets[0].data = chartData;
+  chartConfig.options.scales.xAxes[0].time.unit = 'month';
+  chartConfig.options.onClick = function(c,i) {
+          let e = i[0];
+          let x_value = this.data.labels[e._index];
+          let y_value = this.data.datasets[0].data[e._index];
+          initDailyActiveChart(e._index + 1)
+      };
+  monthlyActiveChart = new Chart(ctx, chartConfig);
 }
 
 function setDailyActiveChart(chartData){
@@ -93,44 +148,14 @@ function setDailyActiveChart(chartData){
   if (dailyActiveChart !== undefined) {
     dailyActiveChart.destroy();
   }
-  dailyActiveChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: Array.from({length: 31}, (v, k) => k+1),
-      datasets: [{
-        label: "Tweets",
-        backgroundColor: "rgba(2,117,216,1)",
-        borderColor: "rgba(2,117,216,1)",
-        data: chartData,
-      }],
-    },
-    options: {
-      scales: {
-        xAxes: [{
-          time: {
-            unit: 'day'
-          },
-          gridLines: {
-            display: false
-          },
-          ticks: {
-            maxTicksLimit: 31
-          }
-        }],
-        yAxes: [{
-          ticks: {
-            min: 0,
-            //max: 40000,
-            //maxTicksLimit: 5
-          },
-          gridLines: {
-            display: true
-          }
-        }],
-      },
-      legend: {
-        display: false
-      }
-    }
-  });
+
+  let chartConfig = JSON.parse(JSON.stringify(defaultChartConfig));
+  chartConfig.data.labels = Array.from({length: 31}, (v, k) => k+1);
+  chartConfig.data.datasets[0].data = chartData;
+  chartConfig.options.scales.xAxes[0].time.unit = 'day';
+  chartConfig.options.onClick = function(c,i) {};
+
+  dailyActiveChart = new Chart(ctx, chartConfig);
 }
+
+initYearlyActiveChart();
