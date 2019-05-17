@@ -1,6 +1,7 @@
 // Set new default font family and font color to mimic Bootstrap's default styling
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#292b2c';
+Chart.defaults.global.animation.duration = 2500;
 
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -75,7 +76,7 @@ function initMonthlyActiveChart(year){
       "year": year,
     },
     success: function (data) {
-        var ele= document.getElementsByClassName("year")
+        var ele= document.getElementsByClassName("year");
         for(var i=0;i<ele.length;i++)
         {
           ele[i].innerHTML=year;
