@@ -59,6 +59,7 @@ class ChartTweetsDaily(APIView):
 
     def get(self, request, format=None):
         month = int(request.query_params['month'])
-        days = [tweet.date.day for tweet in Tweet.objects.all() if tweet.date.month == month]
+        year = int(request.query_params['year'])
+        days = [tweet.date.day for tweet in Tweet.objects.all() if tweet.date.month == month and tweet.date.year == year]
         presentedDays = [days.count(day) for day in range(1, 31)]
         return Response(presentedDays)

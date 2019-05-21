@@ -81,8 +81,8 @@ function initMonthlyActiveChart(year){
         {
           ele[i].innerHTML=year;
         }
-      setMonthlyActiveChart(data);
-      initDailyActiveChart(1)
+      setMonthlyActiveChart(data, year);
+      initDailyActiveChart(1, year)
     },
     error: function (errorData) {
       console.error(errorData)
@@ -90,12 +90,13 @@ function initMonthlyActiveChart(year){
   });
 }
 
-function initDailyActiveChart(month){
+function initDailyActiveChart(month, year){
   $.ajax({
     method: "GET",
     url: dailyTweetsEndpoint,
     data: {
       "month": month,
+      "year": year,
     },
     success: function (data) {
       document.getElementById("month").innerHTML = months[month-1];
@@ -123,7 +124,7 @@ function setYearlyActiveChart(chartData, minYear, maxYear) {
   let yearlyActiveChart = new Chart(ctx, chartConfig);
 }
 
-function setMonthlyActiveChart(chartData) {
+function setMonthlyActiveChart(chartData, year) {
   let ctx = document.getElementById("monthlyActiveChart");
   if (monthlyActiveChart !== undefined) {
     monthlyActiveChart.destroy();
@@ -139,7 +140,7 @@ function setMonthlyActiveChart(chartData) {
           let e = i[0];
           let x_value = this.data.labels[e._index];
           let y_value = this.data.datasets[0].data[e._index];
-          initDailyActiveChart(e._index + 1)
+          initDailyActiveChart(e._index + 1, year)
       };
   monthlyActiveChart = new Chart(ctx, chartConfig);
 }
