@@ -28,6 +28,16 @@ class Crawler(SyncConsumer):
             c.Search = crawl_parameters.url
             twint.run.Search(c)
 
+        # Search
+        if crawl_parameters.title is not None:
+            c.Search = crawl_parameters.title
+            twint.run.Search(c)
+
+        # Search
+        if crawl_parameters.content is not None:
+            c.Search = crawl_parameters.content
+            twint.run.Search(c)
+
         # TODO reset output
         tweets = twint.output.tweets_object
         print(len(tweets), 'tweets were downloaded.')
