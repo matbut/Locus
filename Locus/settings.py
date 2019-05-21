@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'search.apps.SearchConfig',
     'tweetCrawler.apps.TweetCrawlerConfig',
     'channels',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

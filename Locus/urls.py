@@ -22,4 +22,8 @@ urlpatterns = [
     path('', views.search, name='search'),
     path('charts/', views.charts, name='charts'),
     path('tables/', views.tables, name='tables'),
+
+    path('api/tweets/yearly', views.ChartTweetsYearly.as_view()),
+    path('api/tweets/monthly', views.ChartTweetsMonthly.as_view()),
+    path('api/tweets/daily', views.ChartTweetsDaily.as_view()),
 ]
