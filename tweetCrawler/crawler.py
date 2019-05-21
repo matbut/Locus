@@ -17,12 +17,13 @@ class Crawler(SyncConsumer):
 
         # Configure
         c = twint.Config()
-        c.Limit = 20
+        c.Limit = 100
         c.Hide_output = True
         c.Store_object = True
 
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        '''
         # Search
         if crawl_parameters.url is not None:
             c.Search = crawl_parameters.url
@@ -32,6 +33,7 @@ class Crawler(SyncConsumer):
         if crawl_parameters.title is not None:
             c.Search = crawl_parameters.title
             twint.run.Search(c)
+        '''
 
         # Search
         if crawl_parameters.content is not None:
