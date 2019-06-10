@@ -17,6 +17,9 @@ Components supporting discovery of information flow based on similarity and cita
 
 ### Requirements
 
+#### Python
+Version 3.6.x
+
 #### Redis server 
 <!-- (for channel layer backend) -->
 Installation guide can be found at: https://redis.io/topics/quickstart. <br/>
