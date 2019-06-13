@@ -1,33 +1,44 @@
-asgiref
-channels
--i https://pypi.org/simple
--e git+https://github.com/twintproject/twint.git@origin/master#egg=twint
 aiodns==2.0.0
-aiohttp-socks==0.2.2
 aiohttp==3.5.4
+aiohttp-socks==0.2.2
+aioredis==1.2.0
+asgiref==3.1.2
+asn1crypto==0.24.0
 async-timeout==3.0.1
 attrs==19.1.0
+autobahn==19.6.2
+Automat==0.7.0
 beautifulsoup4==4.7.1
 cchardet==2.1.4
 certifi==2019.3.9
-cffi==1.12.2
+cffi==1.12.3
+channels==2.2.0
+channels-redis==2.4.0
 chardet==3.0.4
-channels_redis==2.4.0
-Django==2.2
+constantly==15.1.0
+cryptography==2.7
+daphne==2.3.0
+Django==2.2.2
 djangorestframework==3.9.4
-elasticsearch==6.3.1
+elasticsearch==7.0.2
 fake-useragent==0.1.11
 geographiclib==1.49
-geopy==1.18.1
-idna-ssl==1.1.0 ; python_version < '3.7'
+geopy==1.20.0
+hiredis==1.0.0
+hyperlink==19.0.0
 idna==2.8
+idna-ssl==1.1.0
+incremental==17.5.0
 json-encoder==0.4.4
+msgpack==0.6.1
 multidict==4.5.2
-numpy==1.16.2
+numpy==1.16.4
 pandas==0.24.2
+pkg-resources==0.0.0
 pycares==3.0.0
 pycparser==2.19
-pysocks==1.6.8
+PyHamcrest==1.9.0
+PySocks==1.7.0
 python-dateutil==2.8.0
 python-status==1.0.1
 pytz==2019.1
@@ -38,7 +49,11 @@ singledispatch==3.4.0.3
 six==1.12.0
 soupsieve==1.8
 sqlparse==0.3.0
-typing-extensions==3.7.2 ; python_version < '3.7'
-typing==3.6.6 ; python_version < '3.7'
+-e git+https://github.com/twintproject/twint.git@a2663cd3750d2bf7bf144ce433187a9f9a696f29#egg=twint
+Twisted==19.2.1
+txaio==18.8.1
+typing==3.6.6
+typing-extensions==3.7.2
 urllib3==1.24.1
 yarl==1.3.0
+zope.interface==4.6.0

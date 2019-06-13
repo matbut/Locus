@@ -18,7 +18,7 @@ Components supporting discovery of information flow based on similarity and cita
 ### Requirements
 
 #### Python
-Version 3.6.x
+Version 3.7.3
 
 #### Redis server 
 <!-- (for channel layer backend) -->
