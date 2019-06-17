@@ -1,15 +1,21 @@
 import twint
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
-from tweetCrawler.models import CrawlParameters
+from search.models import CrawlParameters
 
 from .models import Tweet
 import asyncio
 from datetime import datetime
 
+import logging
+logging.basicConfig(format='[%(asctime)s] %(message)s')
+logging.getLogger().setLevel(logging.INFO)
+
 
 class Crawler(SyncConsumer):
     def crawl(self, data):
+
+        logging.info('Tweet crawler: starting')
 
         sender_id = data["id"]
 
@@ -42,7 +48,8 @@ class Crawler(SyncConsumer):
 
         # TODO reset output
         tweets = twint.output.tweets_object
-        print(len(tweets), 'tweets were downloaded.')
+
+        logging.info('{0} tweets were downloaded.'.format(len(tweets)))
 
         # Save
         Tweet.objects.all().delete()

@@ -7,7 +7,9 @@ paramSocket.onmessage = function(e) {
 document.querySelector('#search-submit').onclick = function(e) {
     let twitterCheckboxInputDom = document.querySelector('#twitter-checkbox');
     let twitterCheckbox = twitterCheckboxInputDom.checked;
-    if(!twitterCheckbox) return;
+    let googleSearchCheckboxInputDom = document.querySelector('#google-search');
+    let googleSearchCheckbox = googleSearchCheckboxInputDom.checked;
+    if(!twitterCheckbox && !googleSearchCheckbox) return;
 
     let form = document.querySelector('#content-wrapper > center > div.card.card-login.mx-auto.mt-5');
     form.style.display = 'none';
@@ -25,7 +27,8 @@ document.querySelector('#search-submit').onclick = function(e) {
         'url': url,
         'title': title,
         'content': content,
-        'twitter': twitterCheckbox
+        'twitter': twitterCheckbox,
+        'google': googleSearchCheckbox
     });
 
     paramSocket.send(searchData);

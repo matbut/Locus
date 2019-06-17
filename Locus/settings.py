@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'search.apps.SearchConfig',
     'tweetCrawler.apps.TweetCrawlerConfig',
+    'googleCrawler.apps.GoogleCrawlerConfig',
     'channels',
     'rest_framework'
 ]

@@ -1,14 +1,23 @@
 import json
 import random
 import string
+import logging
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-from tweetCrawler.models import CrawlParameters
+from search.models import CrawlParameters
+
+logging.basicConfig(format='[%(asctime)s] %(message)s')
+logging.getLogger().setLevel(logging.INFO)
 
 
 class WSConsumer(WebsocketConsumer):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.awaited_components_number = 0
+
     def connect(self):
         self.id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
         async_to_sync(self.channel_layer.group_add)(
@@ -28,10 +37,19 @@ class WSConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         cp = CrawlParameters(text_data_json)
 
-        if cp.twitter:
-            print("Sending parameters to tweeter component")
+        if text_data_json['twitter']:
+            logging.info("Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)("tweet_crawler",
                                                    {"type": "crawl", "parameters": cp.__dict__, "id": self.id})
+            self.awaited_components_number += 1
 
-    def send_done(self, event):
-        self.send("done")
+        if text_data_json['google']:
+            logging.info("Sending parameters to google search component")
+            async_to_sync(self.channel_layer.send)("google_crawler",
+                                                   {"type": "crawl", "parameters": cp.__dict__, "id": self.id})
+            self.awaited_components_number += 1
+
+    def send_done(self, signal):
+        self.awaited_components_number -= 1
+        if self.awaited_components_number == 0:
+            self.send("done")
