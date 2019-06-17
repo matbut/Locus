@@ -1,15 +1,13 @@
+import asyncio
+import logging
+
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
-from search.models import CrawlParameters
-
 from googlesearch import search
-import urllib.request as request
 
+from search.models import CrawlParameters
 from .models import GoogleResult
-import asyncio
-from datetime import datetime
 
-import logging
 logging.basicConfig(format='[%(asctime)s] %(message)s')
 logging.getLogger().setLevel(logging.INFO)
 
@@ -23,10 +21,10 @@ class Crawler(SyncConsumer):
         crawl_parameters = CrawlParameters(data["parameters"])
         query = crawl_parameters.title
 
-        for url in search(query, tld="com", lang="pl", num=10, start=0, stop=10, pause=2):
-            print(url)
-            #conn = request.urlopen(url)
-            #print(conn.info())
+        for url_result in search(query, tld="com", lang="pl", num=10, start=0, stop=10, pause=2):
+            logging.info(f'Google crawler: saving {url_result}')
+            search_result = GoogleResult(link=url_result)
+            search_result.save()
 
         asyncio.set_event_loop(asyncio.new_event_loop())
 

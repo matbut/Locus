@@ -49,7 +49,7 @@ class Crawler(SyncConsumer):
         # TODO reset output
         tweets = twint.output.tweets_object
 
-        logging.info('{0} tweets were downloaded.'.format(len(tweets)))
+        logging.info(f'{len(tweets)} tweets were downloaded.')
 
         # Save
         Tweet.objects.all().delete()
