@@ -10,7 +10,7 @@
   <meta name="description" content="Locus project">
   <meta name="author" content="Mateusz Buta & Aleksandra Mazur">
 
-  <title>Locus Search</title>
+  <title>Locus Result</title>
 
   <!-- Custom fonts for this template-->
   <link href="{% static "locus/vendor/fontawesome-free/css/all.min.css" %}" rel="stylesheet" type="text/css">
@@ -20,8 +20,6 @@
 
   <!-- Custom styles for this template-->
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
-
-  <link href="{% static "locus/css/loader.css" %}" rel="stylesheet">
 
 </head>
 
@@ -88,7 +86,7 @@
 
   </nav>
 
-  <center id="wrapper">
+  <div id="wrapper">
 
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
@@ -98,7 +96,7 @@
           <span>Home</span>
         </a>
       </li>-->
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{% url 'search' %}">
           <i class="fas fa-fw fa-search"></i>
           <span>Search</span></a>
@@ -108,7 +106,7 @@
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Charts</span></a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item active">
         <a class="nav-link" href="{% url 'twitter_tables' %}">
           <i class="fas fa-fw fa-table"></i>
           <span>Twitter results</span></a>
@@ -120,61 +118,59 @@
       </li>
     </ul>
 
+
     <div id="content-wrapper">
-      <center class="container-fluid">
+
+      <div class="container-fluid">
 
         <!-- Breadcrumbs
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
             <a href="#">Dashboard</a>
           </li>
-          <li class="breadcrumb-item active">Search</li>
+          <li class="breadcrumb-item active">Overview</li>
         </ol>-->
 
         <!-- DataTables Example -->
-          <center>
-           <h1 class="display-1">Locus</h1>
-          </center>
-        <div id="loader"><img id="loader-img" src="{% static "locus/loader.gif" %}" alt="Processing"></div>
-        <div class="card card-login mx-auto mt-5">
+        <div class="card mb-3">
           <div class="card-header">
-            Search
-          </div>
+            <i class="fas fa-table"></i>
+            Data Table</div>
           <div class="card-body">
-            <form>
-              <div class="form-group">
-                <div class="form-label-group">
-                  <input type="search" id="url" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
-                  <label for="url">Url</label>
-                </div>
-                <br/>
-                <div class="form-label-group">
-                  <input type="search" id="title" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
-                  <label for="title">Title</label>
-                </div>
-                <br/>
-                <div class="form-label-group">
-                  <input type="search" id="art-content" class="form-control" placeholder="Search" required="required" autofocus="autofocus">
-                  <label for="art-content">Content</label>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" value="Twitter" id="twitter-checkbox">
-                        Twitter
-                    </label>
-                    <label>
-                        <input type="checkbox" value="Google search" id="google-search">
-                        Google search
-                    </label>
-                </div>
-              </div>
-              <input class="btn btn-primary btn-block" id="search-submit" type="button" value="Search"/>
-            </form>
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Username</th>
+                    <th>Content</th>
+                    <th>Likes</th>
+                    <th>Replies</th>
+                    <th>Retweets</th>
+                    <th>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for tweet in tweets.all %}
+                  <tr>
+                    <td>{{ tweet.date }}</td>
+                    <td>{{ tweet.time }}</td>
+                    <td><a href={{ tweet.userlink }} target="_blank">{{ tweet.username }}</a></td>
+                    <td>{{ tweet.content }}</td>
+                    <td>{{ tweet.likes }}</td>
+                    <td>{{ tweet.retweets }}</td>
+                    <td>{{ tweet.replies }}</td>
+                    <td><a href={{ tweet.link }} target="_blank" >link</a></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
+          <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
         </div>
-      </center>
+
       </div>
       <!-- /.container-fluid -->
 
@@ -187,7 +183,7 @@
         </div>
       </footer>
 
-  </center></div>
+    </div>
     <!-- /.content-wrapper -->
 
   </div>
@@ -211,7 +207,7 @@
         <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="login.html">Logout</a>
+          <a class="btn btn-primary" href="other/login.html">Logout</a>
         </div>
       </div>
     </div>
@@ -234,7 +230,6 @@
 
   <!-- Demo scripts for this page-->
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
-  <script src="{% static "locus/js/search/websocket.js" %}"></script>
 
 </body>
 

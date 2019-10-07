@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from datetime import datetime
 
 from tweetCrawler.models import Tweet
+from googleCrawler.models import GoogleResult
 
 def charts(request):
     tweets = Tweet.objects
@@ -12,10 +13,16 @@ def charts(request):
     return render(request, 'charts.html', {'tweets': tweets, 'date': my_date})
 
 
-def tables(request):
+def twitter_tables(request):
     tweets = Tweet.objects
     my_date = datetime.now()
-    return render(request, 'tables.html', {'tweets': tweets, 'date': my_date})
+    return render(request, 'twitter_tables.html', {'tweets': tweets, 'date': my_date})
+
+
+def google_tables(request):
+    google_results = GoogleResult.objects
+    my_date = datetime.now()
+    return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
 
 
 def search(request):

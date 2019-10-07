@@ -41,7 +41,7 @@ pip3 install -r requirements.txt
 ### Start
 Run worker for searching components:
 ```
-python3 manage.py runworker tweet_crawler
+python3 manage.py runworker tweet_crawler google_crawler
 ```
 Start server:
 ```

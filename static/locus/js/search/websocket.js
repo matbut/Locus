@@ -1,7 +1,7 @@
 let paramSocket = new WebSocket('ws://' + window.location.host + '/ws/search/');
 
 paramSocket.onmessage = function(e) {
-    window.location.href = "http://127.0.0.1:8000/tables";
+    window.location.href = "http://127.0.0.1:8000/charts";
 };
 
 document.querySelector('#search-submit').onclick = function(e) {

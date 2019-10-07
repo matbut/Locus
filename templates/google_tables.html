@@ -106,10 +106,15 @@
           <i class="fas fa-fw fa-chart-area"></i>
           <span>Charts</span></a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'tables' %}">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'twitter_tables' %}">
           <i class="fas fa-fw fa-table"></i>
-          <span>Tables</span></a>
+          <span>Twitter results</span></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{% url 'google_tables' %}">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Google results</span></a>
       </li>
     </ul>
 
@@ -136,27 +141,15 @@
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Username</th>
-                    <th>Content</th>
-                    <th>Likes</th>
-                    <th>Replies</th>
-                    <th>Retweets</th>
+                    <th>Page</th>
                     <th>Link</th>
                   </tr>
                 </thead>
                 <tbody>
-                {% for tweet in tweets.all %}
+                {% for result in google_results.all %}
                   <tr>
-                    <td>{{ tweet.date }}</td>
-                    <td>{{ tweet.time }}</td>
-                    <td><a href={{ tweet.userlink }} target="_blank">{{ tweet.username }}</a></td>
-                    <td>{{ tweet.content }}</td>
-                    <td>{{ tweet.likes }}</td>
-                    <td>{{ tweet.retweets }}</td>
-                    <td>{{ tweet.replies }}</td>
-                    <td><a href={{ tweet.link }} target="_blank" >link</a></td>
+                    <td>{{ result.page }}</td>
+                    <td><a href={{ result.link }} target="_blank" >{{ result.link }}</a></td>
                   </tr>
                 {% endfor %}
                 </tbody>

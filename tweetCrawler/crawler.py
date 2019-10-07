@@ -1,13 +1,14 @@
+import asyncio
+import logging
+from datetime import datetime
+
 import twint
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
+
 from search.models import CrawlParameters
-
 from .models import Tweet
-import asyncio
-from datetime import datetime
 
-import logging
 logging.basicConfig(format='[%(asctime)s] %(message)s')
 logging.getLogger().setLevel(logging.INFO)
 
@@ -31,7 +32,7 @@ class Crawler(SyncConsumer):
 
         '''
         # Search
-        if crawl_parameters.url is not None:
+        if crawl_parameters.content is not None:
             c.Search = crawl_parameters.url
             twint.run.Search(c)
 
@@ -42,8 +43,8 @@ class Crawler(SyncConsumer):
         '''
 
         # Search
-        if crawl_parameters.content is not None:
-            c.Search = crawl_parameters.content
+        if crawl_parameters.url is not None:
+            c.Search = crawl_parameters.url
             twint.run.Search(c)
 
         # TODO reset output
