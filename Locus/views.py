@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime
 
+from googleCrawlerOfficial.models import GoogleResultOfficial
 from tweetCrawler.models import Tweet
 from googleCrawler.models import GoogleResult
 
@@ -21,6 +22,12 @@ def twitter_tables(request):
 
 def google_tables(request):
     google_results = GoogleResult.objects
+    my_date = datetime.now()
+    return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
+
+
+def google_tables_official(request):
+    google_results = GoogleResultOfficial.objects
     my_date = datetime.now()
     return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
 

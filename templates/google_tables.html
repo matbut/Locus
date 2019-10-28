@@ -141,6 +141,7 @@
               <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                   <tr>
+                    <th>Date</th>
                     <th>Page</th>
                     <th>Link</th>
                   </tr>
@@ -148,6 +149,7 @@
                 <tbody>
                 {% for result in google_results.all %}
                   <tr>
+                    <td>{{ result.date }}</td>
                     <td>{{ result.page }}</td>
                     <td><a href={{ result.link }} target="_blank" >{{ result.link }}</a></td>
                   </tr>
