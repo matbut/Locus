@@ -149,7 +149,7 @@
                 <tbody>
                 {% for result in google_results.all %}
                   <tr>
-                    <td>{{ result.date }}</td>
+                    <td>{{ result.get_date }}</td>
                     <td>{{ result.page }}</td>
                     <td><a href={{ result.link }} target="_blank" >{{ result.link }}</a></td>
                   </tr>
