@@ -1,8 +1,9 @@
 import asyncio
-import logging
-from urllib import request
-from datetime import datetime
 import json
+import logging
+from datetime import datetime
+from urllib import request
+from urllib.parse import quote
 
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
@@ -21,7 +22,8 @@ class Crawler(SyncConsumer):
         sender_id = data["id"]
 
         crawl_parameters = CrawlParameters(data["parameters"])
-        query = crawl_parameters.title
+        query_raw = crawl_parameters.title
+        query = quote(query_raw.encode('utf8'))
 
         key, engine_id = self.retrieve_access_key()
         url = 'https://www.googleapis.com/customsearch/v1?key={0}&cx={1}&q={2}'.format(key, engine_id, query)
