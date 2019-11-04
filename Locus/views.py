@@ -1,12 +1,12 @@
-from django.http import JsonResponse
-from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from datetime import datetime
+
+from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from tweetCrawler.models import Tweet
-from googleCrawler.models import GoogleResult
+
 
 def charts(request):
     tweets = Tweet.objects
@@ -18,12 +18,6 @@ def twitter_tables(request):
     tweets = Tweet.objects
     my_date = datetime.now()
     return render(request, 'twitter_tables.html', {'tweets': tweets, 'date': my_date})
-
-
-def google_tables(request):
-    google_results = GoogleResult.objects
-    my_date = datetime.now()
-    return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
 
 
 def google_tables_official(request):
