@@ -74,6 +74,10 @@ body {
   outline: 0 !important;
 }
 
+label + label {
+  margin-left: 10px;
+}
+
 hr {
   -webkit-box-sizing: content-box;
   box-sizing: content-box;

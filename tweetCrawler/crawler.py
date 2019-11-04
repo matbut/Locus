@@ -1,31 +1,42 @@
-import twint
+import asyncio
+import logging
+from datetime import datetime
+
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
-from tweetCrawler.models import CrawlParameters
 
+from search.models import CrawlParameters
 from .models import Tweet
-import asyncio
-from datetime import datetime
+from pathlib import Path
+import twint
+import json
+import os
+
+logging.basicConfig(format='[%(asctime)s] %(message)s')
+logging.getLogger().setLevel(logging.INFO)
 
 
 class Crawler(SyncConsumer):
     def crawl(self, data):
 
-        sender_id = data["id"]
+        logging.info('Tweet crawler: starting')
 
+        tweets_file_path = "{0}/.locus/output.json".format(str(Path.home()))
         crawl_parameters = CrawlParameters(data["parameters"])
 
         # Configure
         c = twint.Config()
         c.Limit = 100
         c.Hide_output = True
-        c.Store_object = True
+        #c.Store_object = True
+        c.Store_json = True
+        c.Output = tweets_file_path
 
         asyncio.set_event_loop(asyncio.new_event_loop())
 
         '''
         # Search
-        if crawl_parameters.url is not None:
+        if crawl_parameters.content is not None:
             c.Search = crawl_parameters.url
             twint.run.Search(c)
 
@@ -36,32 +47,37 @@ class Crawler(SyncConsumer):
         '''
 
         # Search
-        if crawl_parameters.content is not None:
-            c.Search = crawl_parameters.content
+        if crawl_parameters.url is not None:
+            c.Search = crawl_parameters.url
             twint.run.Search(c)
 
-        # TODO reset output
-        tweets = twint.output.tweets_object
-        print(len(tweets), 'tweets were downloaded.')
+        if os.path.isfile(tweets_file_path):
+            with open(tweets_file_path, "r") as tweets_file:
+                tweets = tweets_file.readlines()
 
-        # Save
-        Tweet.objects.all().delete()
-        for tweet in tweets:
-            new_tweet = Tweet(
-                id=tweet.id,
-                content=tweet.tweet,
-                date=datetime.utcfromtimestamp(tweet.datetime / 1000.0).date(),
-                time=datetime.utcfromtimestamp(tweet.datetime / 1000.0).time(),
-                username=tweet.username,
-                userlink= f"https://twitter.com/{tweet.username}",
-                link=tweet.link,
-                likes=tweet.likes_count,
-                replies=tweet.replies_count,
-                retweets=tweet.retweets_count
-            )
-            new_tweet.save()
+                logging.info(f'{len(tweets)} tweets were downloaded.')
+
+                # Save
+                for tweet_str in tweets:
+                    tweet = json.loads(tweet_str)
+                    epoch = int(tweet['created_at'])
+                    new_tweet = Tweet(
+                        id=tweet['id'],
+                        content=tweet['tweet'],
+                        date=datetime.utcfromtimestamp(epoch / 1000.0).date(),
+                        time=datetime.utcfromtimestamp(epoch / 1000.0).time(),
+                        username=tweet['username'],
+                        userlink= f"https://twitter.com/{tweet['username']}",
+                        link=tweet['link'],
+                        likes=tweet['likes_count'],
+                        replies=tweet['replies_count'],
+                        retweets=tweet['retweets_count']
+                    )
+                    new_tweet.save()
+            os.remove(tweets_file_path)
 
         # Send message
+        sender_id = data["id"]
         async_to_sync(self.channel_layer.group_send)(
             sender_id,
             {

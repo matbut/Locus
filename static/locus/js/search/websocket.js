@@ -1,13 +1,15 @@
 let paramSocket = new WebSocket('ws://' + window.location.host + '/ws/search/');
 
 paramSocket.onmessage = function(e) {
-    window.location.href = "http://127.0.0.1:8000/tables";
+    window.location.href = "http://127.0.0.1:8000/charts";
 };
 
 document.querySelector('#search-submit').onclick = function(e) {
     let twitterCheckboxInputDom = document.querySelector('#twitter-checkbox');
     let twitterCheckbox = twitterCheckboxInputDom.checked;
-    if(!twitterCheckbox) return;
+    let googleSearchCheckboxInputDom = document.querySelector('#google-search');
+    let googleSearchCheckbox = googleSearchCheckboxInputDom.checked;
+    if(!twitterCheckbox && !googleSearchCheckbox) return;
 
     let form = document.querySelector('#content-wrapper > center > div.card.card-login.mx-auto.mt-5');
     form.style.display = 'none';
@@ -25,7 +27,8 @@ document.querySelector('#search-submit').onclick = function(e) {
         'url': url,
         'title': title,
         'content': content,
-        'twitter': twitterCheckbox
+        'twitter': twitterCheckbox,
+        'google': googleSearchCheckbox
     });
 
     paramSocket.send(searchData);
