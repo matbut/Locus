@@ -8,10 +8,17 @@ from googleCrawlerOfficial.models import GoogleResultOfficial
 from tweetCrawler.models import Tweet
 
 
+
+
 def charts(request):
+    my_date = datetime.now()
+    return render(request, 'charts.html', {'date': my_date})
+
+
+def graph(request):
     tweets = Tweet.objects
     my_date = datetime.now()
-    return render(request, 'charts.html', {'tweets': tweets, 'date': my_date})
+    return render(request, 'graph.html', {'tweets': tweets, 'date': my_date})
 
 
 def twitter_tables(request):
@@ -71,3 +78,57 @@ class ChartTweetsDaily(APIView):
         days = [tweet.date.day for tweet in Tweet.objects.all() if tweet.date.month == month and tweet.date.year == year]
         presentedDays = [days.count(day) for day in range(1, 31)]
         return Response(presentedDays)
+
+
+class Graph(APIView):
+
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        nodes = [{
+            "color": "#54c1cd",
+            "id": "n0",
+            "label": "Node0",
+            "size": 0.21525816311255386,
+            "x": 100,
+            "y": 0},
+            {
+                "color": "#54c1cd",
+                "id": "n1",
+                "label": "Node1",
+                "size": 0.6852885648287694,
+                "x": 99.80267284282715,
+                "y": 6.279051952931337}]
+        edges = [
+            {"id": "e0", "source": "n0", "target": "n1"}
+        ]
+
+        return Response({"nodes": nodes, "edges": edges})
+
+
+class Graph(APIView):
+
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        nodes = [{
+            "color": "#54c1cd",
+            "id": "n0",
+            "label": "Node0",
+            "size": 0.21525816311255386,
+            "x": 100,
+            "y": 0},
+            {
+                "color": "#54c1cd",
+                "id": "n1",
+                "label": "Node1",
+                "size": 0.6852885648287694,
+                "x": 99.80267284282715,
+                "y": 6.279051952931337}]
+        edges = [
+            {"id": "e0", "source": "n0", "target": "n1"}
+        ]
+
+        return Response({"nodes": nodes, "edges": edges})
