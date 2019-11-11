@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from database import uploader
+from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from tweetCrawler.models import Tweet
 
@@ -29,6 +30,11 @@ def google_tables_official(request):
     google_results = GoogleResultOfficial.objects
     my_date = datetime.now()
     return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
+
+
+def database_tables(request):
+    database_results = ResultArticle.objects
+    return render(request, 'database_tables.html', {'database_results': database_results})
 
 
 def upload_csv(request):

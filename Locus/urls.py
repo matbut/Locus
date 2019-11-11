@@ -25,6 +25,7 @@ urlpatterns = [
     path('twitter_tables/', views.twitter_tables, name='twitter_tables'),
     path('google_tables/', views.google_tables_official, name='google_tables'),
     path('upload/', views.upload_csv, name='upload'),
+    path('database/', views.database_tables, name='database_tables'),
 
     path('api/tweets/yearly', views.ChartTweetsYearly.as_view()),
     path('api/tweets/monthly', views.ChartTweetsMonthly.as_view()),
