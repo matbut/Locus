@@ -96,9 +96,19 @@
                 {% if message.tags %}
                     {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
                         <div class="alert alert-success col-md-8" id="msg-success" role="alert">{{ message }}</div>
+                        <script>
+                            setTimeout(function() {
+                                document.getElementById("msg-success").style.display = "none";
+                            }, 3000);
+                        </script>
                     {% endif %}
                     {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
                         <div class="alert alert-danger col-md-8" id="msg-error" role="alert">{{ message }}</div>
+                        <script>
+                            setTimeout(function() {
+                                document.getElementById("msg-error").style.display = "none";
+                            }, 3000);
+                        </script>
                     {% endif %}
                 {% endif %}
             {% endfor %}
