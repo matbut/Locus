@@ -6,6 +6,7 @@ import logging
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
+from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import CrawlParameters
 from tweetCrawler.models import Tweet
@@ -52,7 +53,14 @@ class WSConsumer(WebsocketConsumer):
                                                    {"type": "crawl", "parameters": cp.__dict__, "id": self.id})
             self.awaited_components_number += 1
 
+        if text_data_json['db']:
+            logging.info("Sending parameters to database search component")
+            async_to_sync(self.channel_layer.send)("db_searcher",
+                                                   {"type": "search", "parameters": cp.__dict__, "id": self.id})
+            self.awaited_components_number += 1
+
     def send_done(self, signal):
+        logging.info(signal)
         self.awaited_components_number -= 1
         if self.awaited_components_number == 0:
             self.send("done")
@@ -60,3 +68,4 @@ class WSConsumer(WebsocketConsumer):
     def delete_tables(self):
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
+        ResultArticle.objects.all().delete()

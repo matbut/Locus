@@ -1,6 +1,8 @@
 import csv
 from datetime import datetime
 
+from django.db import IntegrityError
+
 from database.models import ImportedArticle
 
 
@@ -12,7 +14,13 @@ def upload(file_data):
                                   link=fields[2], title=fields[3], content=fields[4])
         articles.append(article)
     for article in articles:
-        article.save()
+        try:
+            article.save()
+        except IntegrityError as e:
+            if 'unique constraint' in (e.args[0]).lower():  # or e.args[0] from Django 1.10
+                pass
+            else:
+                raise
 
 
 

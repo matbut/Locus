@@ -9,7 +9,9 @@ document.querySelector('#search-submit').onclick = function(e) {
     let twitterCheckbox = twitterCheckboxInputDom.checked;
     let googleSearchCheckboxInputDom = document.querySelector('#google-search');
     let googleSearchCheckbox = googleSearchCheckboxInputDom.checked;
-    if(!twitterCheckbox && !googleSearchCheckbox) return;
+    let dbCheckboxInputDom = document.querySelector('#db-search');
+    let dbCheckbox = dbCheckboxInputDom.checked;
+    if(!twitterCheckbox && !googleSearchCheckbox && !dbCheckbox) return;
 
     let form = document.getElementById('card');
     form.style.display = 'none';
@@ -28,7 +30,8 @@ document.querySelector('#search-submit').onclick = function(e) {
         'title': title,
         'content': content,
         'twitter': twitterCheckbox,
-        'google': googleSearchCheckbox
+        'google': googleSearchCheckbox,
+        'db': dbCheckbox
     });
 
     paramSocket.send(searchData);
