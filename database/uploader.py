@@ -1,24 +1,18 @@
-import logging
+import csv
 from datetime import datetime
 
 from database.models import ImportedArticle
 
 
 def upload(file_data):
-    lines = file_data.split("\n")
-    # loop over the lines and save them in db. If error , store as string and then display
-    for i, line in enumerate(lines[1:]):
-        if len(line) == 0:
-            continue
-        fields = line.split(",")
-        try:
-            article = ImportedArticle(page=fields[0], date=datetime.strptime(fields[1], '%Y-%m-%d'), link=fields[2],
-                                      title=fields[3],
-                                      content=fields[4])
-            article.save()
-        except Exception as e:
-            logging.getLogger("error_logger").error(repr(e))
-            pass
+    lines = file_data.splitlines()
+    articles = []
+    for fields in csv.reader(lines[1:], quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
+        article = ImportedArticle(page=fields[0], date=datetime.strptime(fields[1], '%Y-%m-%d %H:%M:%S'),
+                                  link=fields[2], title=fields[3], content=fields[4])
+        articles.append(article)
+    for article in articles:
+        article.save()
 
 
 
