@@ -8,7 +8,7 @@ from tweetCrawler.crawler import Crawler as tweet_crawler
 from googleCrawlerOfficial.crawler import Crawler as google_crawler
 
 websocket_urlpatterns = [
-    url("search", WSConsumer),
+    url("", WSConsumer),
 ]
 
 application = ProtocolTypeRouter({

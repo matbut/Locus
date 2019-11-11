@@ -10,7 +10,7 @@
   <meta name="description" content="Locus project">
   <meta name="author" content="Mateusz Buta & Aleksandra Mazur">
 
-  <title>Locus Result</title>
+  <title>Locus Search</title>
 
   <!-- Custom fonts for this template-->
   <link href="{% static "locus/vendor/fontawesome-free/css/all.min.css" %}" rel="stylesheet" type="text/css">
@@ -20,6 +20,8 @@
 
   <!-- Custom styles for this template-->
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
+
+  <link href="{% static "locus/css/loader.css" %}" rel="stylesheet">
 
 </head>
 
@@ -56,7 +58,7 @@
 
   </nav>
 
-  <div id="wrapper">
+  <center id="wrapper">
 
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
@@ -66,74 +68,42 @@
           <span>Home</span>
         </a>
       </li>-->
-      <li class="nav-item">
+      <li class="nav-item active">
         <a class="nav-link" href="{% url 'search' %}">
           <i class="fas fa-fw fa-search"></i>
           <span>Search</span></a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'charts' %}">
-          <i class="fas fa-fw fa-chart-area"></i>
-          <span>Charts</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'twitter_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
-          <span>Twitter results</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'google_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
-          <span>Google results</span></a>
-      </li>
     </ul>
 
-
     <div id="content-wrapper">
-
-        <div class="container-fluid">
-
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="card mb-3">
-              <div class="card-header">
-                <i class="fas fa-chart-bar"></i>
-                Yearly activity</div>
-              <div class="card-body">
-                <canvas id="yearlyActiveChart" width="100%" height="25"></canvas>
-              </div>
-              <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="card mb-3">
-              <div class="card-header">
-                <i class="fas fa-chart-pie"></i>
-                Monthly activity in <span class="year"></span></div>
-              <div class="card-body">
-                <canvas id="monthlyActiveChart" width="100%" height="25"></canvas>
-              </div>
-              <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Daily activity Area Chart-->
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card mb-3">
-                  <div class="card-header">
-                    <i class="fas fa-chart-area"></i>
-                    Daily activity in <span id="month"></span> <span class="year"></span>
-                  </div>
-                  <div class="card-body">
-                    <canvas id="dailyActiveChart" width="100%" height="25"></canvas>
-                  </div>
-                  <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
+        <form action="{% url "upload" %}" method="POST" enctype="multipart/form-data" class="form-horizontal">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="custom-file col-md-8">
+                    <input type="file" class="custom-file-input" required="required" name="csv_file" id="csv_file"/>
+                    <label class="custom-file-label" for="csv_file">Choose file</label>
                 </div>
-              </div>
             </div>
-        </div>
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">
+                     <button class="btn btn-primary"> <span class="glyphicon glyphicon-upload" id="upload" style="margin-right:5px;"></span>Upload </button>
+                </div>
+            </div>
+            <div class="alert alert-warning col-md-8" id="msg-warning" role="alert">Right now only coma delimiter is supported</div>
+        </form>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        <div class="alert alert-success col-md-8" id="msg-success" role="alert">{{ message }}</div>
+                    {% endif %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <div class="alert alert-danger col-md-8" id="msg-error" role="alert">{{ message }}</div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+      </div>
       <!-- /.container-fluid -->
 
       <!-- Sticky Footer -->
@@ -145,7 +115,7 @@
         </div>
       </footer>
 
-    </div>
+  </center></div>
     <!-- /.content-wrapper -->
 
   </div>
@@ -192,7 +162,8 @@
 
   <!-- Demo scripts for this page-->
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
-  <script src="{% static "locus/js/charts/activeCharts.js" %}"></script>
+  <script src="{% static "locus/js/search/websocket.js" %}"></script>
+  <script src="{% static "locus/js/search/upload.js" %}"></script>
 
 </body>
 
