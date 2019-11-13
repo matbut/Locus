@@ -77,21 +77,16 @@
           <span>Charts</span></a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'graph' %}">
-          <i class="fas fa-fw fa-project-diagram"></i>
-          <span>Graph</span></a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" href="{% url 'twitter_tables' %}">
           <i class="fas fa-fw fa-table"></i>
           <span>Twitter results</span></a>
       </li>
-      <li class="nav-item active">
+      <li class="nav-item">
         <a class="nav-link" href="{% url 'google_tables' %}">
           <i class="fas fa-fw fa-table"></i>
           <span>Google results</span></a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item active">
         <a class="nav-link" href="{% url 'database_tables' %}">
           <i class="fas fa-fw fa-table"></i>
           <span>Database results</span></a>
@@ -124,14 +119,20 @@
                     <th>Date</th>
                     <th>Page</th>
                     <th>Link</th>
+                    <th>Similarity</th>
+                    <th>Title</th>
+                    <th>Content</th>
                   </tr>
                 </thead>
                 <tbody>
-                {% for result in google_results.all %}
+                {% for result in database_results.all %}
                   <tr>
-                    <td>{{ result.get_date }}</td>
+                    <td>{{ result.date }}</td>
                     <td>{{ result.page }}</td>
                     <td><a href={{ result.link }} target="_blank" >{{ result.link }}</a></td>
+                    <td>{{ result.similarity }}</td>
+                    <td>{{ result.title }}</td>
+                    <td>{{ result.content|slice:"0:200" }}...</td>
                   </tr>
                 {% endfor %}
                 </tbody>

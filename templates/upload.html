@@ -10,7 +10,7 @@
   <meta name="description" content="Locus project">
   <meta name="author" content="Mateusz Buta & Aleksandra Mazur">
 
-  <title>Locus Result</title>
+  <title>Locus Search</title>
 
   <!-- Custom fonts for this template-->
   <link href="{% static "locus/vendor/fontawesome-free/css/all.min.css" %}" rel="stylesheet" type="text/css">
@@ -20,6 +20,8 @@
 
   <!-- Custom styles for this template-->
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
+
+  <link href="{% static "locus/css/upload.css" %}" rel="stylesheet">
 
 </head>
 
@@ -56,7 +58,7 @@
 
   </nav>
 
-  <div id="wrapper">
+  <center id="wrapper">
 
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
@@ -66,81 +68,51 @@
           <span>Home</span>
         </a>
       </li>-->
-      <li class="nav-item">
+      <li class="nav-item active">
         <a class="nav-link" href="{% url 'search' %}">
           <i class="fas fa-fw fa-search"></i>
           <span>Search</span></a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'charts' %}">
-          <i class="fas fa-fw fa-chart-area"></i>
-          <span>Charts</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'graph' %}">
-          <i class="fas fa-fw fa-project-diagram"></i>
-          <span>Graph</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'twitter_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
-          <span>Twitter results</span></a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'google_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
-          <span>Google results</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'database_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
-          <span>Database results</span></a>
-      </li>
     </ul>
 
-
     <div id="content-wrapper">
-
-      <div class="container-fluid">
-
-        <!-- Breadcrumbs
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">
-            <a href="#">Dashboard</a>
-          </li>
-          <li class="breadcrumb-item active">Overview</li>
-        </ol>-->
-
-        <!-- DataTables Example -->
-        <div class="card mb-3">
-          <div class="card-header">
-            <i class="fas fa-table"></i>
-            Data Table</div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Page</th>
-                    <th>Link</th>
-                  </tr>
-                </thead>
-                <tbody>
-                {% for result in google_results.all %}
-                  <tr>
-                    <td>{{ result.get_date }}</td>
-                    <td>{{ result.page }}</td>
-                    <td><a href={{ result.link }} target="_blank" >{{ result.link }}</a></td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
+        <form action="{% url "upload" %}" method="POST" enctype="multipart/form-data" class="form-horizontal">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="custom-file col-md-8">
+                    <input type="file" class="custom-file-input" required="required" name="csv_file" id="csv_file"/>
+                    <label class="custom-file-label" for="csv_file">Choose file</label>
+                </div>
             </div>
-          </div>
-          <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
-        </div>
-
+            <div class="form-group">
+                <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">
+                     <button class="btn btn-primary"> <span class="glyphicon glyphicon-upload" id="upload" style="margin-right:5px;"></span>Upload </button>
+                </div>
+            </div>
+            <div class="alert alert-warning col-md-8" id="msg-warning" role="alert">Right now only coma delimiter is supported</div>
+        </form>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        <div class="alert alert-success col-md-8" id="msg-success" role="alert">{{ message }}</div>
+                        <script>
+                            setTimeout(function() {
+                                document.getElementById("msg-success").style.display = "none";
+                            }, 3000);
+                        </script>
+                    {% endif %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        <div class="alert alert-danger col-md-8" id="msg-error" role="alert">{{ message }}</div>
+                        <script>
+                            setTimeout(function() {
+                                document.getElementById("msg-error").style.display = "none";
+                            }, 3000);
+                        </script>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
       </div>
       <!-- /.container-fluid -->
 
@@ -153,7 +125,7 @@
         </div>
       </footer>
 
-    </div>
+  </center></div>
     <!-- /.content-wrapper -->
 
   </div>
@@ -177,7 +149,7 @@
         <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-          <a class="btn btn-primary" href="other/login.html">Logout</a>
+          <a class="btn btn-primary" href="login.html">Logout</a>
         </div>
       </div>
     </div>
@@ -200,6 +172,8 @@
 
   <!-- Demo scripts for this page-->
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
+  <script src="{% static "locus/js/search/websocket.js" %}"></script>
+  <script src="{% static "locus/js/search/upload.js" %}"></script>
 
 </body>
 
