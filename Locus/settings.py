@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'search.apps.SearchConfig',
     'tweetCrawler.apps.TweetCrawlerConfig',
     'googleCrawlerOfficial.apps.GoogleCrawlerOfficialConfig',
+    'database.apps.DatabaseConfig',
     'channels',
     'rest_framework'
 ]

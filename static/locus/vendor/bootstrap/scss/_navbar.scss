@@ -64,6 +64,8 @@
   padding-left: 0;
   margin-bottom: 0;
   list-style: none;
+  float: right;
+  width: 100%;
 
   .nav-link {
     padding-right: 0;
@@ -157,6 +159,8 @@
 
         .navbar-nav {
           flex-direction: row;
+          width: 100%;
+
 
           .dropdown-menu {
             position: absolute;
