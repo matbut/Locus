@@ -8,7 +8,7 @@ from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
 from googleCrawlerOfficial import patterns
-from search.models import CrawlParameters, SearchParameters
+from search.models import SearchParameters
 from .models import GoogleResultOfficial
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -16,10 +16,14 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class Crawler(SyncConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.awaited_components_number = 0
+
     def crawl(self, data):
         logging.info('Google crawler: starting')
 
-        sender_id = data["id"]
+        self.sender_id = data["id"]
 
         search_id = data["parameters"]
         search_parameters = SearchParameters.objects.get(id=search_id)
@@ -33,20 +37,50 @@ class Crawler(SyncConsumer):
         response_json = json.loads(response)
 
         items = response_json['items']
+        search_results = []
         for item in items:
             page = item['displayLink']
             date = patterns.retrieve_date(item['snippet'])
             link = item['link']
             search_result = GoogleResultOfficial(page=page, date=date, link=link)
             search_result.save()
+            search_results.append(search_result)
 
-        asyncio.set_event_loop(asyncio.new_event_loop())
+            search_result.searches.add(search_parameters)
 
-        # Send message
-        async_to_sync(self.channel_layer.group_send)(
-            sender_id,
-            {
-                'type': 'send_done',
-                'message': 'google_crawler'
-            }
-        )
+        self.send_tweeter_requests(search_results)
+
+    def send_tweeter_requests(self, search_results):
+        for result in search_results:
+            search_parameters = SearchParameters(
+                url=result.link,
+                title="",
+                content=""
+            )
+            search_parameters.save()
+
+            logging.info("[google_search] Sending parameters to tweeter component")
+            async_to_sync(self.channel_layer.send)(
+                "tweet_crawler",
+                {
+                    "type": "crawl",
+                    "parameters": search_parameters.id,
+                    "id": "google_crawler"
+                }
+            )
+            self.awaited_components_number += 1
+
+    def send_done(self, data):
+        self.awaited_components_number -= 1
+        logging.info(data)
+
+        if self.awaited_components_number == 0:
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            # Send message
+            async_to_sync(self.channel_layer.group_send)(
+                self.sender_id,
+                {
+                    'type': 'send_done',
+                    'message': 'google_crawler'
+                }
+            )

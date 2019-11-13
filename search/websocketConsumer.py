@@ -47,7 +47,6 @@ class WSConsumer(WebsocketConsumer):
         )
         search_parameters.save()
 
-
         if text_data_json['twitter']:
             logging.info("Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)("tweet_crawler",
@@ -63,7 +62,8 @@ class WSConsumer(WebsocketConsumer):
         if text_data_json['db']:
             logging.info("Sending parameters to database search component")
             async_to_sync(self.channel_layer.send)("db_searcher",
-                                                   {"type": "search", "parameters": cp.__dict__, "id": self.id})
+                                                   {"type": "search", "parameters": search_parameters.id,
+                                                    "id": self.id})
             self.awaited_components_number += 1
 
     def send_done(self, signal):

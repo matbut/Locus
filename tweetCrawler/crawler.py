@@ -80,10 +80,19 @@ class Crawler(SyncConsumer):
 
         # Send message
         sender_id = data["id"]
-        async_to_sync(self.channel_layer.group_send)(
-            sender_id,
-            {
-                'type': 'send_done',
-                'message': 'tweet_crawler'
-            }
-        )
+        if sender_id == "google_crawler":
+            async_to_sync(self.channel_layer.send)(
+                sender_id,
+                {
+                    'type': 'send_done',
+                    'message': 'tweet_crawler'
+                }
+            )
+        else:
+            async_to_sync(self.channel_layer.group_send)(
+                sender_id,
+                {
+                    'type': 'send_done',
+                    'message': 'tweet_crawler'
+                }
+            )
