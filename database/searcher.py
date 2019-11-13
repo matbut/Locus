@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+import unidecode
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -8,9 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from database import stopwords
 from database.models import ImportedArticle, ResultArticle
-from search.models import CrawlParameters
-
-import unidecode
+from search.models import SearchParameters
 
 
 def remove_diacritics(str):
@@ -22,7 +21,8 @@ class Searcher(SyncConsumer):
     def search(self, data):
         logging.info('Database searcher: starting')
 
-        crawl_parameters = CrawlParameters(data["parameters"])
+        search_id = data["parameters"]
+        search_parameters = SearchParameters.objects.get(id=search_id)
 
         result = ImportedArticle.objects.filter(title__contains='Sześcioraczki') #TODO use PostgreSQL full text search
 
@@ -31,7 +31,7 @@ class Searcher(SyncConsumer):
         result_article = result[0]
         result_content = result_article.content
 
-        query_content = crawl_parameters.content
+        query_content = search_parameters.content
 
         similarity = self.count_similarity(query_content, result_content)
         article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
