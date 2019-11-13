@@ -74,7 +74,7 @@ class Crawler(SyncConsumer):
                     tweet = json.loads(tweet_str)
                     epoch = int(tweet['created_at'])
                     new_tweet = Tweet(
-                        id=tweet['id'],
+                        tweet_id=tweet['id'],
                         content=tweet['tweet'],
                         date=datetime.utcfromtimestamp(epoch / 1000.0).date(),
                         time=datetime.utcfromtimestamp(epoch / 1000.0).time(),

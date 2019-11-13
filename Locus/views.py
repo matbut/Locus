@@ -124,7 +124,7 @@ class Graph(APIView):
     def get(self, request, format=None):
         tweet_nodes = [{
             "color": "#0275D8",
-            "id": tweet.id,
+            "id": tweet.tweet_id,
             "label": tweet.content,
             "size": 20 + tweet.likes//100,
             "x": random.randint(0, 100),
@@ -163,8 +163,8 @@ class Graph(APIView):
 
         #TODO unigue edges
         tweet_edges = [{
-            "id": tweet.id+search_node.id,
-            "source": tweet.id,
+            "id": tweet.tweet_id+str(search_node.id),
+            "source": tweet.tweet_id,
             "target": search_node.id,
             "color" : '#66b2ff',
         } for search_node in SearchParameters.objects.all() for tweet in search_node.tweet_set.all()]

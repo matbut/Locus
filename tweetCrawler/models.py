@@ -5,7 +5,7 @@ from search.models import SearchParameters
 
 
 class Tweet(models.Model):
-    id = models.IntegerField(primary_key=True)
+    tweet_id = models.TextField()
     content = models.TextField()
     date = models.DateField()
     time = models.TimeField()
