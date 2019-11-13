@@ -22,6 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.search, name='search'),
     path('charts/', views.charts, name='charts'),
+    path('graph/', views.graph, name='graph'),
     path('twitter_tables/', views.twitter_tables, name='twitter_tables'),
     path('google_tables/', views.google_tables_official, name='google_tables'),
     path('upload/', views.upload_csv, name='upload'),
@@ -30,4 +31,6 @@ urlpatterns = [
     path('api/tweets/yearly', views.ChartTweetsYearly.as_view()),
     path('api/tweets/monthly', views.ChartTweetsMonthly.as_view()),
     path('api/tweets/daily', views.ChartTweetsDaily.as_view()),
+    path('api/graph', views.Graph.as_view()),
+    path('api/tweet', views.GetTweet.as_view())
 ]

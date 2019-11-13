@@ -8,7 +8,7 @@ from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
 from googleCrawlerOfficial import patterns
-from search.models import CrawlParameters
+from search.models import CrawlParameters, SearchParameters
 from .models import GoogleResultOfficial
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -21,8 +21,10 @@ class Crawler(SyncConsumer):
 
         sender_id = data["id"]
 
-        crawl_parameters = CrawlParameters(data["parameters"])
-        query_raw = crawl_parameters.title
+        search_id = data["parameters"]
+        search_parameters = SearchParameters.objects.get(id=search_id)
+
+        query_raw = search_parameters.title
         query = quote(query_raw.encode('utf8'))
 
         key, engine_id = patterns.retrieve_access_key()

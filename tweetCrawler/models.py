@@ -1,5 +1,7 @@
 from django.db import models
 
+from search.models import SearchParameters
+
 
 class Tweet(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -12,3 +14,5 @@ class Tweet(models.Model):
     likes = models.IntegerField()
     replies = models.IntegerField()
     retweets = models.IntegerField()
+
+    searches = models.ManyToManyField(SearchParameters)

@@ -5,7 +5,7 @@ from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
-from search.models import CrawlParameters
+from search.models import SearchParameters
 from .models import Tweet
 from pathlib import Path
 import twint
@@ -21,8 +21,9 @@ class Crawler(SyncConsumer):
 
         logging.info('Tweet crawler: starting')
 
-        tweets_file_path = "{0}/.locus/output.json".format(str(Path.home()))
-        crawl_parameters = CrawlParameters(data["parameters"])
+        tweets_file_path = "output.json".format(str(Path.home()))
+        search_id = data["parameters"]
+        search_parameters = SearchParameters.objects.get(id=search_id)
 
         # Configure
         c = twint.Config()
@@ -47,8 +48,8 @@ class Crawler(SyncConsumer):
         '''
 
         # Search
-        if crawl_parameters.url is not None:
-            c.Search = crawl_parameters.url
+        if search_parameters.url is not None:
+            c.Search = search_parameters.url
             twint.run.Search(c)
 
         if os.path.isfile(tweets_file_path):
@@ -74,6 +75,7 @@ class Crawler(SyncConsumer):
                         retweets=tweet['retweets_count']
                     )
                     new_tweet.save()
+                    new_tweet.searches.add(search_parameters)
             os.remove(tweets_file_path)
 
         # Send message
