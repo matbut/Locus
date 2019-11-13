@@ -220,7 +220,7 @@
                 });
                 // Start the ForceAtlas2 algorithm:
                 s.startForceAtlas2({worker: true, barnesHutOptimize: false});
-                setTimeout(() => {s.killForceAtlas2()}, 3000);
+                setTimeout(() => {s.killForceAtlas2()}, 1000);
                 },
                 error: function (errorData) {
                   console.error(errorData)

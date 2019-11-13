@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/tweets/monthly', views.ChartTweetsMonthly.as_view()),
     path('api/tweets/daily', views.ChartTweetsDaily.as_view()),
     path('api/graph', views.Graph.as_view()),
+    path('api/tweet', views.GetTweet.as_view())
 ]

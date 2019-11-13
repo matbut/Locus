@@ -7,7 +7,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from googleCrawlerOfficial.models import GoogleResultOfficial
-from search.models import CrawlParameters
+from search.models import SearchParameters
 from tweetCrawler.models import Tweet
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -37,19 +37,26 @@ class WSConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)
-        cp = CrawlParameters(text_data_json)
         self.delete_tables()
+
+        search_parameters = SearchParameters(
+            url=text_data_json['url'],
+            title=text_data_json['title'],
+            content=text_data_json['content']
+        )
+        search_parameters.save()
+
 
         if text_data_json['twitter']:
             logging.info("Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)("tweet_crawler",
-                                                   {"type": "crawl", "parameters": cp.__dict__, "id": self.id})
+                                                   {"type": "crawl", "parameters": search_parameters.id, "id": self.id})
             self.awaited_components_number += 1
 
         if text_data_json['google']:
             logging.info("Sending parameters to google search component")
             async_to_sync(self.channel_layer.send)("google_crawler",
-                                                   {"type": "crawl", "parameters": cp.__dict__, "id": self.id})
+                                                   {"type": "crawl", "parameters": search_parameters.id, "id": self.id})
             self.awaited_components_number += 1
 
     def send_done(self, signal):
@@ -60,3 +67,4 @@ class WSConsumer(WebsocketConsumer):
     def delete_tables(self):
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
+        SearchParameters.objects.all().delete()

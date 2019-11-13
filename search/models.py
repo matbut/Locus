@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 
 class CrawlParameters:
     def __init__(self, dictionary=None):
@@ -13,3 +12,8 @@ class CrawlParameters:
             self.title = None
             self.content = None
 
+
+class SearchParameters(models.Model):
+    url = models.TextField()
+    title = models.TextField()
+    content = models.TextField()

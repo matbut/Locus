@@ -5,9 +5,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from googleCrawlerOfficial.models import GoogleResultOfficial
+from search.models import SearchParameters
 from tweetCrawler.models import Tweet
 
-
+import random
 
 
 def charts(request):
@@ -18,7 +19,7 @@ def charts(request):
 def graph(request):
     tweets = Tweet.objects
     my_date = datetime.now()
-    return render(request, 'graph.html', {'tweets': tweets, 'date': my_date})
+    return render(request, 'graph.html', {'my_data': tweets.all(), 'date': my_date})
 
 
 def twitter_tables(request):
@@ -86,49 +87,44 @@ class Graph(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
-        nodes = [{
-            "color": "#54c1cd",
-            "id": "n0",
-            "label": "Node0",
-            "size": 0.21525816311255386,
-            "x": 100,
-            "y": 0},
-            {
-                "color": "#54c1cd",
-                "id": "n1",
-                "label": "Node1",
-                "size": 0.6852885648287694,
-                "x": 99.80267284282715,
-                "y": 6.279051952931337}]
-        edges = [
-            {"id": "e0", "source": "n0", "target": "n1"}
-        ]
+        tweet_nodes = [{
+            "color": "#0275D8",
+            "id": tweet.id,
+            "label": tweet.content,
+            "size": tweet.likes,
+            "x": random.randint(0, 100),
+            "y": random.randint(0, 100)
+        } for tweet in Tweet.objects.all()]
+
+        search_nodes = [{
+            "color": "#fd7e14",
+            "id": search.id,
+            "label": search.url,
+            "size": 10,
+            "x": random.randint(0, 100),
+            "y": random.randint(0, 100)
+        } for search in SearchParameters.objects.all()]
+
+        nodes = tweet_nodes + search_nodes
+
+        edges = [{
+            "id": tweet.id+search_node.id,
+            "source": tweet.id,
+            "target": search_node.id,
+            "color" : '#66b2ff',
+        } for search_node in SearchParameters.objects.all() for tweet in search_node.tweet_set.all()]
 
         return Response({"nodes": nodes, "edges": edges})
 
 
-class Graph(APIView):
+class GetTweet(APIView):
 
     authentication_classes = []
     permission_classes = []
 
     def get(self, request, format=None):
-        nodes = [{
-            "color": "#54c1cd",
-            "id": "n0",
-            "label": "Node0",
-            "size": 0.21525816311255386,
-            "x": 100,
-            "y": 0},
-            {
-                "color": "#54c1cd",
-                "id": "n1",
-                "label": "Node1",
-                "size": 0.6852885648287694,
-                "x": 99.80267284282715,
-                "y": 6.279051952931337}]
-        edges = [
-            {"id": "e0", "source": "n0", "target": "n1"}
-        ]
 
-        return Response({"nodes": nodes, "edges": edges})
+        tweet_id = int(request.query_params['tweet_id'])
+        tweet = Tweet.objects.get(id=1191383982392389632)
+
+        return Response({"tweet": tweet.__dict__})
