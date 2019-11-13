@@ -48,7 +48,7 @@ singledispatch==3.4.0.3
 six==1.12.0
 soupsieve==1.8
 sqlparse==0.3.0
--e git+https://github.com/twintproject/twint.git@a2663cd3750d2bf7bf144ce433187a9f9a696f29#egg=twint
+twint==2.1.6
 Twisted==19.2.1
 txaio==18.8.1
 typing==3.6.6
