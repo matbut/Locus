@@ -1,9 +1,11 @@
 import asyncio
 import logging
+import string
 
 import unidecode
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
+from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -11,9 +13,17 @@ from database import stopwords
 from database.models import ImportedArticle, ResultArticle
 from search.models import CrawlParameters, SearchParameters
 
+postgresql_rank_threshold = 0.05
+cosine_similarity_threshold = 0.1
+stopwords_list = stopwords.polish
+
 
 def remove_diacritics(str):
     return unidecode.unidecode(str)
+
+
+def remove_stopwords(text):
+    return [w for w in text if w not in stopwords_list]
 
 
 class Searcher(SyncConsumer):
@@ -28,24 +38,31 @@ class Searcher(SyncConsumer):
         if search_id is not None:
             search_parameters = SearchParameters.objects.get(id=search_id)
 
-        result = ImportedArticle.objects.filter(title__contains='Sześcioraczki') #TODO use PostgreSQL full text search
+        title_without_stop = ' '.join(remove_stopwords(
+            search_parameters.title
+                .translate(str.maketrans('', '', string.punctuation))
+                .split()))
 
-        # TODO start
+        vector = SearchVector('title', 'content', config='public.polish')
+        query = SearchQuery(title_without_stop, config='public.polish')
+        result = ImportedArticle.objects \
+            .annotate(rank=SearchRank(vector, query)) \
+            .filter(rank__gte=postgresql_rank_threshold) \
+            .order_by('-rank')
 
-        result_article = result[0]
-        result_content = result_article.content
+        for result_article in result:
+            result_content = result_article.content
 
-        query_content = crawl_parameters.content
+            query_content = crawl_parameters.content
 
-        similarity = self.count_similarity(query_content, result_content)
-        article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
-                                link=result_article.link, title=result_article.title, content=result_article.content)
-        article.save()
-
-        if search_parameters is not None:
-            article.searches.add(search_parameters)
-
-        # TODO end
+            similarity = self.count_similarity(query_content, result_content)
+            article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
+                                    link=result_article.link, title=result_article.title,
+                                    content=result_article.content)
+            if article.similarity > cosine_similarity_threshold:
+                article.save()
+                if search_parameters is not None:
+                    article.searches.add(search_parameters)
 
         asyncio.set_event_loop(asyncio.new_event_loop())
         sender_id = data["id"]
@@ -59,9 +76,9 @@ class Searcher(SyncConsumer):
 
     def count_similarity(self, text1, text2):
         # preprocessing
-        stops = stopwords.polish
-        texts = [[w.lower() for w in text.split()] for text in [text1, text2]]
-        texts = [[w for w in text if w not in stops] for text in texts]
+        texts = [[w.lower() for w in text.translate(str.maketrans('', '', string.punctuation)).split()] for text in
+                 [text1, text2]]
+        texts = [remove_stopwords(text) for text in texts]
         texts = [remove_diacritics(' '.join(text)) for text in texts]
 
         tfidf_vectorizer = TfidfVectorizer()
