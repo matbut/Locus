@@ -8,7 +8,7 @@ from channels.generic.websocket import WebsocketConsumer
 
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
-from search.models import SearchParameters
+from search.models import SearchParameters, CrawlParameters
 from tweetCrawler.models import Tweet
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -40,30 +40,34 @@ class WSConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         self.delete_tables()
 
+        cp = CrawlParameters(text_data_json)
+
         search_parameters = SearchParameters(
-            url=text_data_json['url'],
-            title=text_data_json['title'],
-            content=text_data_json['content']
+            url=cp.url,
+            title=cp.title,
+            content=cp.content
         )
         search_parameters.save()
 
         if text_data_json['twitter']:
             logging.info("Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)("tweet_crawler",
-                                                   {"type": "crawl", "parameters": search_parameters.id, "id": self.id})
+                {"type": "crawl", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+
             self.awaited_components_number += 1
 
         if text_data_json['google']:
             logging.info("Sending parameters to google search component")
             async_to_sync(self.channel_layer.send)("google_crawler",
-                                                   {"type": "crawl", "parameters": search_parameters.id, "id": self.id})
+                {"type": "crawl", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+
             self.awaited_components_number += 1
 
         if text_data_json['db']:
             logging.info("Sending parameters to database search component")
             async_to_sync(self.channel_layer.send)("db_searcher",
-                                                   {"type": "search", "parameters": search_parameters.id,
-                                                    "id": self.id})
+                {"type": "search", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+
             self.awaited_components_number += 1
 
     def send_done(self, signal):

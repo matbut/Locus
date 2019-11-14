@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from database import stopwords
 from database.models import ImportedArticle, ResultArticle
-from search.models import SearchParameters
+from search.models import CrawlParameters, SearchParameters
 
 
 def remove_diacritics(str):
@@ -21,8 +21,12 @@ class Searcher(SyncConsumer):
     def search(self, data):
         logging.info('Database searcher: starting')
 
-        search_id = data["parameters"]
-        search_parameters = SearchParameters.objects.get(id=search_id)
+        crawl_parameters = CrawlParameters(data["parameters"])
+
+        search_id = data.get("search_id")
+        search_parameters = None
+        if search_id is not None:
+            search_parameters = SearchParameters.objects.get(id=search_id)
 
         result = ImportedArticle.objects.filter(title__contains='Sześcioraczki') #TODO use PostgreSQL full text search
 
@@ -31,13 +35,15 @@ class Searcher(SyncConsumer):
         result_article = result[0]
         result_content = result_article.content
 
-        query_content = search_parameters.content
+        query_content = crawl_parameters.content
 
         similarity = self.count_similarity(query_content, result_content)
         article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
                                 link=result_article.link, title=result_article.title, content=result_article.content)
         article.save()
 
+        if search_parameters is not None:
+            article.searches.add(search_parameters)
 
         # TODO end
 

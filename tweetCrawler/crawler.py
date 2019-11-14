@@ -5,7 +5,8 @@ from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
-from search.models import SearchParameters
+from googleCrawlerOfficial.models import GoogleResultOfficial
+from search.models import SearchParameters, CrawlParameters
 from .models import Tweet
 from pathlib import Path
 import twint
@@ -22,8 +23,18 @@ class Crawler(SyncConsumer):
         logging.info('Tweet crawler: starting')
 
         tweets_file_path = "output.json".format(str(Path.home()))
-        search_id = data["parameters"]
-        search_parameters = SearchParameters.objects.get(id=search_id)
+
+        crawl_parameters = CrawlParameters(data["parameters"])
+
+        search_id = data.get("search_id")
+        search_parameters = None
+        if search_id is not None:
+            search_parameters = SearchParameters.objects.get(id=search_id)
+
+        google_id = data.get("google_id")
+        google = None
+        if google_id is not None:
+            google = GoogleResultOfficial.objects.get(id=google_id)
 
         # Configure
         c = twint.Config()
@@ -40,16 +51,16 @@ class Crawler(SyncConsumer):
         if crawl_parameters.content is not None:
             c.Search = crawl_parameters.url
             twint.run.Search(c)
-
-        # Search
-        if crawl_parameters.title is not None:
-            c.Search = crawl_parameters.title
-            twint.run.Search(c)
         '''
 
         # Search
-        if search_parameters.url is not None:
-            c.Search = search_parameters.url
+        if crawl_parameters.title != "":
+            c.Search = crawl_parameters.title
+            twint.run.Search(c)
+
+        # Search
+        if crawl_parameters.url != "":
+            c.Search = crawl_parameters.url
             twint.run.Search(c)
 
         if os.path.isfile(tweets_file_path):
@@ -75,7 +86,10 @@ class Crawler(SyncConsumer):
                         retweets=tweet['retweets_count']
                     )
                     new_tweet.save()
-                    new_tweet.searches.add(search_parameters)
+                    if search_parameters is not None:
+                        new_tweet.searches.add(search_parameters)
+                    if google is not None:
+                        new_tweet.google.add(google)
             os.remove(tweets_file_path)
 
         # Send message

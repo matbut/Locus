@@ -1,5 +1,7 @@
 from django.db import models
 
+from search.models import SearchParameters
+
 
 class ImportedArticle(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -18,3 +20,5 @@ class ResultArticle(models.Model):
     link = models.URLField()
     title = models.TextField()
     content = models.TextField()
+
+    searches = models.ManyToManyField(SearchParameters)

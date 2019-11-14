@@ -1,5 +1,6 @@
 from django.db import models
 
+from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters
 
 
@@ -16,3 +17,4 @@ class Tweet(models.Model):
     retweets = models.IntegerField()
 
     searches = models.ManyToManyField(SearchParameters)
+    google = models.ManyToManyField(GoogleResultOfficial)

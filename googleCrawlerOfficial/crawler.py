@@ -8,7 +8,7 @@ from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
 from googleCrawlerOfficial import patterns
-from search.models import SearchParameters
+from search.models import SearchParameters, CrawlParameters
 from .models import GoogleResultOfficial
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -25,10 +25,13 @@ class Crawler(SyncConsumer):
 
         self.sender_id = data["id"]
 
-        search_id = data["parameters"]
-        search_parameters = SearchParameters.objects.get(id=search_id)
+        search_id = data.get("search_id")
+        search_parameters = None
+        if search_id is not None:
+            search_parameters = SearchParameters.objects.get(id=search_id)
 
-        query_raw = search_parameters.title
+        crawl_parameters = CrawlParameters(data["parameters"])
+        query_raw = crawl_parameters.title
         query = quote(query_raw.encode('utf8'))
 
         key, engine_id = patterns.retrieve_access_key()
@@ -46,25 +49,27 @@ class Crawler(SyncConsumer):
             search_result.save()
             search_results.append(search_result)
 
-            search_result.searches.add(search_parameters)
+            if search_parameters is not None:
+                search_result.searches.add(search_parameters)
 
         self.send_tweeter_requests(search_results)
 
     def send_tweeter_requests(self, search_results):
         for result in search_results:
-            search_parameters = SearchParameters(
-                url=result.link,
-                title="",
-                content=""
-            )
-            search_parameters.save()
+
+            crawl_parameters = CrawlParameters({
+                "url": result.link,
+                "title": "",
+                "content": ""
+            })
 
             logging.info("[google_search] Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)(
                 "tweet_crawler",
                 {
                     "type": "crawl",
-                    "parameters": search_parameters.id,
+                    "parameters": crawl_parameters.__dict__,
+                    "google_id": result.id,
                     "id": "google_crawler"
                 }
             )
