@@ -37,6 +37,7 @@ We recommend to create virtual environment with [venv](https://docs.python.org/3
 ```
 git clone git@github.com:matbut/Locus.git
 pip3 install -r requirements.txt 
+npm install
 ```
 ### Start
 Run worker for searching components:
