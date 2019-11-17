@@ -42,7 +42,7 @@ npm install
 ### Start
 Run worker for searching components:
 ```
-python3 manage.py runworker tweet_crawler google_crawler
+python3 manage.py runworker tweet_crawler google_crawler db_searcher
 ```
 Start server:
 ```
