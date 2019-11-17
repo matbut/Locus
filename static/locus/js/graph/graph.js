@@ -24,10 +24,10 @@ function tweetTextNode(field, tweet) {
 }
 
 
-function addRow(tweet) {
+function addTweetRow(tweet) {
     if (!document.getElementsByTagName) return;
 
-    old_tbody = document.getElementsByTagName("tbody").item(0);
+    old_tbody = document.getElementById("tweetsTable").getElementsByTagName("tbody").item(0);
 
     row = document.createElement("tr");
 
@@ -44,6 +44,17 @@ function addRow(tweet) {
 
 }
 
+function addNode(node) {
+
+    switch(node.group){
+        case 'tweet':
+            addTweetRow(node.tweet);
+            break;
+    }
+}
+
+var network;
+var container;
 
 function draw() {
 
@@ -58,6 +69,7 @@ function draw() {
             navigationButtons: true,
             keyboard: true,
             multiselect: true,
+            hover: true,
         },
         groups: {
             article: {
@@ -114,7 +126,7 @@ function draw() {
     };
 
     // create a network
-    var containerFA5 = document.getElementById('mynetworkFA5');
+    container = document.getElementById('mynetworkFA5');
 
     $.ajax({
         method: "GET",
@@ -123,28 +135,17 @@ function draw() {
 
             nodes = graph.nodes;
 
-            var network = new vis.Network(containerFA5, graph, graphOptions);
+            network = new vis.Network(container, graph, graphOptions);
 
+            makeMeMultiSelect(container, network, nodes);
 
             network.on('click', function (properties) {
-
-
-                item = document.getElementsByTagName("tbody").item(0);
-                item.parentNode.replaceChild(document.createElement('tbody'), item);
-
-                /*
-                document.getElementsByTagName("tbody").forach(function(item, index){
-                  item.parentNode.replaceChild(document.createElement('tbody'), item);
-                });
-                */
-
+                clearTables();
 
                 properties.nodes.forEach(function (item, index) {
                     node = nodes.find(x => x.id === item);
-                    addRow(node.tweet)
+                    addNode(node)
                 });
-
-
             });
 
         },
@@ -152,4 +153,177 @@ function draw() {
             console.error(errorData)
         }
     });
+}
+
+function clearTables() {
+    table = document.getElementById("tweetsTable");
+    old_tbody = table.getElementsByTagName("tbody").item(0);
+    old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
+
+    table = document.getElementById("googleTable");
+    old_tbody = table.getElementsByTagName("tbody").item(0);
+    old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
+
+    table = document.getElementById("databaseTable");
+    old_tbody = table.getElementsByTagName("tbody").item(0);
+    old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
+}
+
+function getPosition(el) {
+  var xPos = 0;
+  var yPos = 0;
+ 
+  while (el) {
+    if (el.tagName == "BODY") {
+      // deal with browser quirks with body/window/document and page scroll
+      var xScroll = el.scrollLeft || document.documentElement.scrollLeft;
+      var yScroll = el.scrollTop || document.documentElement.scrollTop;
+ 
+      xPos += (el.offsetLeft - xScroll + el.clientLeft);
+      yPos += (el.offsetTop - yScroll + el.clientTop);
+    } else {
+      // for all other non-BODY elements
+      xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+      yPos += (el.offsetTop - el.scrollTop + el.clientTop);
+    }
+ 
+    el = el.offsetParent;
+  }
+  return {
+    x: xPos,
+    y: yPos
+  };
+}
+
+// Handle the right clic rectangle selection of nodes
+// ========
+
+const NO_CLICK = 0;
+const RIGHT_CLICK = 3;
+
+// Selector
+function canvasify(DOMx, DOMy) {
+    const { x, y } = network.DOMtoCanvas({ x: DOMx, y: DOMy });
+    return [x, y];
+}
+
+function correctRange(start, end){
+    return start < end ? [start, end] : [end, start];
+}
+
+function selectFromDOMRect(){
+    const [sX, sY] = canvasify(DOMRect.startX, DOMRect.startY);
+    const [eX, eY] = canvasify(DOMRect.endX, DOMRect.endY);
+    const [startX, endX] = correctRange(sX, eX);
+    const [startY, endY] = correctRange(sY, eY);
+
+    network.selectNodes(nodes.reduce(
+        (selected, { id }) => {
+            const { x, y } = network.getPositions(id)[id];
+            return (startX <= x && x <= endX && startY <= y && y <= endY) ? selected.concat(id) : selected;
+            //And nodes.get(id).hidden ? Depending on the behavior expected
+        }, []
+    ));
+
+    clearTables();
+
+    network.getSelectedNodes().forEach(function (item, index) {
+        node = nodes.find(x => x.id === item);
+        addNode(node)
+    });
+}
+
+function rectangle_mousedown(evt){
+    // Handle mouse down event = beginning of the rectangle selection
+
+    var pageX = event.pageX;    // Get the horizontal coordinate
+    var pageY = event.pageY;    // Get the vertical coordinate
+    var which = event.which;    // Get the button type
+
+    offset = getPosition(container);
+
+    // When mousedown, save the initial rectangle state
+    if(which === RIGHT_CLICK) {
+        Object.assign(DOMRect, {
+            startX: pageX - offset.x,
+            startY: pageY - offset.y,
+            endX: pageX - offset.x,
+            endY: pageY - offset.y
+        });
+        drag = true;
+    }
+}
+
+function rectangle_mousedrag(evt){
+    // Handle mouse drag event = during the rectangle selection
+    var pageX = event.pageX;    // Get the horizontal coordinate
+    var pageY = event.pageY;    // Get the vertical coordinate
+    var which = event.which;    // Get the button type
+
+    if(which === NO_CLICK && drag) {
+        // Make selection rectangle disappear when accidently mouseupped outside 'container'
+        drag = false;
+        network.redraw();
+    } else if(drag) {
+        // When mousemove, update the rectangle state
+
+        offset = getPosition(container);
+
+        Object.assign(DOMRect, {
+            endX: pageX - offset.x,
+            endY: pageY - offset.y
+        });
+        network.redraw();
+    }
+}
+
+function rectangle_mouseup(evt){
+    // Handle mouse up event = beginning of the rectangle selection
+
+    var pageX = event.pageX;    // Get the horizontal coordinate
+    var pageY = event.pageY;    // Get the vertical coordinate
+    var which = event.which;    // Get the button type
+
+    // When mouseup, select the nodes in the rectangle
+    if(which === RIGHT_CLICK) {
+        drag = false;
+        network.redraw();
+        selectFromDOMRect();
+    }
+
+
+}
+
+function draw_rectangle_on_network(ctx){
+    // Draw a rectangle regarding the current selection
+    if(drag) {
+        const [startX, startY] = canvasify(DOMRect.startX, DOMRect.startY);
+        const [endX, endY] = canvasify(DOMRect.endX, DOMRect.endY);
+
+        ctx.setLineDash([5]);
+        ctx.strokeStyle = 'rgba(78, 146, 237, 0.75)';
+        ctx.strokeRect(startX, startY, endX - startX, endY - startY);
+        ctx.setLineDash([]);
+        ctx.fillStyle = 'rgba(151, 194, 252, 0.45)';
+        ctx.fillRect(startX, startY, endX - startX, endY - startY);
+    }
+}
+
+
+function makeMeMultiSelect(container, network, nodes) {
+    // State
+    drag = false;
+    DOMRect = {};
+
+    // Disable default right-click dropdown menu
+    container.oncontextmenu = () => false;
+
+    // Listeners
+    //container.mousedown()
+    $(document).on("mousedown", function(evt) { rectangle_mousedown(evt) });
+    $(document).on("mousemove", function(evt) { rectangle_mousedrag(evt) });
+    $(document).on("mouseup", function(evt) { rectangle_mouseup(evt) });
+
+    // Drawer
+    network.on('afterDrawing', function (ctx) { draw_rectangle_on_network(ctx) });
 }
