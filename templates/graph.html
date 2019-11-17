@@ -21,77 +21,8 @@
   <!-- Custom styles for this template-->
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
 
-  <style>
-    #mynetworkFA5,
-    #mynetwork {
-      width: 100%;
-      height: 700px;
-    }
-
-    div.vis-active,
-    div.vis-network,
-    div.vis-network div.vis-navigation div.vis-button.vis-up,
-    div.vis-network div.vis-navigation div.vis-button.vis-down,
-    div.vis-network div.vis-navigation div.vis-button.vis-left,
-    div.vis-network div.vis-navigation div.vis-button.vis-right,
-    div.vis-network div.vis-navigation div.vis-button.vis-zoomIn,
-    div.vis-network div.vis-navigation div.vis-button.vis-zoomOut,
-    div.vis-network div.vis-navigation div.vis-button.vis-zoomExtends {
-      background-image: none !important;
-    }
-
-    div.vis-network div.vis-navigation div.vis-button:hover {
-      box-shadow: none !important;
-    }
-
-    .vis-active:focus {
-      outline: none;
-    }
-
-    .vis-network:focus {
-      outline: none;
-    }
-
-    .vis-button:after {
-      font-size: 2em;
-      color: gray;
-      font-family: "Font Awesome 5 Free";
-      font-weight: 900;
-    }
-
-    .vis-button:hover:after {
-      color: lightgray;
-    }
-
-    .vis-button.vis-up:after {
-       content: "\f35b";
-    }
-
-    .vis-button.vis-down:after {
-      content: '\f358';
-    }
-
-    .vis-button.vis-left:after {
-      content: '\f359';
-    }
-
-    .vis-button.vis-right:after {
-      content: '\f35a';
-    }
-
-    .vis-button.vis-zoomIn:after {
-      content: '\f00e';
-    }
-
-    .vis-button.vis-zoomOut:after {
-      content: '\f010';
-    }
-
-    .vis-button.vis-zoomExtends:after {
-      content: '\f05b';
-    }
-  </style>
-
+  <!-- Custom graph styles-->
+  <link href="{% static "locus/css/graph.css" %}" rel="stylesheet">
 
 </head>
 
@@ -226,6 +157,33 @@
           </div>
         </div>
 
+        <div class="card mb-3">
+          <div class="card-header">
+            <i class="fas fa-table"></i>
+            Data Table</div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="mytable" width="100%" cellspacing="0">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Username</th>
+                    <th>Content</th>
+                    <th>Likes</th>
+                    <th>Replies</th>
+                    <th>Retweets</th>
+                    <th>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
+        </div>
+
       <!-- Sticky Footer -->
       <footer class="sticky-footer">
         <div class="container my-auto">
@@ -284,93 +242,9 @@
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
 
   <!-- Graph scripts-->
-  <script src='{% static "vis-network/standalone/umd/vis-network.min.js" %}'></script>
+  <script src="{% static "vis-network/standalone/umd/vis-network.min.js" %}"></script>
 
-
-  <script>
-    function draw() {
-
-      var graphOptions = {
-        layout: {
-          randomSeed: 8
-        },
-        physics: {
-          adaptiveTimestep: false
-        },
-        interaction: {
-          navigationButtons: true,
-          keyboard: true,
-          multiselect: true,
-        },
-        groups: {
-          article: {
-            shape: 'icon',
-            icon: {
-              face: "'Font Awesome 5 Free'",
-              weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
-              code: '\uf15c',
-              size: 50,
-              color: '#333399'
-            }
-          },
-          page: {
-            shape: 'icon',
-            icon: {
-              face: "'Font Awesome 5 Free'",
-              weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
-              code: '\uf7a2',//'\uf0ac',
-              size: 50,
-              color: '#009933'
-            }
-          },
-          user: {
-            shape: 'icon',
-            icon: {
-              face: "'Font Awesome 5 Free'",
-              weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
-              code: '\uf007',
-              size: 50,
-              color: '#57169a'
-            }
-          },
-          search: {
-            shape: 'icon',
-            icon: {
-              face: "'Font Awesome 5 Free'",
-              weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
-              code: '\uf002',
-              size: 50,
-              color: '#e68a00'
-            }
-          },
-          tweet: {
-            shape: 'icon',
-            icon: {
-              face: "'Font Awesome 5 Brands'",
-              weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
-              code: '\uf099',
-              size: 50,
-              color: '#0084b4'
-            }
-          }
-        }
-      };
-
-      // create a network
-      var containerFA5 = document.getElementById('mynetworkFA5');
-
-      $.ajax({
-          method: "GET",
-          url: '/api/graph',
-          success: function (graph) {
-            var networkFA5 = new vis.Network(containerFA5, graph, graphOptions);
-          },
-          error: function (errorData) {
-            console.error(errorData)
-          }
-      });
-    }
-  </script>
+  <script src="{% static "locus/js/graph/graph.js" %}"></script>
 
 </body>
 

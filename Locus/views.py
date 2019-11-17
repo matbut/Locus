@@ -124,7 +124,18 @@ class Graph(APIView):
     def get(self, request, format=None):
         tweet_nodes = [{
             "id": tweet.id,
-            "group": 'tweet'
+            "group": 'tweet',
+            "tweet": {
+                "date": tweet.date,
+                "time": tweet.time,
+                "username": tweet.username,
+                "content": tweet.content,
+                "likes": tweet.likes,
+                "replies": tweet.replies,
+                "retweets": tweet.retweets,
+                "link": tweet.link,
+                "userlink": tweet.userlink,
+            }
         } for tweet in Tweet.objects.all()]
 
         search_nodes = [{
