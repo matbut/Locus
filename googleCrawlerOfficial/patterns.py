@@ -1,7 +1,8 @@
 import re
-import unicodedata
 from datetime import datetime
 from datetime import timedelta
+
+from common.textUtils import remove_diacritics
 
 locale_months = {
     1: ['sty'],
@@ -79,7 +80,3 @@ def retrieve_date_ago(date_str):
         return (now - timedelta(hours=number)).replace(microsecond=0, second=0, minute=0)
     if unit in ['min']:
         return (now - timedelta(minutes=number)).replace(microsecond=0, second=0)
-
-
-def remove_diacritics(s):
-    return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))

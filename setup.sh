@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+cd resources
 mkdir ispell
 echo -e "\e[33mExtracting ispell source...\e[39m"
 tar xvjf sjp-ispell-pl-*-src.tar.bz2 --transform 's/sjp-ispell-pl-[0-9]*/ispell/'
@@ -18,3 +19,4 @@ echo -e "\e[33mAdding ispell to locus_db...\e[39m"
 sudo -u postgres psql -f postgresql_ispell_setup.sql locus_db
 
 rm -r ispell
+cd ..

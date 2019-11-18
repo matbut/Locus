@@ -37,11 +37,11 @@ class WSConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
-        text_data_json = json.loads(text_data)
         self.delete_tables()
 
-        crawl_parameters = CrawlParameters.from_dict(text_data_json)
+        text_data_json = json.loads(text_data)
 
+        crawl_parameters = CrawlParameters.from_dict(text_data_json)
         search_parameters = SearchParameters(
             url=text_data_json['url'],
             title=text_data_json['title'],
@@ -52,32 +52,37 @@ class WSConsumer(WebsocketConsumer):
         )
         search_parameters.save()
 
-        if text_data_json['twitter']:
-            logging.info("Sending parameters to tweeter component")
-            async_to_sync(self.channel_layer.send)("tweet_crawler",
-                {"type": "crawl", "parameters": crawl_parameters.to_dict(), "search_id": search_parameters.id, "id": self.id})
+        if crawl_parameters.twitter_search:
+            self.send_message('tweet_crawler', 'crawl', crawl_parameters, search_parameters.id)
 
-            self.awaited_components_number += 1
+        if crawl_parameters.google_search:
+            self.send_message('google_crawler', 'crawl', crawl_parameters, search_parameters.id)
 
-        if text_data_json['google']:
-            logging.info("Sending parameters to google search component")
-            async_to_sync(self.channel_layer.send)("google_crawler",
-                {"type": "crawl", "parameters": crawl_parameters.to_dict(), "search_id": search_parameters.id, "id": self.id})
-
-            self.awaited_components_number += 1
-
-        if text_data_json['db']:
-            logging.info("Sending parameters to database search component")
-            async_to_sync(self.channel_layer.send)("db_searcher",
-                {"type": "search", "parameters": crawl_parameters.to_dict(), "search_id": search_parameters.id, "id": self.id})
-
-            self.awaited_components_number += 1
+        if crawl_parameters.db_search:
+            self.send_message('db_searcher', 'search', crawl_parameters, search_parameters.id)
 
     def send_done(self, signal):
         logging.info(signal)
         self.awaited_components_number -= 1
         if self.awaited_components_number == 0:
-            self.send("done")
+            self.send('done')
+
+    def send_failure(self, signal):
+        logging.warning('Failure: ', signal)
+
+    def send_message(self, where, search_type, crawl_parameters, search_parameters_id):
+        logging.info('Sending parameters to {0} component'.format(where))
+        async_to_sync(self.channel_layer.send)(
+            where,
+            {
+                'type': search_type,
+                'parameters': crawl_parameters.to_dict(),
+                'search_id': search_parameters_id,
+                'id': self.id
+            }
+        )
+
+        self.awaited_components_number += 1
 
     def delete_tables(self):
         Tweet.objects.all().delete()
