@@ -51,6 +51,12 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.py[co]
+MANIFEST
+node_modules/
+tests/coverage_html/
+tests/.coverage
+tests/report/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -76,6 +82,7 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/locale/
 
 # PyBuilder
 target/
@@ -83,9 +90,7 @@ target/
 
 ### Django ###
 *.log
-*.pot
 *.pyc
-__pycache__/
 local_settings.py
 
 .env
@@ -116,6 +121,7 @@ db.sqlite3
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+.idea/**/profiles_settings.xml
 
 # Gradle
 .idea/**/gradle.xml
