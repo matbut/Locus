@@ -14,8 +14,6 @@ from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters
 from tweetCrawler.models import Tweet
 
-import random
-
 
 def charts(request):
     my_date = datetime.now()
@@ -123,7 +121,7 @@ class Graph(APIView):
 
     def get(self, request, format=None):
         tweet_nodes = [{
-            "id": tweet.id,
+            "id": tweet.get_node_id,
             "group": 'tweet',
             "tweet": {
                 "date": tweet.date,
@@ -139,40 +137,56 @@ class Graph(APIView):
         } for tweet in Tweet.objects.all()]
 
         search_nodes = [{
-            "id": 999+search.id,
-            "group": 'search'
+            "id": search.get_node_id,
+            "group": 'search',
+            "title": search.url+"<br/>"+search.title,
         } for search in SearchParameters.objects.all()]
 
         google_nodes = [{
-            "id": google.id,
-            "group": 'page'
+            "id": google.get_node_id,
+            "group": 'google',
+            "title": google.page,
+            "google": {
+                "page": google.page,
+                "date": google.date,
+                "link": google.link,
+            }
         } for google in GoogleResultOfficial.objects.all()]
 
         article_nodes = [{
-            "id": article.id,
-            "group": 'article'
+            "id": article.get_node_id,
+            "group": 'article',
+            "title": article.page,
+            "article": {
+                "page": article.page,
+                "date": article.date,
+                "link": article.link,
+                "similarity": article.similarity,
+                "title": article.title,
+                "content": article.content,
+            }
         } for article in ResultArticle.objects.all()]
 
         nodes = tweet_nodes + search_nodes + google_nodes + article_nodes
 
         tweet_edges = [{
-            "from": tweet.id,
-            "to": 999+search_node.id,
+            "from": tweet.get_node_id,
+            "to": search_node.get_node_id,
         } for search_node in SearchParameters.objects.all() for tweet in search_node.tweet_set.all()]
 
         google_tweet_edges = [{
-            "from": tweet.id,
-            "to": google.id,
+            "from": tweet.get_node_id,
+            "to": google.get_node_id,
         } for google in GoogleResultOfficial.objects.all() for tweet in google.tweet_set.all()]
 
         google_edges = [{
-            "from": 999+search_node.id,
-            "to": google.id,
+            "from": search_node.get_node_id,
+            "to": google.get_node_id,
         } for search_node in SearchParameters.objects.all() for google in search_node.googleresultofficial_set.all()]
 
         article_edges = [{
-            "from": 999+search_node.id,
-            "to": article.id,
+            "from": search_node.get_node_id,
+            "to": article.get_node_id,
         } for search_node in SearchParameters.objects.all() for article in search_node.resultarticle_set.all()]
 
         edges = tweet_edges + google_tweet_edges + google_edges + article_edges

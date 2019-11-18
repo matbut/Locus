@@ -11,7 +11,7 @@ function tweetTextNode(field, tweet) {
         }
         case "link": {
             var a = document.createElement('a');
-            var linkText = document.createTextNode(tweet.link);
+            var linkText = document.createTextNode("link");
             a.appendChild(linkText);
             a.title = "link";
             a.href = tweet.link;
@@ -24,11 +24,36 @@ function tweetTextNode(field, tweet) {
 }
 
 
+function articleTextNode(field, article) {
+    switch (field) {
+        case "page": {
+            var a = document.createElement('a');
+            var linkText = document.createTextNode(article.page);
+            a.appendChild(linkText);
+            a.title = article.page;
+            a.href = "http://"+article.page;
+            a.target = "_blank";
+            return a;
+        }
+        case "link": {
+            var a = document.createElement('a');
+            var linkText = document.createTextNode("link");
+            a.appendChild(linkText);
+            a.title = "link";
+            a.href = article.link;
+            a.target = "_blank";
+            return a;
+        }
+        default:
+            return document.createTextNode(article[field]);
+    }
+}
+
+
 function addTweetRow(tweet) {
     if (!document.getElementsByTagName) return;
 
     old_tbody = document.getElementById("tweetsTable").getElementsByTagName("tbody").item(0);
-
     row = document.createElement("tr");
 
     let fields = ["date", "time", "username", "content", "likes", "replies", "retweets", "link"];
@@ -41,20 +66,83 @@ function addTweetRow(tweet) {
     }
 
     old_tbody.appendChild(row);
+}
 
+function addGoogleRow(google) {
+    if (!document.getElementsByTagName) return;
+
+    old_tbody = document.getElementById("googleTable").getElementsByTagName("tbody").item(0);
+    row = document.createElement("tr");
+
+    let fields = ["date", "page", "link"];
+
+    for (let field of fields) {
+        let cell = document.createElement("td");
+        let textnode = articleTextNode(field, google);
+        cell.appendChild(textnode);
+        row.appendChild(cell);
+    }
+
+    old_tbody.appendChild(row);
+}
+
+function addArticleRow(article) {
+    if (!document.getElementsByTagName) return;
+
+    old_tbody = document.getElementById("databaseTable").getElementsByTagName("tbody").item(0);
+    row = document.createElement("tr");
+
+    let fields = ["date", "page", "link", "similarity", "title"];
+
+    for (let field of fields) {
+        let cell = document.createElement("td");
+        let textnode = articleTextNode(field, article);
+        cell.appendChild(textnode);
+        row.appendChild(cell);
+    }
+
+    old_tbody.appendChild(row);
 }
 
 function addNode(node) {
-
     switch(node.group){
         case 'tweet':
             addTweetRow(node.tweet);
+            break;
+        case 'google':
+            addGoogleRow(node.google);
+            break;
+        case 'article':
+            addArticleRow(node.article);
             break;
     }
 }
 
 var network;
 var container;
+var nodes;
+
+function openTab(selectedNodes) {
+
+    let lastItem = selectedNodes.slice(-1)[0];
+    let lastNode = nodes.find(x => x.id === lastItem);
+
+    if (lastNode !== undefined) {
+
+        switch (lastNode.group) {
+            case 'tweet':
+                $('#pills-tab a[href="#pills-twitter"]').tab('show')
+                break;
+            case 'google':
+                $('#pills-tab a[href="#pills-google"]').tab('show')
+                break;
+            case 'article':
+                $('#pills-tab a[href="#pills-database"]').tab('show')
+                break;
+        }
+    }
+
+}
 
 function draw() {
 
@@ -71,6 +159,12 @@ function draw() {
             multiselect: true,
             hover: true,
         },
+        edges: {
+            color: {
+                color: '#737373',
+                highlight: '#404040',
+            }
+        },
         groups: {
             article: {
                 shape: 'icon',
@@ -82,7 +176,7 @@ function draw() {
                     color: '#333399'
                 }
             },
-            page: {
+            google: {
                 shape: 'icon',
                 icon: {
                     face: "'Font Awesome 5 Free'",
@@ -146,6 +240,8 @@ function draw() {
                     node = nodes.find(x => x.id === item);
                     addNode(node)
                 });
+
+                openTab(properties.nodes)
             });
 
         },
@@ -155,18 +251,14 @@ function draw() {
     });
 }
 
+const tables = ["tweetsTable", "googleTable", "databaseTable"]
+
 function clearTables() {
-    table = document.getElementById("tweetsTable");
-    old_tbody = table.getElementsByTagName("tbody").item(0);
-    old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
-
-    table = document.getElementById("googleTable");
-    old_tbody = table.getElementsByTagName("tbody").item(0);
-    old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
-
-    table = document.getElementById("databaseTable");
-    old_tbody = table.getElementsByTagName("tbody").item(0);
-    old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
+    tables.forEach(function (item, index) {
+        let table = document.getElementById(item);
+        let old_tbody = table.getElementsByTagName("tbody").item(0);
+        old_tbody.parentNode.replaceChild(document.createElement('tbody'), old_tbody);
+    });
 }
 
 function getPosition(el) {
@@ -316,7 +408,7 @@ function makeMeMultiSelect(container, network, nodes) {
     DOMRect = {};
 
     // Disable default right-click dropdown menu
-    container.oncontextmenu = () => false;
+    container.oncontextmenu = () => {$(window).scrollTop(0); return false;};
 
     // Listeners
     //container.mousedown()

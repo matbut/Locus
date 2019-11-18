@@ -17,3 +17,7 @@ class SearchParameters(models.Model):
     url = models.TextField()
     title = models.TextField()
     content = models.TextField()
+
+    @property
+    def get_node_id(self):
+        return 'search'+str(self.id)

@@ -16,3 +16,7 @@ class GoogleResultOfficial(models.Model):
             return self.date
         else:
             return "-"
+
+    @property
+    def get_node_id(self):
+        return 'google' + str(self.id)
