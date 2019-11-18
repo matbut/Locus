@@ -21,4 +21,4 @@ class Tweet(models.Model):
 
     @property
     def get_node_id(self):
-        return 'google' + str(self.id)
+        return 'tweet' + str(self.id)

@@ -23,4 +23,4 @@ class ResultArticle(models.Model):
 
     @property
     def get_node_id(self):
-        return 'google' + str(self.id)
+        return 'db' + str(self.id)
