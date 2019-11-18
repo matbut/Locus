@@ -142,7 +142,7 @@ class Graph(APIView):
 
         google_nodes = [{
             "color": "#f1fe14",
-            "id": google.id,
+            "id": google.link,
             "label": google.link,
             "size": 20,
             "x": random.randint(0, 100),
@@ -151,7 +151,7 @@ class Graph(APIView):
 
         article_nodes = [{
             "color": "#f1fe14",
-            "id": article.id,
+            "id": article.link,
             "label": article.link,
             "size": 20,
             "x": random.randint(0, 100),
@@ -163,30 +163,30 @@ class Graph(APIView):
 
         #TODO unigue edges
         tweet_edges = [{
-            "id": tweet.id+search_node.id,
+            "id": tweet.id+str(search_node.id),
             "source": tweet.id,
             "target": search_node.id,
             "color" : '#66b2ff',
         } for search_node in SearchParameters.objects.all() for tweet in search_node.tweet_set.all()]
 
         google_tweet_edges = [{
-            "id": 999 + tweet.id+google.id,
+            "id": str(999) + tweet.id+google.link,
             "source": tweet.id,
-            "target": google.id,
+            "target": google.link,
             "color" : '#66b2ff',
         } for google in GoogleResultOfficial.objects.all() for tweet in google.tweet_set.all()]
 
         google_edges = [{
-            "id": 777 + search_node.id+google.id,
+            "id": str(777) + str(search_node.id)+google.link,
             "source": search_node.id,
-            "target": google.id,
+            "target": google.link,
             "color" : '#66b2ff',
         } for search_node in SearchParameters.objects.all() for google in search_node.googleresultofficial_set.all()]
 
         article_edges = [{
-            "id": 555 + search_node.id+article.id,
+            "id": str(555) + str(search_node.id)+article.link,
             "source": search_node.id,
-            "target": article.id,
+            "target": article.link,
             "color" : '#11b2ff',
         } for search_node in SearchParameters.objects.all() for article in search_node.resultarticle_set.all()]
 
