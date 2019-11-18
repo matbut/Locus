@@ -1,17 +1,17 @@
 import asyncio
+import json
 import logging
+import os
 from datetime import datetime
+from pathlib import Path
 
+import twint
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
 from googleCrawlerOfficial.models import GoogleResultOfficial
-from search.models import SearchParameters, CrawlParameters
+from search.models import CrawlParameters, SearchParameters
 from .models import Tweet
-from pathlib import Path
-import twint
-import json
-import os
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
 logging.getLogger().setLevel(logging.INFO)
@@ -24,7 +24,7 @@ class Crawler(SyncConsumer):
 
         tweets_file_path = "output.json".format(str(Path.home()))
 
-        crawl_parameters = CrawlParameters(data["parameters"])
+        crawl_parameters = CrawlParameters.from_dict(data["parameters"])
 
         search_id = data.get("search_id")
         search_parameters = None
@@ -86,9 +86,9 @@ class Crawler(SyncConsumer):
                         retweets=tweet['retweets_count']
                     )
                     new_tweet.save()
-                    if search_parameters is not None:
+                    if search_id is not None:
                         new_tweet.searches.add(search_parameters)
-                    if google is not None:
+                    if google_id is not None:
                         new_tweet.google.add(google)
             os.remove(tweets_file_path)
 

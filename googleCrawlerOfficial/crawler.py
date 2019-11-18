@@ -8,7 +8,7 @@ from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 
 from googleCrawlerOfficial import patterns
-from search.models import SearchParameters, CrawlParameters
+from search.models import CrawlParameters, SearchParameters
 from .models import GoogleResultOfficial
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -30,7 +30,7 @@ class Crawler(SyncConsumer):
         if search_id is not None:
             search_parameters = SearchParameters.objects.get(id=search_id)
 
-        crawl_parameters = CrawlParameters(data["parameters"])
+        crawl_parameters = CrawlParameters.from_dict(data["parameters"])
         query_raw = crawl_parameters.title
         query = quote(query_raw.encode('utf8'))
 
@@ -49,7 +49,7 @@ class Crawler(SyncConsumer):
             search_result.save()
             search_results.append(search_result)
 
-            if search_parameters is not None:
+            if search_id is not None:
                 search_result.searches.add(search_parameters)
 
         self.send_tweeter_requests(search_results)
@@ -57,11 +57,7 @@ class Crawler(SyncConsumer):
     def send_tweeter_requests(self, search_results):
         for result in search_results:
 
-            crawl_parameters = CrawlParameters({
-                "url": result.link,
-                "title": "",
-                "content": ""
-            })
+            crawl_parameters = CrawlParameters(url=result.link)
 
             logging.info("[google_search] Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)(

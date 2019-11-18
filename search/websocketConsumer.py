@@ -1,7 +1,7 @@
 import json
+import logging
 import random
 import string
-import logging
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -40,33 +40,36 @@ class WSConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         self.delete_tables()
 
-        cp = CrawlParameters(text_data_json)
+        crawl_parameters = CrawlParameters.from_dict(text_data_json)
 
         search_parameters = SearchParameters(
-            url=cp.url,
-            title=cp.title,
-            content=cp.content
+            url=text_data_json['url'],
+            title=text_data_json['title'],
+            content=text_data_json['content'],
+            twitter_search=text_data_json['twitter'],
+            google_search=text_data_json['google'],
+            db_search=text_data_json['db']
         )
         search_parameters.save()
 
         if text_data_json['twitter']:
             logging.info("Sending parameters to tweeter component")
             async_to_sync(self.channel_layer.send)("tweet_crawler",
-                {"type": "crawl", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+                {"type": "crawl", "parameters": crawl_parameters.to_dict(), "search_id": search_parameters.id, "id": self.id})
 
             self.awaited_components_number += 1
 
         if text_data_json['google']:
             logging.info("Sending parameters to google search component")
             async_to_sync(self.channel_layer.send)("google_crawler",
-                {"type": "crawl", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+                {"type": "crawl", "parameters": crawl_parameters.to_dict(), "search_id": search_parameters.id, "id": self.id})
 
             self.awaited_components_number += 1
 
         if text_data_json['db']:
             logging.info("Sending parameters to database search component")
             async_to_sync(self.channel_layer.send)("db_searcher",
-                {"type": "search", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+                {"type": "search", "parameters": crawl_parameters.to_dict(), "search_id": search_parameters.id, "id": self.id})
 
             self.awaited_components_number += 1
 
@@ -80,4 +83,4 @@ class WSConsumer(WebsocketConsumer):
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
         ResultArticle.objects.all().delete()
-        SearchParameters.objects.all().delete()
+        #SearchParameters.objects.all().delete()

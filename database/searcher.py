@@ -11,7 +11,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from database import stopwords
 from database.models import ImportedArticle, ResultArticle
-from search.models import CrawlParameters, SearchParameters
+from search.models import SearchParameters, CrawlParameters
 
 postgresql_rank_threshold = 0.05
 cosine_similarity_threshold = 0.1
@@ -31,7 +31,7 @@ class Searcher(SyncConsumer):
     def search(self, data):
         logging.info('Database searcher: starting')
 
-        crawl_parameters = CrawlParameters(data["parameters"])
+        crawl_parameters = CrawlParameters.from_dict(data["parameters"])
 
         search_id = data.get("search_id")
         search_parameters = None
@@ -39,7 +39,7 @@ class Searcher(SyncConsumer):
             search_parameters = SearchParameters.objects.get(id=search_id)
 
         title_without_stop = ' '.join(remove_stopwords(
-            search_parameters.title
+            crawl_parameters.title
                 .translate(str.maketrans('', '', string.punctuation))
                 .split()))
 
