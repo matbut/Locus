@@ -18,3 +18,7 @@ class Tweet(models.Model):
 
     searches = models.ManyToManyField(SearchParameters)
     google = models.ManyToManyField(GoogleResultOfficial)
+
+    @property
+    def get_node_id(self):
+        return 'tweet' + str(self.id)

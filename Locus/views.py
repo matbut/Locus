@@ -14,8 +14,6 @@ from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters
 from tweetCrawler.models import Tweet
 
-import random
-
 
 def charts(request):
     my_date = datetime.now()
@@ -123,71 +121,72 @@ class Graph(APIView):
 
     def get(self, request, format=None):
         tweet_nodes = [{
-            "color": "#0275D8",
-            "id": tweet.id,
-            "label": tweet.content,
-            "size": 20 + tweet.likes//100,
-            "x": random.randint(0, 100),
-            "y": random.randint(0, 100)
+            "id": tweet.get_node_id,
+            "group": 'tweet',
+            "tweet": {
+                "date": tweet.date,
+                "time": tweet.time,
+                "username": tweet.username,
+                "content": tweet.content,
+                "likes": tweet.likes,
+                "replies": tweet.replies,
+                "retweets": tweet.retweets,
+                "link": tweet.link,
+                "userlink": tweet.userlink,
+            }
         } for tweet in Tweet.objects.all()]
 
         search_nodes = [{
-            "color": "#fd7e14",
-            "id": search.id,
-            "label": search.url,
-            "size": 20,
-            "x": random.randint(0, 100),
-            "y": random.randint(0, 100)
+            "id": search.get_node_id,
+            "group": 'search',
+            "title": search.url+"<br/>"+search.title,
         } for search in SearchParameters.objects.all()]
 
         google_nodes = [{
-            "color": "#f1fe14",
-            "id": google.link,
-            "label": google.link,
-            "size": 20,
-            "x": random.randint(0, 100),
-            "y": random.randint(0, 100)
+            "id": google.get_node_id,
+            "group": 'google',
+            "title": google.page,
+            "google": {
+                "page": google.page,
+                "date": google.date,
+                "link": google.link,
+            }
         } for google in GoogleResultOfficial.objects.all()]
 
         article_nodes = [{
-            "color": "#f1fe14",
-            "id": article.link,
-            "label": article.link,
-            "size": 20,
-            "x": random.randint(0, 100),
-            "y": random.randint(0, 100)
+            "id": article.get_node_id,
+            "group": 'article',
+            "title": article.page,
+            "article": {
+                "page": article.page,
+                "date": article.date,
+                "link": article.link,
+                "similarity": article.similarity,
+                "title": article.title,
+                "content": article.content,
+            }
         } for article in ResultArticle.objects.all()]
 
         nodes = tweet_nodes + search_nodes + google_nodes + article_nodes
 
-
-        #TODO unigue edges
         tweet_edges = [{
-            "id": tweet.id+str(search_node.id),
-            "source": tweet.id,
-            "target": search_node.id,
-            "color" : '#66b2ff',
+            "from": tweet.get_node_id,
+            "to": search_node.get_node_id,
         } for search_node in SearchParameters.objects.all() for tweet in search_node.tweet_set.all()]
 
         google_tweet_edges = [{
-            "id": str(999) + tweet.id+google.link,
-            "source": tweet.id,
-            "target": google.link,
-            "color" : '#66b2ff',
+            "from": tweet.get_node_id,
+            "to": google.get_node_id,
         } for google in GoogleResultOfficial.objects.all() for tweet in google.tweet_set.all()]
 
         google_edges = [{
-            "id": str(777) + str(search_node.id)+google.link,
-            "source": search_node.id,
-            "target": google.link,
-            "color" : '#66b2ff',
+            "from": search_node.get_node_id,
+            "to": google.get_node_id,
         } for search_node in SearchParameters.objects.all() for google in search_node.googleresultofficial_set.all()]
 
         article_edges = [{
-            "id": str(555) + str(search_node.id)+article.link,
-            "source": search_node.id,
-            "target": article.link,
-            "color" : '#11b2ff',
+            "from": search_node.get_node_id,
+            "to": article.get_node_id,
         } for search_node in SearchParameters.objects.all() for article in search_node.resultarticle_set.all()]
 
         edges = tweet_edges + google_tweet_edges + google_edges + article_edges

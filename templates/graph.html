@@ -21,9 +21,12 @@
   <!-- Custom styles for this template-->
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
 
+  <!-- Custom graph styles-->
+  <link href="{% static "locus/css/graph.css" %}" rel="stylesheet">
+
 </head>
 
-<body id="page-top">
+<body id="page-top" onload="draw()">
 
   <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
@@ -120,17 +123,17 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'twitter_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
+          <i class="fab fa-twitter"></i>
           <span>Twitter results</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'google_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
+          <i class="fas fa-globe-europe"></i>
           <span>Google results</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'database_tables' %}">
-          <i class="fas fa-fw fa-table"></i>
+          <i class="fas fa-file-alt"></i>
           <span>Database results</span></a>
       </li>
     </ul>
@@ -139,21 +142,108 @@
     <div id="content-wrapper">
 
         <div class="container-fluid">
-
-        <div class="row">
-          <div class="col-lg-12">
+        <div class = "row" >
+          <div class="col-lg-7">
             <div class="card mb-3">
-              <div class="card-header">
+              <div class="card-header" style="height: 69px">
                 <i class="fas fa-project-diagram"></i>
-                Graph</div>
-                <div id="graph-container">
-                <canvas id="graph-container" width="100%" height=450></canvas>
+                Graph
+              </div>
+              <div id="mynetworkFA5" style="height: 660px">
+                <!--<canvas id="graph-container" width="100%" height=450></canvas>-->
               </div>
               <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
             </div>
           </div>
-        </div>
 
+          <div class="col-lg-5">
+            <div class="card mb-3">
+              <div class="card-header" style="padding-bottom: 0;">
+                <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-bottom: 0;">
+                  <li class="nav-item">
+                    <a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-google" role="tab"
+                       aria-controls="pills-profile" aria-selected="false">
+                      <i class="fas fa-globe-europe"></i>
+                      Google
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-database" role="tab"
+                       aria-controls="pills-contact" aria-selected="false">
+                      <i class="fas fa-file-alt"></i>
+                      Database
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" id="pills-home-tab" data-toggle="pill" href="#pills-twitter" role="tab"
+                       aria-controls="pills-home" aria-selected="true">
+                      <i class="fab fa-twitter"></i>
+                      Twitter
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <div class="tab-content" id="myTabContent">
+                  <div class="tab-pane fade show active" id="pills-google" role="tabpanel" aria-labelledby="pills-profile-tab">
+                    <div class="table-responsive" style="height: 620px; overflow: auto;">
+                      <table class="table table-bordered" id="googleTable" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Page</th>
+                          <th>Link</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="pills-database" role="tabpanel" aria-labelledby="pills-contact-tab">
+                    <div class="table-responsive" style="height: 620px; overflow: auto;">
+                      <table class="table table-bordered" id="databaseTable" width="100%" cellspacing="0" >
+                        <thead>
+                          <tr>
+                            <th>Date</th>
+                            <th>Page</th>
+                            <th>Link</th>
+                            <th>Similarity</th>
+                            <th>Title</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="pills-twitter" role="tabpanel" aria-labelledby="pills-home-tab" >
+                    <div class="table-responsive" style="height: 620px; overflow: auto;">
+                      <table class="table table-bordered" id="tweetsTable" width="100%" cellspacing="0">
+                        <thead>
+                        <tr>
+                          <th>Date</th>
+                          <th>Time</th>
+                          <th>Username</th>
+                          <th>Content</th>
+                          <th>Likes</th>
+                          <th>Replies</th>
+                          <th>Retweets</th>
+                          <th>Link</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
+            </div>
+           </div>
+        </div>
+      </div>
       <!-- Sticky Footer -->
       <footer class="sticky-footer">
         <div class="container my-auto">
@@ -212,36 +302,9 @@
   <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
 
   <!-- Graph scripts-->
-  <script src="{% static "locus/js/sigma/sigma.min.js" %}"></script>
-  <script src="{% static "locus/js/sigma/plugins/sigma.layout.forceAtlas2.min.js" %}"></script>
+  <script src="{% static "vis-network/standalone/umd/vis-network.min.js" %}"></script>
 
-
-        <script>
-
-            $.ajax({
-                method: "GET",
-                url: '/api/graph',
-                success: function (graph) {
-                  s = new sigma({
-                  graph: graph,
-                  container: 'graph-container',
-                  settings: {
-                    drawEdges: true,
-                    drawLabels: false
-                  }
-                });
-                // Start the ForceAtlas2 algorithm:
-                s.startForceAtlas2({worker: true, barnesHutOptimize: false});
-                setTimeout(() => {s.killForceAtlas2()}, 1000);
-                },
-                error: function (errorData) {
-                  console.error(errorData)
-                }
-            });
-
-
-
-        </script>
+  <script src="{% static "locus/js/graph/graph.js" %}"></script>
 
 </body>
 

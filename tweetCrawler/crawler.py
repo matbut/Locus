@@ -23,7 +23,7 @@ def get_twint_configuration(tweets_file_path):
     c = twint.Config()
     c.Limit = 100
     c.Hide_output = True
-    # c.Store_object = True
+    c.Popular_tweets = True
     c.Store_json = True
     c.Output = tweets_file_path
     return c
@@ -77,6 +77,7 @@ class Crawler(SyncConsumer):
             # Search
             if crawl_parameters.url != '':
                 c.Search = crawl_parameters.url
+                c.Links = "include"
                 twint.run.Search(c)
 
             if os.path.isfile(tweets_file_path):

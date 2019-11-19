@@ -88,4 +88,4 @@ class WSConsumer(WebsocketConsumer):
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
         ResultArticle.objects.all().delete()
-        #SearchParameters.objects.all().delete()
+        SearchParameters.objects.all().delete()

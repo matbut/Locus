@@ -1,0 +1,68 @@
+    #mynetworkFA5,
+    #mynetwork {
+      width: 100%;
+      height: 100%;
+    }
+
+    div.vis-active,
+    div.vis-network,
+    div.vis-network div.vis-navigation div.vis-button.vis-up,
+    div.vis-network div.vis-navigation div.vis-button.vis-down,
+    div.vis-network div.vis-navigation div.vis-button.vis-left,
+    div.vis-network div.vis-navigation div.vis-button.vis-right,
+    div.vis-network div.vis-navigation div.vis-button.vis-zoomIn,
+    div.vis-network div.vis-navigation div.vis-button.vis-zoomOut,
+    div.vis-network div.vis-navigation div.vis-button.vis-zoomExtends {
+      background-image: none !important;
+    }
+
+    div.vis-network div.vis-navigation div.vis-button:hover {
+      box-shadow: none !important;
+    }
+
+    .vis-active:focus {
+      outline: none;
+    }
+
+    .vis-network:focus {
+      outline: none;
+    }
+
+    .vis-button:after {
+      font-size: 2em;
+      color: gray;
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+    }
+
+    .vis-button:hover:after {
+      color: lightgray;
+    }
+
+    .vis-button.vis-up:after {
+       content: "\f35b";
+    }
+
+    .vis-button.vis-down:after {
+      content: '\f358';
+    }
+
+    .vis-button.vis-left:after {
+      content: '\f359';
+    }
+
+    .vis-button.vis-right:after {
+      content: '\f35a';
+    }
+
+    .vis-button.vis-zoomIn:after {
+      content: '\f00e';
+    }
+
+    .vis-button.vis-zoomOut:after {
+      content: '\f010';
+    }
+
+    .vis-button.vis-zoomExtends:after {
+      content: '\f05b';
+    }

@@ -9,7 +9,7 @@ attrs==19.3.0
 autobahn==19.11.1
 Automat==0.8.0
 beautifulsoup4==4.8.1
-cchardet==2.1.4
+cchardet==2.1.5
 certifi==2019.9.11
 cffi==1.13.2
 channels==2.3.1
@@ -27,11 +27,11 @@ elasticsearch==7.1.0
 fake-useragent==0.1.11
 geographiclib==1.50
 geopy==1.20.0
-h11==0.8.1
+h11==0.9.0
 h2==3.1.1
 hiredis==1.0.1
 hpack==3.0.0
-hstspreload==2019.11.12
+hstspreload==2019.11.18
 httpx==0.7.7
 hyperframe==5.2.0
 hyperlink==19.0.0

@@ -20,3 +20,7 @@ class ResultArticle(models.Model):
     content = models.TextField()
 
     searches = models.ManyToManyField(SearchParameters)
+
+    @property
+    def get_node_id(self):
+        return 'db' + str(self.link)

@@ -40,3 +40,7 @@ class SearchParameters(models.Model):
     twitter_search = models.BooleanField(default=False)
     google_search = models.BooleanField(default=False)
     db_search = models.BooleanField(default=False)
+
+    @property
+    def get_node_id(self):
+        return 'search'+str(self.id)
