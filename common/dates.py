@@ -1,6 +1,5 @@
 import datetime
 import re
-import unicodedata
 
 month = {
     'styczen': 'Jan',
@@ -39,7 +38,3 @@ def replace_month(str_date):
     groups = re.match('\\d+ (?P<month>[a-zA-Z]+) \\d+', str_date_normalized)
     m = groups.groupdict()['month']
     return str_date_normalized.replace(m, month[m])
-
-
-def remove_diacritics(s):
-    return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))

@@ -32,16 +32,33 @@ Check if Redis is working properly by sending a PING command:
 $ redis-cli ping
 PONG
 ```
+
+#### PostgreSQL
+It can be installed with:
+```
+sudo apt update
+sudo apt install postgresql postgresql-contrib python-psycopg2 libpq-dev python-psycopg2
+```
+
 ### Installing
 We recommend to create virtual environment with [venv](https://docs.python.org/3/library/venv.html)
 ```
 git clone git@github.com:matbut/Locus.git
 pip3 install -r requirements.txt 
+npm install
 ```
+
+### Setup
+Before running application for the first time it is required to run the script setup.sh
+```
+cd locus_project
+./setup.sh
+``` 
+
 ### Start
 Run worker for searching components:
 ```
-python3 manage.py runworker tweet_crawler google_crawler
+python3 manage.py runworker tweet_crawler google_crawler db_searcher
 ```
 Start server:
 ```

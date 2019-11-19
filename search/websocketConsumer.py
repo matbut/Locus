@@ -1,7 +1,7 @@
 import json
+import logging
 import random
 import string
-import logging
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
@@ -37,47 +37,55 @@ class WSConsumer(WebsocketConsumer):
 
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
-        text_data_json = json.loads(text_data)
         self.delete_tables()
 
-        cp = CrawlParameters(text_data_json)
+        text_data_json = json.loads(text_data)
 
+        crawl_parameters = CrawlParameters.from_dict(text_data_json)
         search_parameters = SearchParameters(
-            url=cp.url,
-            title=cp.title,
-            content=cp.content
+            url=text_data_json['url'],
+            title=text_data_json['title'],
+            content=text_data_json['content'],
+            twitter_search=text_data_json['twitter'],
+            google_search=text_data_json['google'],
+            db_search=text_data_json['db']
         )
         search_parameters.save()
 
-        if text_data_json['twitter']:
-            logging.info("Sending parameters to tweeter component")
-            async_to_sync(self.channel_layer.send)("tweet_crawler",
-                {"type": "crawl", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
+        if crawl_parameters.twitter_search:
+            self.send_message('tweet_crawler', 'crawl', crawl_parameters, search_parameters.id)
 
-            self.awaited_components_number += 1
+        if crawl_parameters.google_search:
+            self.send_message('google_crawler', 'crawl', crawl_parameters, search_parameters.id)
 
-        if text_data_json['google']:
-            logging.info("Sending parameters to google search component")
-            async_to_sync(self.channel_layer.send)("google_crawler",
-                {"type": "crawl", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
-
-            self.awaited_components_number += 1
-
-        if text_data_json['db']:
-            logging.info("Sending parameters to database search component")
-            async_to_sync(self.channel_layer.send)("db_searcher",
-                {"type": "search", "parameters": cp.__dict__, "search_id": search_parameters.id, "id": self.id})
-
-            self.awaited_components_number += 1
+        if crawl_parameters.db_search:
+            self.send_message('db_searcher', 'search', crawl_parameters, search_parameters.id)
 
     def send_done(self, signal):
         logging.info(signal)
         self.awaited_components_number -= 1
         if self.awaited_components_number == 0:
-            self.send("done")
+            self.send('done')
+
+    def send_failure(self, signal):
+        logging.warning('Failure: ', signal)
+
+    def send_message(self, where, search_type, crawl_parameters, search_parameters_id):
+        logging.info('Sending parameters to {0} component'.format(where))
+        async_to_sync(self.channel_layer.send)(
+            where,
+            {
+                'type': search_type,
+                'parameters': crawl_parameters.to_dict(),
+                'search_id': search_parameters_id,
+                'id': self.id
+            }
+        )
+
+        self.awaited_components_number += 1
 
     def delete_tables(self):
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
         ResultArticle.objects.all().delete()
-        SearchParameters.objects.all().delete()
+        #SearchParameters.objects.all().delete()
