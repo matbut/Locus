@@ -19,4 +19,4 @@ class GoogleResultOfficial(models.Model):
 
     @property
     def get_node_id(self):
-        return 'google' + str(self.id)
+        return 'google' + str(self.link)
