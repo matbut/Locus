@@ -1,7 +1,7 @@
 import csv
+import os
 from datetime import datetime
-
-from django.db import IntegrityError
+from urllib.parse import urlparse
 
 from database.models import ImportedArticle
 
@@ -9,18 +9,39 @@ from database.models import ImportedArticle
 def upload(file_data):
     lines = file_data.splitlines()
     articles = []
-    for fields in csv.reader(lines[1:], quotechar='"', delimiter=',', quoting=csv.QUOTE_ALL, skipinitialspace=True):
-        article = ImportedArticle(page=fields[0], date=datetime.strptime(fields[1], '%Y-%m-%d %H:%M:%S'),
-                                  link=fields[2], title=fields[3], content=fields[4])
+    csv_reader = get_csv_reader(lines[1:])
+    for fields in csv_reader:
+        article = get_article_from_field(fields)
         articles.append(article)
-    for article in articles:
-        try:
-            article.save()
-        except IntegrityError as e:
-            if 'unique constraint' in (e.args[0]).lower():  # or e.args[0] from Django 1.10
-                pass
+    save_articles(articles)
+
+
+def read_upload(file_name):
+    articles = []
+    with open(file_name) as csv_file:
+        csv_reader = get_csv_reader(csv_file)
+        line_count = 0
+        for fields in csv_reader:
+            if line_count == 0:
+                line_count += 1
             else:
-                raise
+                article = get_article_from_field(fields)
+                articles.append(article)
+                line_count += 1
+    os.remove(file_name)
+    save_articles(articles)
 
 
+def save_articles(articles):
+    for article in articles:
+        article.save()
 
+
+def get_csv_reader(content):
+    return csv.reader(content, quotechar='"', delimiter=';', quoting=csv.QUOTE_ALL, skipinitialspace=True)
+
+
+def get_article_from_field(fields):
+    page = urlparse(fields[0]).netloc
+    return ImportedArticle(page=page, date=datetime.strptime(fields[4], '%Y-%m-%d %H:%M:%S'),
+                           link=fields[0], title=fields[3], content=fields[2])

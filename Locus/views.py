@@ -54,13 +54,14 @@ def upload_csv(request):
             messages.error(request, 'File is not CSV type')
             return HttpResponseRedirect(reverse("upload"))
 
-        # if file is too large, return
         if csv_file.multiple_chunks():
-            messages.error(request, "Uploaded file is too big (%.2f MB)." % (csv_file.size / (1000 * 1000),))
-            return HttpResponseRedirect(reverse("upload"))
-
-        file_data = csv_file.read().decode("utf-8")
-        uploader.upload(file_data)
+            with open('/tmp/locus.csv', 'wb+') as destination:
+                for chunk in csv_file.chunks():
+                    destination.write(chunk)
+                uploader.read_upload('/tmp/locus.csv')
+        else:
+            file_data = csv_file.read().decode("utf-8")
+            uploader.upload(file_data)
         messages.success(request, 'File uploaded successfully')
     except Exception as e:
         logging.getLogger("error_logger").error("Unable to upload file. " + repr(e))
