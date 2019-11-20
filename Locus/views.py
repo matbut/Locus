@@ -124,6 +124,7 @@ class Graph(APIView):
         tweet_nodes = [{
             "id": tweet.get_node_id,
             "group": 'tweet',
+            "title": tweet.username,
             "tweet": {
                 "date": tweet.date,
                 "time": tweet.time,
