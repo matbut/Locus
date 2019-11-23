@@ -180,7 +180,7 @@
                     <td>{{ tweet.likes }}</td>
                     <td>{{ tweet.retweets }}</td>
                     <td>{{ tweet.replies }}</td>
-                    <td><a href={{ tweet.link }} target="_blank" >link</a></td>
+                    <td><a href={{ tweet.link }} target="_blank" data-toggle="tooltip" title={{ tweet.link }}>link</a></td>
                   </tr>
                 {% endfor %}
                 </tbody>

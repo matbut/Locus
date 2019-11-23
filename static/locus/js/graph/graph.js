@@ -4,7 +4,6 @@ function tweetTextNode(field, tweet) {
             var a = document.createElement('a');
             var linkText = document.createTextNode(tweet.username);
             a.appendChild(linkText);
-            a.title = tweet.username;
             a.href = tweet.userlink;
             a.target = "_blank";
             return a;
@@ -13,7 +12,8 @@ function tweetTextNode(field, tweet) {
             var a = document.createElement('a');
             var linkText = document.createTextNode("link");
             a.appendChild(linkText);
-            a.title = "link";
+            a.title = tweet.link;
+            a.data_ogle = "tooltip";
             a.href = tweet.link;
             a.target = "_blank";
             return a;
@@ -30,7 +30,6 @@ function articleTextNode(field, article) {
             var a = document.createElement('a');
             var linkText = document.createTextNode(article.page);
             a.appendChild(linkText);
-            a.title = article.page;
             a.href = "http://"+article.page;
             a.target = "_blank";
             return a;
@@ -39,13 +38,14 @@ function articleTextNode(field, article) {
             var a = document.createElement('a');
             var linkText = document.createTextNode("link");
             a.appendChild(linkText);
-            a.title = "link";
+            a.title = article.link;
+            a.data_ogle = "tooltip";
             a.href = article.link;
             a.target = "_blank";
             return a;
         }
         default:
-            return document.createTextNode(article[field]);
+            return document.createTextNode((article[field] == null) ? "" : article[field]);
     }
 }
 
