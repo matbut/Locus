@@ -115,6 +115,21 @@ class ChartTweetsDaily(APIView):
         return Response(presentedDays)
 
 
+class CrawlerStatus(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+
+        crawler = request.query_params['crawler']
+        #TODO extract data based on crawler. Crawler is one from list ["tweet_crawler", "google_crawler", "db_searcher"]
+        return Response({
+            'working': 10,
+            'completed': 12,
+            'failed': 0,
+        })
+
+
 class Graph(APIView):
 
     authentication_classes = []
