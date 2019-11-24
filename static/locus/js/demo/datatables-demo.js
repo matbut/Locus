@@ -8,32 +8,15 @@ const crawlers = ["tweet_crawler", "google_crawler", "db_searcher"];
 
 const crawlerEndpoint = '/api/crawler';
 
-var active = {
-  "tweet_crawler": false,
-  "google_crawler": false,
-  "db_searcher": false
-};
-
 document.getElementById("tweetCrawlerDropdown").addEventListener('click', function(){
-  poolWhileActive("tweet_crawler")
+  fillCrawler("tweet_crawler")
 });
 document.getElementById("googleCrawlerDropdown").addEventListener('click', function(){
-  poolWhileActive("google_crawler")
+  fillCrawler("google_crawler")
 });
 document.getElementById("databaseSearcher").addEventListener('click', function(){
-  poolWhileActive("db_searcher")
+  fillCrawler("db_searcher")
 });
-
-
-function poolWhileActive(crawler) {
-  if(!active[crawler]) {
-    active[crawler] = true;
-    fillCrawler(crawler);
-  } else {
-    active[crawler] = false;
-  }
-}
-
 
 function fillCrawler(crawler){
   $.ajax({
