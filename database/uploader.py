@@ -1,8 +1,8 @@
 import csv
 import os
 from datetime import datetime
-from urllib.parse import urlparse
 
+from common.url import get_domain, clean_url
 from database.models import ImportedArticle
 
 
@@ -42,6 +42,6 @@ def get_csv_reader(content):
 
 
 def get_article_from_field(fields):
-    page = urlparse(fields[0]).netloc
+    page = get_domain(fields[0])
     return ImportedArticle(page=page, date=datetime.strptime(fields[4], '%Y-%m-%d %H:%M:%S'),
-                           link=fields[0], title=fields[3], content=fields[2])
+                           link=clean_url(fields[0]), title=fields[3], content=fields[2])

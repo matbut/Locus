@@ -7,7 +7,8 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from common import searcherUtils, statusUpdate
-from common.searcherUtils import send_to_worker, MAIN_SEARCH_NAME, WORKER_NAMES
+from common.searcherUtils import send_to_worker, MAIN_SEARCH_NAME
+from common.url import clean_url
 from database.models import ResultArticle, TopWord
 from googleCrawlerOfficial.models import InternetResult, Domain
 from search.models import SearchParameters, CrawlerStatus, Parent
@@ -45,7 +46,7 @@ class WSConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
 
         search_parameters = SearchParameters(
-            link=text_data_json['url'],
+            link=clean_url(text_data_json['url']),
             title=text_data_json['title'],
             content=text_data_json['content'],
             twitter_search=text_data_json['twitter'],
@@ -78,7 +79,7 @@ class WSConsumer(WebsocketConsumer):
         logging.info('Sending request to {0} component'.format(where))
         statusUpdate.get(where).queued()
         send_to_worker(self.channel_layer, sender=self.id, where=where, method=search_type, body={
-            'link': text_data_json['url'],
+            'link': clean_url(text_data_json['url']),
             'title': text_data_json['title'],
             'search_id': search_parameters_id,
             'parent': Parent(id=search_parameters_id, type=MAIN_SEARCH_NAME).to_dict(),
