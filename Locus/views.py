@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from database import uploader
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
-from search.models import SearchParameters
+from search.models import SearchParameters, CrawlerStatus as Status
 from tweetCrawler.models import Tweet
 
 
@@ -120,14 +120,9 @@ class CrawlerStatus(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
-
         crawler = request.query_params['crawler']
-        #TODO extract data based on crawler. Crawler is one from list ["tweet_crawler", "google_crawler", "db_searcher"]
-        return Response({
-            'working': 10,
-            'completed': 12,
-            'failed': 0,
-        })
+        status = Status.objects.get(pk=crawler)
+        return Response(status.get_status_json)
 
 
 class Graph(APIView):

@@ -8,15 +8,31 @@ const crawlers = ["tweet_crawler", "google_crawler", "db_searcher"];
 
 const crawlerEndpoint = '/api/crawler';
 
+var active = {
+  "tweet_crawler": false,
+  "google_crawler": false,
+  "db_searcher": false
+};
+
 document.getElementById("tweetCrawlerDropdown").addEventListener('click', function(){
-    fillCrawler("tweet_crawler");
+  poolWhileActive("tweet_crawler")
 });
 document.getElementById("googleCrawlerDropdown").addEventListener('click', function(){
-    fillCrawler("google_crawler");
+  poolWhileActive("google_crawler")
 });
 document.getElementById("databaseSearcher").addEventListener('click', function(){
-    fillCrawler("db_searcher");
+  poolWhileActive("db_searcher")
 });
+
+
+function poolWhileActive(crawler) {
+  if(!active[crawler]) {
+    active[crawler] = true;
+    fillCrawler(crawler);
+  } else {
+    active[crawler] = false;
+  }
+}
 
 
 function fillCrawler(crawler){
@@ -35,5 +51,10 @@ function fillCrawler(crawler){
     error: function (errorData) {
       console.error(errorData)
     }
-});
+  });
+  if(active[crawler]) {
+    setTimeout(function() {
+      fillCrawler(crawler);
+    }, 1000);
+  }
 }

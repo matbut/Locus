@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from common.crawlerUtils import retrieve_params, group_send_message
+from common.statusUpdate import StatusUpdater
 from common.textUtils import remove_diacritics, remove_stopwords
 from database.models import ImportedArticle, ResultArticle
 
@@ -72,7 +73,10 @@ class Searcher(SyncConsumer):
     def search(self, data):
         log(logging.INFO, 'Starting')
         asyncio.set_event_loop(asyncio.new_event_loop())
-        sender_id = data["id"]
+        sender_id = data['id']
+
+        updater = StatusUpdater('google_crawler')
+        updater.in_progress()
 
         try:
             search_parameters, crawl_parameters = retrieve_params(data)
@@ -83,8 +87,11 @@ class Searcher(SyncConsumer):
             for result_article in result:
                 save_or_skip(result_article, crawl_parameters, search_parameters)
 
+            updater.success()
+
             group_send_message(component, self.channel_layer, sender_id, 'send_done', 'db_searcher')
 
         except Exception as e:
+            updater.failure()
             message = 'db_searcher: {0}'.format(str(e))
             group_send_message(component, self.channel_layer, sender_id, 'send_failure', message)

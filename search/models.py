@@ -43,4 +43,19 @@ class SearchParameters(models.Model):
 
     @property
     def get_node_id(self):
-        return 'search'+str(self.id)
+        return 'search' + str(self.id)
+
+
+class CrawlerStatus(models.Model):
+    crawler = models.CharField(max_length=64, primary_key=True)
+    in_progress = models.IntegerField(default=0)
+    success = models.IntegerField(default=0)
+    failure = models.IntegerField(default=0)
+
+    @property
+    def get_status_json(self):
+        return {
+            'working': self.in_progress,
+            'completed': self.success,
+            'failed': self.failure,
+        }
