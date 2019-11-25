@@ -18,6 +18,7 @@ class ResultArticle(models.Model):
     link = models.URLField(primary_key=True)
     title = models.TextField()
     content = models.TextField()
+    top_words = models.TextField(default='')  # coma separated
 
     searches = models.ManyToManyField(SearchParameters)
 

@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import numpy as np
 import string
 
 from channels.consumer import SyncConsumer
@@ -19,8 +20,8 @@ def log(level, message):
     logging.log(level, '[db] {0}'.format(message))
 
 
-postgresql_rank_threshold = 0.05
-cosine_similarity_threshold = 0.1
+postgresql_rank_threshold = 0.3
+cosine_similarity_threshold = 0.13
 
 
 def prepare_title(crawl_parameters):
@@ -30,7 +31,7 @@ def prepare_title(crawl_parameters):
             .split()))
 
 
-def count_similarity(text1, text2):
+def count_similarity(text1, text2, top=5):
     # preprocessing
     texts = [[w.lower() for w in text.translate(str.maketrans('', '', string.punctuation)).split()] for text in
              [text1, text2]]
@@ -40,8 +41,12 @@ def count_similarity(text1, text2):
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform(texts)
 
+    feature_array = np.array(tfidf_vectorizer.get_feature_names())
+    common1 = np.argsort(tfidf_matrix[0].toarray()).flatten()[::-1]
+    common2 = np.argsort(tfidf_matrix[1].toarray()).flatten()[::-1]
+
     sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-    return sim[0][0]
+    return sim[0][0], feature_array[common1][:top], feature_array[common2][:top]
 
 
 def save_or_skip(result_article, crawl_parameters, search_parameters):
@@ -49,10 +54,10 @@ def save_or_skip(result_article, crawl_parameters, search_parameters):
 
     query_content = crawl_parameters.content
 
-    similarity = count_similarity(query_content, result_content)
+    similarity, top_query, top_result = count_similarity(query_content, result_content, top=5)
     article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
                             link=result_article.link, title=result_article.title,
-                            content=result_article.content)
+                            content=result_article.content, top_words=','.join(top_result))
     if article.similarity > cosine_similarity_threshold:
         article.save()
         if search_parameters is not None:
@@ -75,7 +80,7 @@ class Searcher(SyncConsumer):
         asyncio.set_event_loop(asyncio.new_event_loop())
         sender_id = data['id']
 
-        updater = StatusUpdater('google_crawler')
+        updater = StatusUpdater('db_searcher')
         updater.in_progress()
 
         try:
