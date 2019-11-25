@@ -6,7 +6,7 @@ import string
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-from database.models import ResultArticle
+from database.models import ResultArticle, TopWord
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters, CrawlParameters, CrawlerStatus
 from tweetCrawler.models import Tweet
@@ -69,9 +69,8 @@ class WSConsumer(WebsocketConsumer):
             self.send('done')
         self.jobs = 0
 
-
     def send_failure(self, signal):
-        logging.warning('Failure: ', signal)
+        logging.warning('Failure: {0}'.format(signal['message']))
 
     def send_message(self, where, search_type, crawl_parameters, search_parameters_id):
         logging.info('Sending parameters to {0} component'.format(where))
@@ -91,6 +90,7 @@ class WSConsumer(WebsocketConsumer):
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
         ResultArticle.objects.all().delete()
+        TopWord.objects.all().delete()
         SearchParameters.objects.all().delete()
 
     def reset_crawler_status(self):

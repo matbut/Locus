@@ -5,13 +5,13 @@ import string
 
 from channels.consumer import SyncConsumer
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from common.crawlerUtils import retrieve_params, group_send_message
 from common.statusUpdate import StatusUpdater
 from common.textUtils import remove_diacritics, remove_stopwords
-from database.models import ImportedArticle, ResultArticle
+from database.models import ImportedArticle, ResultArticle, TopWord
 
 component = 'db'
 
@@ -38,15 +38,18 @@ def count_similarity(text1, text2, top=5):
     texts = [remove_stopwords(text) for text in texts]
     texts = [remove_diacritics(' '.join(text)) for text in texts]
 
+    # find most frequent words
+    count_vectorizer = CountVectorizer()
+    count_matrix = count_vectorizer.fit_transform(texts)
+    features = count_vectorizer.get_feature_names()
+    indices = np.argsort(count_matrix[1].toarray().astype('int')).flatten()[::-1]
+
+    # count similarity
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform(texts)
-
-    feature_array = np.array(tfidf_vectorizer.get_feature_names())
-    common1 = np.argsort(tfidf_matrix[0].toarray()).flatten()[::-1]
-    common2 = np.argsort(tfidf_matrix[1].toarray()).flatten()[::-1]
-
     sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-    return sim[0][0], feature_array[common1][:top], feature_array[common2][:top]
+
+    return sim[0][0], np.array(features)[indices][:top], count_matrix.toarray()[1][indices][:top]
 
 
 def save_or_skip(result_article, crawl_parameters, search_parameters):
@@ -54,12 +57,16 @@ def save_or_skip(result_article, crawl_parameters, search_parameters):
 
     query_content = crawl_parameters.content
 
-    similarity, top_query, top_result = count_similarity(query_content, result_content, top=5)
+    similarity, top_words, counts = count_similarity(query_content, result_content, top=5)
     article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
                             link=result_article.link, title=result_article.title,
-                            content=result_article.content, top_words=','.join(top_result))
+                            content=result_article.content)
+    words = [TopWord(word=word, count=count) for word, count in zip(top_words, counts)]
     if article.similarity > cosine_similarity_threshold:
         article.save()
+        for word in words:
+            word.save()
+            article.top_words.add(word)
         if search_parameters is not None:
             article.searches.add(search_parameters)
 
