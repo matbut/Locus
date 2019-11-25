@@ -22,6 +22,7 @@
   <link href="{% static "locus/css/sb-admin.css" %}" rel="stylesheet">
 
   <link href="{% static "locus/css/loader.css" %}" rel="stylesheet">
+  <link href="{% static "locus/css/status-message.css" %}" rel="stylesheet">
 
 </head>
 
@@ -47,7 +48,79 @@
       </div>
     </form-->
 
-    <!-- Navbar -->
+<!-- Navbar -->
+    <ul class="navbar-nav ml-auto ml-md-0">
+      <li class="nav-item dropdown no-arrow mx-1">
+        <a class="nav-link dropdown-toggle" href="#" id="tweetCrawlerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fab fa-twitter fa-fw"></i>
+            Twitter crawler
+        </a>
+        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="tweetCrawlerDropdown" id="tweet_crawler">
+            <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
+                <tr>
+                  <td><i class="fas fa-play-circle"></i> Working</td>
+                  <td><div class="working"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-check-circle"></i> Finished</td>
+                  <td><div class="completed"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-exclamation-circle"></i> Failed</td>
+                  <td><div class="failed"></div></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </li>
+      <li class="nav-item dropdown no-arrow mx-1">
+        <a class="nav-link dropdown-toggle" href="#" id="googleCrawlerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-globe-europe fa-fw"></i>
+          Google crawler
+        </a>
+        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="googleCrawlerDropdown" id="google_crawler">
+            <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
+                <tr>
+                  <td><i class="fas fa-play-circle"></i> Working</td>
+                  <td><div class="working"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-check-circle"></i> Finished</td>
+                  <td><div class="completed"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-exclamation-circle"></i> Failed</td>
+                  <td><div class="failed"></div></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </li>
+      <li class="nav-item dropdown no-arrow">
+        <a class="nav-link dropdown-toggle" href="#" id="databaseSearcher" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-file-alt fa-fw"></i>
+            Database search
+        </a>
+        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="databaseSearcher" id="db_searcher">
+            <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
+                <tr>
+                  <td><i class="fas fa-play-circle"></i> Working</td>
+                  <td><div class="working"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-check-circle"></i> Finished</td>
+                  <td><div class="completed"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-exclamation-circle"></i> Failed</td>
+                  <td><div class="failed"></div></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </li>
+    </ul>
+
     <ul class="navbar-nav ml-auto ">
       <li class="nav-item dropdown no-arrow mx-1">
         <a class="nav-link dropdown-toggle" href="{% url 'upload' %}" title="Upload articles" id="uploadArticles" role="button" aria-haspopup="true" aria-expanded="false">
@@ -116,6 +189,7 @@
            <h2 class="display-2">Locus</h2>
           </center>
         <div id="loader"><img id="loader-img" src="{% static "locus/loader.gif" %}" alt="Processing"></div>
+        <div class="alert alert-info col-md-8" id="msg-partial" role="alert">Some results are available.<br/>You will be redirected to results page...</div>
         <div class="card card-login mx-auto mt-5" id="card">
           <div class="card-header">
             Search
