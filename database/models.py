@@ -1,5 +1,6 @@
 from django.db import models
 
+from googleCrawlerOfficial.models import Domain
 from search.models import SearchParameters
 
 
@@ -26,6 +27,7 @@ class ResultArticle(models.Model):
 
     top_words = models.ManyToManyField(TopWord)
     searches = models.ManyToManyField(SearchParameters)
+    domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)
 
     @property
     def get_node_id(self):

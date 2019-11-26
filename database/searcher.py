@@ -12,6 +12,7 @@ from common.crawlerUtils import retrieve_params, group_send_message
 from common.statusUpdate import StatusUpdater
 from common.textUtils import remove_diacritics, remove_stopwords
 from database.models import ImportedArticle, ResultArticle, TopWord
+from googleCrawlerOfficial.models import Domain
 
 component = 'db'
 
@@ -58,11 +59,12 @@ def save_or_skip(result_article, crawl_parameters, search_parameters):
     query_content = crawl_parameters.content
 
     similarity, top_words, counts = count_similarity(query_content, result_content, top=5)
-    article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
-                            link=result_article.link, title=result_article.title,
-                            content=result_article.content)
-    words = [TopWord(word=word, count=count) for word, count in zip(top_words, counts)]
-    if article.similarity > cosine_similarity_threshold:
+    if similarity > cosine_similarity_threshold:
+        words = [TopWord(word=word, count=count) for word, count in zip(top_words, counts)]
+        domain, _ = Domain.objects.get_or_create(link=result_article.page)
+        article = ResultArticle(similarity=similarity, page=result_article.page, date=result_article.date,
+                                link=result_article.link, title=result_article.title,
+                                content=result_article.content, domain=domain)
         article.save()
         for word in words:
             word.save()
