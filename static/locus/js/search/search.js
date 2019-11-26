@@ -2,7 +2,20 @@ function hideLoader() {
     $('#loader').hide();
 }
 
-$(window).ready(hideLoader);
+function displayMsgPartial() {
+    $('#msg-partial').show();
+}
+
+function hideMsgPartial() {
+    $('#msg-partial').hide();
+}
+
+function prepareWindow() {
+    hideMsgPartial();
+    hideLoader();
+}
+
+$(window).ready(prepareWindow);
 
 document.querySelector('#search-submit').onclick = function(e) {
     let twitterCheckboxInputDom = document.querySelector('#twitter-checkbox');

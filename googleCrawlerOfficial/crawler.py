@@ -7,9 +7,10 @@ from urllib.parse import quote
 from channels.consumer import SyncConsumer
 
 from common.crawlerUtils import retrieve_params, group_send_message, send_message
+from common.statusUpdate import StatusUpdater
 from googleCrawlerOfficial import patterns
 from search.models import CrawlParameters
-from .models import GoogleResultOfficial
+from .models import GoogleResultOfficial, Domain
 
 component = 'google'
 
@@ -22,7 +23,8 @@ def get_article_from_item(item):
     page = item['displayLink']
     date = patterns.retrieve_date(item['snippet'])
     link = item['link']
-    return GoogleResultOfficial(page=page, date=date, link=link)
+    domain, _ = Domain.objects.get_or_create(link=page)
+    return GoogleResultOfficial(page=page, date=date, link=link, domain=domain)
 
 
 def run_query(title):
@@ -45,6 +47,9 @@ class Crawler(SyncConsumer):
         self.sender_id = data['id']
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        updater = StatusUpdater('google_crawler')
+        updater.in_progress()
+
         try:
             search_parameters, crawl_parameters = retrieve_params(data)
             response_json = run_query(crawl_parameters.title)
@@ -53,11 +58,15 @@ class Crawler(SyncConsumer):
             search_results = []
             for item in items:
                 search_result = get_article_from_item(item)
+                if search_result.link == crawl_parameters.url:
+                    continue
                 search_result.save()
                 search_results.append(search_result)
 
                 if search_parameters is not None:
                     search_result.searches.add(search_parameters)
+
+            updater.success()
 
             if crawl_parameters.twitter_search:
                 self.send_tweeter_requests(search_results)
@@ -65,6 +74,7 @@ class Crawler(SyncConsumer):
                 group_send_message(component, self.channel_layer, self.sender_id, 'send_done', 'google_crawler')
 
         except Exception as e:
+            updater.failure()
             group_send_message(component, self.channel_layer, self.sender_id, 'send_failure', 'google_crawler: {0}'.format(str(e)))
 
     def send_tweeter_requests(self, search_results):

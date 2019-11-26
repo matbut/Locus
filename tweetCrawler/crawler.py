@@ -9,6 +9,7 @@ import twint
 from channels.consumer import SyncConsumer
 
 from common.crawlerUtils import retrieve_params, send_message, group_send_message
+from common.statusUpdate import StatusUpdater
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from .models import Tweet, TwitterUser
 
@@ -70,6 +71,9 @@ class Crawler(SyncConsumer):
         asyncio.set_event_loop(asyncio.new_event_loop())
         sender_id = data['id']
 
+        updater = StatusUpdater('tweet_crawler')
+        updater.in_progress()
+
         try:
             tweets_file_path = 'output.json'.format(str(Path.home()))
 
@@ -103,6 +107,7 @@ class Crawler(SyncConsumer):
 
                 os.remove(tweets_file_path)
 
+            updater.success()
             # Send message
             if sender_id == 'google_crawler':
                 send_message(component, self.channel_layer, sender_id,
@@ -112,6 +117,7 @@ class Crawler(SyncConsumer):
 
         except Exception as e:
             log(logging.ERROR, str(e))
+            updater.failure()
             message = 'tweet_crawler: {0}'.format(str(e))
             if sender_id == 'google_crawler':
                 send_message(component, self.channel_layer, sender_id, {'type': 'send_failure', 'message': message})

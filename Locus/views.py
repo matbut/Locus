@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from database import uploader
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
-from search.models import SearchParameters
+from search.models import SearchParameters, CrawlerStatus as Status
 from tweetCrawler.models import Tweet, TwitterUser
 
 
@@ -115,6 +115,16 @@ class ChartTweetsDaily(APIView):
         return Response(presentedDays)
 
 
+class CrawlerStatus(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        crawler = request.query_params['crawler']
+        status = Status.objects.get(pk=crawler)
+        return Response(status.get_status_json)
+
+
 class Graph(APIView):
 
     authentication_classes = []
@@ -196,8 +206,6 @@ class Graph(APIView):
         } for search_node in SearchParameters.objects.all() for article in search_node.resultarticle_set.all()]
 
         edges = tweet_edges + google_tweet_edges + google_edges + article_edges
-
-        print(load_twitter_users)
 
         if load_twitter_users:
             twitter_user_nodes = [{

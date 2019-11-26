@@ -1,0 +1,6 @@
+div#msg-partial {
+    position: relative;
+    margin: auto;
+    width: 100%;
+    top: 7vw;
+}

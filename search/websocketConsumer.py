@@ -6,9 +6,9 @@ import string
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-from database.models import ResultArticle
-from googleCrawlerOfficial.models import GoogleResultOfficial
-from search.models import SearchParameters, CrawlParameters
+from database.models import ResultArticle, TopWord
+from googleCrawlerOfficial.models import GoogleResultOfficial, Domain
+from search.models import SearchParameters, CrawlParameters, CrawlerStatus
 from tweetCrawler.models import Tweet, TwitterUser
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
@@ -19,7 +19,7 @@ class WSConsumer(WebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.awaited_components_number = 0
+        self.jobs = 0
 
     def connect(self):
         self.id = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
@@ -38,6 +38,7 @@ class WSConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data=None, bytes_data=None):
         self.delete_tables()
+        self.reset_crawler_status()
 
         text_data_json = json.loads(text_data)
 
@@ -63,12 +64,13 @@ class WSConsumer(WebsocketConsumer):
 
     def send_done(self, signal):
         logging.info(signal)
-        self.awaited_components_number -= 1
-        if self.awaited_components_number == 0:
+        # send info to web socket if first response received
+        if self.jobs > 0:
             self.send('done')
+        self.jobs = 0
 
     def send_failure(self, signal):
-        logging.warning('Failure: ', signal)
+        logging.warning('Failure: {0}'.format(signal['message']))
 
     def send_message(self, where, search_type, crawl_parameters, search_parameters_id):
         logging.info('Sending parameters to {0} component'.format(where))
@@ -82,11 +84,20 @@ class WSConsumer(WebsocketConsumer):
             }
         )
 
-        self.awaited_components_number += 1
+        self.jobs += 1
 
     def delete_tables(self):
         TwitterUser.objects.all().delete()
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
         ResultArticle.objects.all().delete()
+        TopWord.objects.all().delete()
         SearchParameters.objects.all().delete()
+        Domain.objects.all().delete()
+
+    def reset_crawler_status(self):
+        for crawler in ['tweet_crawler', 'google_crawler', 'db_searcher']:
+            if CrawlerStatus.objects.filter(pk=crawler).exists():
+                CrawlerStatus.objects.filter(pk=crawler).update(in_progress=0, success=0, failure=0)
+            else:
+                CrawlerStatus(crawler=crawler).save()
