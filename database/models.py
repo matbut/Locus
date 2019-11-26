@@ -32,3 +32,7 @@ class ResultArticle(models.Model):
     @property
     def get_node_id(self):
         return 'db' + str(self.link)
+
+    @property
+    def get_top_words(self):
+        return ', '.join(['{0} ({1})'.format(tw.word, tw.count) for tw in self.top_words.all()])

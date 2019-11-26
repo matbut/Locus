@@ -173,9 +173,10 @@ class Graph(APIView):
                 "page": article.page,
                 "date": article.date,
                 "link": article.link,
-                "similarity": article.similarity,
+                "similarity": "{0:.4f}".format(round(article.similarity, 4)),
                 "title": article.title,
                 "content": article.content,
+                "words": article.get_top_words,
             }
         } for article in ResultArticle.objects.all()]
 

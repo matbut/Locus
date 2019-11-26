@@ -198,6 +198,7 @@
                     <th>Link</th>
                     <th>Similarity</th>
                     <th>Title</th>
+                    <th>Top words</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -208,6 +209,7 @@
                     <td><a href={{ result.link }} target="_blank" data-toggle="tooltip" title={{ result.link }}>link</a></td>
                     <td>{{ result.similarity }}</td>
                     <td>{{ result.title }}</td>
+                    <td>{{ result.get_top_words }}</td>
                   </tr>
                 {% endfor %}
                 </tbody>
