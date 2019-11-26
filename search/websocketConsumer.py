@@ -7,7 +7,7 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 from database.models import ResultArticle, TopWord
-from googleCrawlerOfficial.models import GoogleResultOfficial
+from googleCrawlerOfficial.models import GoogleResultOfficial, Domain
 from search.models import SearchParameters, CrawlParameters, CrawlerStatus
 from tweetCrawler.models import Tweet
 
@@ -92,6 +92,7 @@ class WSConsumer(WebsocketConsumer):
         ResultArticle.objects.all().delete()
         TopWord.objects.all().delete()
         SearchParameters.objects.all().delete()
+        Domain.objects.all().delete()
 
     def reset_crawler_status(self):
         for crawler in ['tweet_crawler', 'google_crawler', 'db_searcher']:

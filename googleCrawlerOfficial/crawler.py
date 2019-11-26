@@ -58,6 +58,8 @@ class Crawler(SyncConsumer):
             search_results = []
             for item in items:
                 search_result = get_article_from_item(item)
+                if search_result.link == crawl_parameters.url:
+                    continue
                 search_result.save()
                 search_results.append(search_result)
 

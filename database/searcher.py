@@ -54,6 +54,9 @@ def count_similarity(text1, text2, top=5):
 
 
 def save_or_skip(result_article, crawl_parameters, search_parameters):
+    if result_article.link == crawl_parameters.url:
+        return
+
     result_content = result_article.content
 
     query_content = crawl_parameters.content
