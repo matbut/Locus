@@ -35,9 +35,4 @@ function fillCrawler(crawler){
       console.error(errorData)
     }
   });
-  if(active[crawler]) {
-    setTimeout(function() {
-      fillCrawler(crawler);
-    }, 1000);
-  }
 }

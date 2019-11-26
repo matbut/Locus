@@ -10,7 +10,7 @@ from common.crawlerUtils import retrieve_params, group_send_message, send_messag
 from common.statusUpdate import StatusUpdater
 from googleCrawlerOfficial import patterns
 from search.models import CrawlParameters
-from .models import GoogleResultOfficial
+from .models import GoogleResultOfficial, Domain
 
 component = 'google'
 
@@ -23,7 +23,8 @@ def get_article_from_item(item):
     page = item['displayLink']
     date = patterns.retrieve_date(item['snippet'])
     link = item['link']
-    return GoogleResultOfficial(page=page, date=date, link=link)
+    domain, _ = Domain.objects.get_or_create(link=page)
+    return GoogleResultOfficial(page=page, date=date, link=link, domain=domain)
 
 
 def run_query(title):
@@ -57,6 +58,8 @@ class Crawler(SyncConsumer):
             search_results = []
             for item in items:
                 search_result = get_article_from_item(item)
+                if search_result.link == crawl_parameters.url:
+                    continue
                 search_result.save()
                 search_results.append(search_result)
 
