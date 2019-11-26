@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from database import uploader
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import GoogleResultOfficial
+from googleCrawlerOfficial.models import GoogleResultOfficial, Domain
 from search.models import SearchParameters, CrawlerStatus as Status
 from tweetCrawler.models import Tweet, TwitterUser
 
@@ -225,6 +225,31 @@ class Graph(APIView):
                 "to": tweet.user.get_node_id,
             } for tweet in Tweet.objects.all()]
             edges = edges + twitter_user_edges
+
+        if load_domain_users:
+            domain_user_nodes = [{
+                "id": user.get_node_id,
+                "group": 'domain',
+                "title": user.link,
+                "domain": {
+                    "link": user.link,
+                }
+            } for user in Domain.objects.all()]
+            nodes = nodes + domain_user_nodes
+
+            google_domain_user_edges = [{
+                "from": google.get_node_id,
+                "to": google.domain.get_node_id,
+            } for google in GoogleResultOfficial.objects.all()]
+            edges = edges + google_domain_user_edges
+
+            db_domain_user_edges = [{
+                "from": article.get_node_id,
+                "to": article.domain.get_node_id,
+            } for article in ResultArticle.objects.all()]
+            edges = edges + db_domain_user_edges
+
+        print(load_domain_users)
 
         return Response({"nodes": nodes, "edges": edges})
 
