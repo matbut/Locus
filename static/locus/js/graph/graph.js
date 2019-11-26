@@ -144,6 +144,21 @@ function openTab(selectedNodes) {
 
 }
 
+var load_twitter_users_flag = false;
+var load_domain_users_flag = false;
+
+function show_twitter_users() {
+  var checkBox = document.getElementById("show_twitter_users");
+  load_twitter_users_flag = checkBox.checked;
+  draw()
+}
+
+function show_domain_users() {
+  var checkBox = document.getElementById("show_domain_users");
+  load_domain_users_flag = checkBox.checked;
+  draw()
+}
+
 function draw() {
 
     var graphOptions = {
@@ -168,51 +183,67 @@ function draw() {
         groups: {
             article: {
                 shape: 'icon',
+                mass: 10,
                 icon: {
                     face: "'Font Awesome 5 Free'",
                     weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
                     code: '\uf15c',
-                    size: 40,
+                    size: 80,
                     color: '#333399'
                 }
             },
             google: {
                 shape: 'icon',
+                mass: 10,
                 icon: {
                     face: "'Font Awesome 5 Free'",
                     weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
                     code: '\uf7a2',//'\uf0ac',
-                    size: 40,
-                    color: '#009933'
+                    size: 80,
+                    color: '#00b435'
                 }
             },
             user: {
                 shape: 'icon',
+                mass: 1,
                 icon: {
                     face: "'Font Awesome 5 Free'",
                     weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
                     code: '\uf007',
                     size: 40,
-                    color: '#57169a'
+                    color: '#00485f'
+                }
+            },
+            domain: {
+                shape: 'icon',
+                mass: 1,
+                icon: {
+                    face: "'Font Awesome 5 Free'",
+                    weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
+                    code: '\uf508',
+                    size: 40,
+                    color: '#005f23'
                 }
             },
             search: {
                 shape: 'icon',
+                mass: 11,
                 icon: {
                     face: "'Font Awesome 5 Free'",
                     weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
                     code: '\uf002',
-                    size: 50,
+                    size: 100,
                     color: '#e68a00'
                 }
             },
             tweet: {
                 shape: 'icon',
+                mass: 8,
                 icon: {
                     face: "'Font Awesome 5 Brands'",
                     weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
                     code: '\uf099',
-                    size: 30,
+                    size: 50,
                     color: '#0084b4'
                 }
             }
@@ -225,6 +256,10 @@ function draw() {
     $.ajax({
         method: "GET",
         url: '/api/graph',
+        data: {
+            "load_twitter_users": load_twitter_users_flag,
+            "load_domain_users": load_domain_users_flag,
+        },
         success: function (graph) {
 
             nodes = graph.nodes;

@@ -6,6 +6,10 @@ from search.models import SearchParameters
 class Domain(models.Model):
     link = models.URLField(primary_key=True)
 
+    @property
+    def get_node_id(self):
+        return 'domainUser' + str(self.link)
+
 
 class GoogleResultOfficial(models.Model):
     page = models.TextField()

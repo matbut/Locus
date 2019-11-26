@@ -11,7 +11,7 @@ from channels.consumer import SyncConsumer
 from common.crawlerUtils import retrieve_params, send_message, group_send_message
 from common.statusUpdate import StatusUpdater
 from googleCrawlerOfficial.models import GoogleResultOfficial
-from .models import Tweet
+from .models import Tweet, TwitterUser
 
 component = 'twitter'
 
@@ -32,6 +32,16 @@ def get_twint_configuration(tweets_file_path):
 
 def save_tweet(tweet_str, search_parameters, google):
     tweet = json.loads(tweet_str)
+
+    if not TwitterUser.objects.filter(id=tweet['user_id']).exists():
+        new_user = TwitterUser(
+            id=tweet['user_id'],
+            username=tweet['username'],
+            link=f"https://twitter.com/{tweet['username']}",
+        )
+        new_user.save()
+    new_user = TwitterUser.objects.get(id=tweet['user_id'])
+
     epoch = int(tweet['created_at'])
     new_tweet = Tweet(
         id=tweet['id'],
@@ -43,9 +53,11 @@ def save_tweet(tweet_str, search_parameters, google):
         link=tweet['link'],
         likes=tweet['likes_count'],
         replies=tweet['replies_count'],
-        retweets=tweet['retweets_count']
+        retweets=tweet['retweets_count'],
+        user=new_user,
     )
     new_tweet.save()
+
     if search_parameters is not None:
         new_tweet.searches.add(search_parameters)
     if google is not None:
