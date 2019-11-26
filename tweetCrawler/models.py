@@ -4,6 +4,16 @@ from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters
 
 
+class TwitterUser(models.Model):
+    id = models.CharField(max_length=128, primary_key=True)
+    username = models.CharField(max_length=60)
+    link = models.URLField()
+
+    @property
+    def get_node_id(self):
+        return 'twitterUser' + str(self.id)
+
+
 class Tweet(models.Model):
     id = models.CharField(max_length=128, primary_key=True)
     content = models.TextField()
@@ -16,6 +26,7 @@ class Tweet(models.Model):
     replies = models.IntegerField()
     retweets = models.IntegerField()
 
+    user = models.ForeignKey(TwitterUser, on_delete=models.CASCADE, null=True)
     searches = models.ManyToManyField(SearchParameters)
     google = models.ManyToManyField(GoogleResultOfficial)
 

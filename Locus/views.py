@@ -12,7 +12,7 @@ from database import uploader
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters
-from tweetCrawler.models import Tweet
+from tweetCrawler.models import Tweet, TwitterUser
 
 
 def charts(request):
@@ -121,6 +121,10 @@ class Graph(APIView):
     permission_classes = []
 
     def get(self, request, format=None):
+
+        load_twitter_users = request.query_params['load_twitter_users'] == 'true'
+        load_domain_users = request.query_params['load_domain_users'] == 'true'
+
         tweet_nodes = [{
             "id": tweet.get_node_id,
             "group": 'tweet',
@@ -192,6 +196,27 @@ class Graph(APIView):
         } for search_node in SearchParameters.objects.all() for article in search_node.resultarticle_set.all()]
 
         edges = tweet_edges + google_tweet_edges + google_edges + article_edges
+
+        print(load_twitter_users)
+
+        if load_twitter_users:
+            twitter_user_nodes = [{
+                "id": user.get_node_id,
+                "group": 'user',
+                "title": user.username,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "link": user.link,
+                }
+            } for user in TwitterUser.objects.all()]
+            nodes = nodes + twitter_user_nodes
+
+            twitter_user_edges = [{
+                "from": tweet.get_node_id,
+                "to": tweet.user.get_node_id,
+            } for tweet in Tweet.objects.all()]
+            edges = edges + twitter_user_edges
 
         return Response({"nodes": nodes, "edges": edges})
 

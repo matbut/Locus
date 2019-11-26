@@ -9,7 +9,7 @@ from channels.generic.websocket import WebsocketConsumer
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from search.models import SearchParameters, CrawlParameters
-from tweetCrawler.models import Tweet
+from tweetCrawler.models import Tweet, TwitterUser
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
 logging.getLogger().setLevel(logging.INFO)
@@ -85,6 +85,7 @@ class WSConsumer(WebsocketConsumer):
         self.awaited_components_number += 1
 
     def delete_tables(self):
+        TwitterUser.objects.all().delete()
         Tweet.objects.all().delete()
         GoogleResultOfficial.objects.all().delete()
         ResultArticle.objects.all().delete()
