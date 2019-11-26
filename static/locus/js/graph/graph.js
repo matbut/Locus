@@ -92,7 +92,7 @@ function addArticleRow(article) {
     old_tbody = document.getElementById("databaseTable").getElementsByTagName("tbody").item(0);
     row = document.createElement("tr");
 
-    let fields = ["date", "page", "link", "similarity", "title"];
+    let fields = ["date", "page", "link", "similarity", "title", "words"];
 
     for (let field of fields) {
         let cell = document.createElement("td");
