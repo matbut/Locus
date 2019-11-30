@@ -11,12 +11,13 @@ class Domain(models.Model):
         return 'domainUser' + str(self.link)
 
 
-class GoogleResultOfficial(models.Model):
+class InternetResult(models.Model):
     page = models.TextField()
     date = models.DateField(null=True)
     link = models.URLField(primary_key=True)
 
     searches = models.ManyToManyField(SearchParameters)
+    #tweets = models.ManyToManyField(Tweet)
     domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)
 
     @property

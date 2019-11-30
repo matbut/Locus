@@ -42,6 +42,8 @@ def retrieve_access_key():
 
 
 def retrieve_date(snippet):
+    if snippet is None:
+        return None
     try:
         m = re.match(r"(?P<date>(\w|\s)+)\s...\s\w+", remove_diacritics(snippet))
         if m is None:
@@ -53,7 +55,7 @@ def retrieve_date(snippet):
         else:
             return retrieve_pure_date(date_str)
     except:
-        return
+        return None
 
 
 def retrieve_pure_date(date_str):
