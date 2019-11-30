@@ -64,6 +64,8 @@ Start server:
 ```
 python3 manage.py runserver
 ```
+
+Alternatively, you can run locus.sh scipt, which performs operations above.
                
 ## Built-With
 * [Twint](https://github.com/twintproject/twint) - Twitter Intelligence Tool
