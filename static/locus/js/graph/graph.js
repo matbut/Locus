@@ -149,13 +149,25 @@ var load_domain_users_flag = false;
 
 function show_twitter_users() {
   var checkBox = document.getElementById("show_twitter_users");
-  load_twitter_users_flag = checkBox.checked;
+
+  if (checkBox.classList.contains('btn-outline-primary'))
+      checkBox.classList.replace('btn-outline-primary', 'btn-primary');
+  else
+      checkBox.classList.replace('btn-primary', 'btn-outline-primary');
+
+  load_twitter_users_flag = !load_twitter_users_flag;
   draw()
 }
 
 function show_domain_users() {
   var checkBox = document.getElementById("show_domain_users");
-  load_domain_users_flag = checkBox.checked;
+
+  if (checkBox.classList.contains('btn-outline-primary'))
+      checkBox.classList.replace('btn-outline-primary', 'btn-primary');
+  else
+      checkBox.classList.replace('btn-primary', 'btn-outline-primary');
+
+  load_domain_users_flag = !load_domain_users_flag;
   draw()
 }
 
@@ -189,7 +201,7 @@ function draw() {
                     weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
                     code: '\uf15c',
                     size: 80,
-                    color: '#333399'
+                    color: '#7b3db4'
                 }
             },
             google: {

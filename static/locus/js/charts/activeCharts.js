@@ -1,88 +1,98 @@
-// Set new default font family and font color to mimic Bootstrap's default styling
-Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-Chart.defaults.global.defaultFontColor = '#292b2c';
-Chart.defaults.global.animation.duration = 2500;
+var aggregation = 'week'
 
-const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-const tweetsEndpoint = '/api/tweets';
-const yearlyTweetsEndpoint = tweetsEndpoint + '/yearly';
-const monthlyTweetsEndpoint = tweetsEndpoint + '/monthly';
-const dailyTweetsEndpoint = tweetsEndpoint + '/daily';
-
-let dailyActiveChart;
-let monthlyActiveChart;
-
-let defaultChartConfig = {
-    type: 'bar',
-    data: {
-      datasets: [{
-        label: "Tweets",
-        backgroundColor: "rgba(2,117,216,1)",
-        borderColor: "rgba(2,117,216,1)",
-      }],
+var options = {
+  chart: {
+    type: 'line',
+    stacked: false,
+    height: 500,
+    zoom: {
+      type: 'x',
+      enabled: true,
+      autoScaleYaxis: false
     },
-    options: {
-      scales: {
-        xAxes: [{
-          time: {
-          },
-          gridLines: {
-            display: false
-          },
-          /*
-          ticks: {
-            maxTicksLimit: 12
-          }
-          */
-          maxBarThickness: 20,
-        }],
-        yAxes: [{
-          ticks: {
-            min: 0,
-            suggestedMax: 5,
-            precision: 0
-          },
-          gridLines: {
-            display: true
-          }
-        }],
+    toolbar: {
+      autoSelected: 'zoom',
+      tools: {
+        download: false,
+        selection: true,
+        zoom: '<i class="fas fa-cut"></i>',
+        zoomin: '<i class="fas fa-search-plus"></i>',
+        zoomout: '<i class="fas fa-search-minus"></i>',
+        pan: true,
+        reset: '<i class="fas fa-crosshairs"></i>',
+        customIcons: []
       },
-      legend: {
-        display: false
+    },
+    events: {
+      zoomed: function (chartContext, {xaxis, yaxis}) {
+        console.log('zoomed',xaxis.min, xaxis.max);
       },
-    }
-  };
+      dataPointSelection: function(event, chartContext, config) {
+        console.log('dataPointSelection', event);
+      }
+    },
+  },
+  colors:['#0084b4', '#00b435', '#7b3db4'],
+  dataLabels: {
+    enabled: false
+  },
+  series: [],
+  markers: {
+    size: 5,
+  },
+  title: {
+    text: 'Activity',
+    align: 'left'
+  },
+/*  fill: {
+    type: 'gradient',
+    gradient: {
+      shadeIntensity: 1,
+      inverseColors: false,
+      opacityFrom: 0.5,
+      opacityTo: 0,
+      stops: [0, 90, 100]
+    },
+  },*/
+  yaxis: {
+    labels: {
+    },
+    title: {
+      text: 'Activity'
+    },
+  },
+  xaxis: {
+    type: 'datetime',
+    title: {
+      //text: 'Time'
+    },
+  },
+  tooltip: {
+    shared: false, //true looks good
+    intersect: true,
+    x: {
+      format: "d MMM yyyy"
+    },
+  }
+};
 
-function initYearlyActiveChart(year){
+var chart = new ApexCharts(
+  document.querySelector("#chart"),
+  options
+);
+chart.render();
+
+updateDataBy(aggregation);
+
+function updateDataBy(aggregate) {
   $.ajax({
     method: "GET",
-    url: yearlyTweetsEndpoint,
-    success: function (data) {
-      setYearlyActiveChart(data.activity, data.minYear, data.maxYear);
-      initMonthlyActiveChart(data.minYear)
-    },
-    error: function (errorData) {
-      console.error(errorData)
-    }
-});
-}
-
-function initMonthlyActiveChart(year){
-  $.ajax({
-    method: "GET",
-    url: monthlyTweetsEndpoint,
+    url: '/api/chart',
     data: {
-      "year": year,
+      aggregate: aggregate,
     },
     success: function (data) {
-        var ele= document.getElementsByClassName("year");
-        for(var i=0;i<ele.length;i++)
-        {
-          ele[i].innerHTML=year;
-        }
-      setMonthlyActiveChart(data, year);
-      initDailyActiveChart(1, year)
+      chart.updateSeries(data, true)
     },
     error: function (errorData) {
       console.error(errorData)
@@ -90,74 +100,133 @@ function initMonthlyActiveChart(year){
   });
 }
 
-function initDailyActiveChart(month, year){
-  $.ajax({
-    method: "GET",
-    url: dailyTweetsEndpoint,
-    data: {
-      "month": month,
-      "year": year,
-    },
-    success: function (data) {
-      document.getElementById("month").innerHTML = months[month-1];
-      setDailyActiveChart(data);
-    },
-    error: function (errorData) {
-      console.error(errorData)
-    }
-});
+showTweetButton = document.getElementById("show_tweet_results");
+showGoogleButton = document.getElementById("show_google_results");
+showDatabaseButton = document.getElementById("show_database_results");
+
+showButtons = [showTweetButton, showGoogleButton, showDatabaseButton];
+
+showTweetButton.addEventListener("click", function(){toggleSeries(showTweetButton, "Tweets")});
+showGoogleButton.addEventListener("click", function(){toggleSeries(showGoogleButton, "Google")});
+showDatabaseButton.addEventListener("click", function(){toggleSeries(showDatabaseButton, "Database")});
+
+function toggleSeries(checkBox, series) {
+  if (checkBox.classList.contains('btn-outline-primary'))
+    checkBox.classList.replace('btn-outline-primary', 'btn-primary');
+  else
+    checkBox.classList.replace('btn-primary', 'btn-outline-primary');
+
+  chart.toggleSeries(series)
 }
 
-function setYearlyActiveChart(chartData, minYear, maxYear) {
-  let ctx = document.getElementById("yearlyActiveChart");
+reloadButton = document.getElementById("reloadButton")
 
-  let chartConfig = JSON.parse(JSON.stringify(defaultChartConfig));
-  chartConfig.data.labels = Array.from({length: maxYear - minYear + 1}, (v, k) => k+minYear);
-  chartConfig.data.datasets[0].data = chartData;
-  chartConfig.options.scales.xAxes[0].time.unit = 'year';
-  chartConfig.options.onClick = function(c,i) {
-          let e = i[0];
-          let x_value = this.data.labels[e._index];
-          let y_value = this.data.datasets[0].data[e._index];
-          initMonthlyActiveChart(x_value)
-      };
-  let yearlyActiveChart = new Chart(ctx, chartConfig);
-}
+dayAggregateButton = document.getElementById('dayAggregate');
+weekAggregateButton = document.getElementById('weekAggregate');
+monthAggregateButton = document.getElementById('monthAggregate');
+yearAggregateButton = document.getElementById('yearAggregate');
 
-function setMonthlyActiveChart(chartData, year) {
-  let ctx = document.getElementById("monthlyActiveChart");
-  if (monthlyActiveChart !== undefined) {
-    monthlyActiveChart.destroy();
+aggregateButtons = [dayAggregateButton, monthAggregateButton, weekAggregateButton, yearAggregateButton];
+
+function changeActiveTo(clickedButton) {
+  for (let button of aggregateButtons) {
+    button.classList.remove("active")
+  }
+  clickedButton.classList.add("active");
+
+  for (let button of showButtons) {
+    button.classList.replace('btn-outline-primary', 'btn-primary');
   }
 
-  let chartConfig = JSON.parse(JSON.stringify(defaultChartConfig));
-  chartConfig.data.labels = months.map(function(month) {
-        return month.substr(0,3);
+  switch (clickedButton) {
+    case dayAggregateButton:
+      aggregation = 'day';
+      chart.updateOptions({
+        chart: {
+          type: 'line',
+        },
+        xaxis: {
+          labels: {
+            datetimeFormatter: {
+              year: 'yyyy',
+              month: 'MMM \'yy',
+              day: 'dd MMM',
+              hour: 'HH:mm'
+            }
+          }
+        },
+        tooltip: {
+          x: {
+            format: "d MMM yyyy"
+          }
+        }
       });
-  chartConfig.data.datasets[0].data = chartData;
-  chartConfig.options.scales.xAxes[0].time.unit = 'month';
-  chartConfig.options.onClick = function(c,i) {
-          let e = i[0];
-          let x_value = this.data.labels[e._index];
-          let y_value = this.data.datasets[0].data[e._index];
-          initDailyActiveChart(e._index + 1, year)
-      };
-  monthlyActiveChart = new Chart(ctx, chartConfig);
-}
-
-function setDailyActiveChart(chartData){
-  let ctx = document.getElementById("dailyActiveChart");
-  if (dailyActiveChart !== undefined) {
-    dailyActiveChart.destroy();
+      break;
+    case weekAggregateButton:
+      aggregation = 'week';
+      chart.updateOptions({
+        chart: {
+          type: 'line',
+        },
+        xaxis: {
+          labels: {
+            datetimeFormatter: {
+              year: 'yyyy',
+              month: 'MMM \'yy',
+              day: 'dd MMM',
+              hour: 'HH:mm'
+            }
+          }
+        },
+        tooltip: {
+          x: {
+            format: "d MMM yyyy"
+          }
+        }
+      });
+      break;
+    case monthAggregateButton:
+      aggregation = 'month';
+      chart.updateOptions({
+        chart: {
+          type: 'bar',
+        },
+        xaxis: {
+          labels: {
+            format: 'MMM yyyy',
+          }
+        },
+        tooltip: {
+          x: {
+            format: "MMM yyyy"
+          }
+        }
+      });
+      break;
+    case yearAggregateButton:
+      aggregation = 'year';
+      chart.updateOptions({
+        chart: {
+          type: 'bar',
+        },
+        xaxis: {
+          labels: {
+            format: 'yyyy',
+          }
+        },
+        tooltip: {
+          x: {
+            format: "yyyy"
+          }
+        }
+      });
+      break;
   }
-
-  let chartConfig = JSON.parse(JSON.stringify(defaultChartConfig));
-  chartConfig.data.labels = Array.from({length: 31}, (v, k) => k+1);
-  chartConfig.data.datasets[0].data = chartData;
-  chartConfig.options.scales.xAxes[0].time.unit = 'day';
-  chartConfig.options.onClick = function(c,i) {};
-
-  dailyActiveChart = new Chart(ctx, chartConfig);
+  updateDataBy(aggregation);
 }
 
-initYearlyActiveChart();
+dayAggregateButton.addEventListener("click", function(){changeActiveTo(dayAggregateButton)});
+monthAggregateButton.addEventListener("click", function(){changeActiveTo(monthAggregateButton)});
+weekAggregateButton.addEventListener("click", function(){changeActiveTo(weekAggregateButton)});
+yearAggregateButton.addEventListener("click", function(){changeActiveTo(yearAggregateButton)});
+reloadButton.addEventListener("click", function(){changeActiveTo(reloadButton)});

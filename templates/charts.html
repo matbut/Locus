@@ -27,7 +27,7 @@
 
 <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
-  <a class="navbar-brand mr-1" href="{% url 'search' %}">Locus</a>
+  <a class="navbar-brand mr-1" href="{% url 'search' %}"><i class="fas fa-dove"></i> Locus</a>
 
   <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
     <i class="fas fa-bars"></i>
@@ -194,44 +194,137 @@
 
 
   <div id="content-wrapper">
-
     <div class="container-fluid">
       <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-7">
           <div class="card mb-3">
             <div class="card-header">
-              <i class="fas fa-chart-bar"></i>
-              Yearly activity
+              <div class="row">
+                <div class="col-md-3">
+                  <i class="fas fa-chart-area"></i>
+                  Charts
+                </div>
+                <div class="col-md-9">
+                  <button class="btn btn-primary" style="float: right;" type="button" id ="reloadButton">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                  <button class="btn btn-primary dropdown-toggle btn-space" style="float: right;" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-clock"></i> Aggregate
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" id="dayAggregate" href="#">Day</a>
+                    <a class="dropdown-item active" id="weekAggregate" href="#">Week</a>
+                    <a class="dropdown-item" id="monthAggregate" href="#">Month</a>
+                    <a class="dropdown-item" id="yearAggregate" href="#">Year</a>
+                  </div>
+                  <button class="btn btn-primary btn-space" type="button" style="float: right;" id="show_tweet_results">
+                    <i class="fab fa-twitter"></i>
+                    Twitter
+                  </button>
+                  <button class="btn btn-primary btn-space" type="button" style="float: right;" id="show_database_results">
+                    <i class="fas fa-file-alt"></i>
+                    Database
+                  </button>
+                  <button class="btn btn-primary btn-space" type="button" style="float: right;" id="show_google_results">
+                    <i class="fas fa-globe-europe"></i>
+                    Google
+                  </button>
+                </div>
+              </div>
             </div>
             <div class="card-body">
-              <canvas id="yearlyActiveChart" width="100%" height="25"></canvas>
+              <div id="chart" style="width:100%; height: auto;">
+              </div>
             </div>
             <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
           </div>
         </div>
-        <div class="col-lg-6">
-          <div class="card mb-3">
-            <div class="card-header">
-              <i class="fas fa-chart-pie"></i>
-              Monthly activity in <span class="year"></span></div>
-            <div class="card-body">
-              <canvas id="monthlyActiveChart" width="100%" height="25"></canvas>
-            </div>
-            <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Daily activity Area Chart-->
-      <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-5">
           <div class="card mb-3">
-            <div class="card-header">
-              <i class="fas fa-chart-area"></i>
-              Daily activity in <span id="month"></span> <span class="year"></span>
+            <div class="card-header" style="padding-bottom: 0;">
+              <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist" style="padding-bottom: 0;">
+                <li class="nav-item">
+                  <a class="nav-link active" id="pills-profile-tab" data-toggle="pill" href="#pills-google" role="tab"
+                     aria-controls="pills-profile" aria-selected="false">
+                    <i class="fas fa-globe-europe"></i>
+                    Google
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-database" role="tab"
+                     aria-controls="pills-contact" aria-selected="false">
+                    <i class="fas fa-file-alt"></i>
+                    Database
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="pills-home-tab" data-toggle="pill" href="#pills-twitter" role="tab"
+                     aria-controls="pills-home" aria-selected="true">
+                    <i class="fab fa-twitter"></i>
+                    Twitter
+                  </a>
+                </li>
+              </ul>
             </div>
             <div class="card-body">
-              <canvas id="dailyActiveChart" width="100%" height="25"></canvas>
+              <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="pills-google" role="tabpanel"
+                     aria-labelledby="pills-profile-tab">
+                  <div class="table-responsive" style="height: 620px; overflow: auto;">
+                    <table class="table table-bordered" id="googleTable" width="100%" cellspacing="0">
+                      <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Page</th>
+                        <th>Link</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="pills-database" role="tabpanel" aria-labelledby="pills-contact-tab">
+                  <div class="table-responsive" style="height: 620px; overflow: auto;">
+                    <table class="table table-bordered" id="databaseTable" width="100%" cellspacing="0">
+                      <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Page</th>
+                        <th>Link</th>
+                        <th>Similarity</th>
+                        <th>Title</th>
+                        <th>Top&nbspwords</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="tab-pane fade" id="pills-twitter" role="tabpanel" aria-labelledby="pills-home-tab">
+                  <div class="table-responsive" style="height: 620px; overflow: auto;">
+                    <table class="table table-bordered" id="tweetsTable" width="100%" cellspacing="0">
+                      <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Username</th>
+                        <th>Content</th>
+                        <th>Likes</th>
+                        <th>Replies</th>
+                        <th>Retweets</th>
+                        <th>Link</th>
+                      <!--<th>Expand</th>-->
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="card-footer small text-muted">Updated {{ date|date:'Y-m-d H:i' }}</div>
           </div>
@@ -294,6 +387,9 @@
 
 <!-- Custom scripts for all pages-->
 <script src="{% static "locus/js/sb-admin.min.js" %}"></script>
+
+<!-- Chart scripts-->
+<script src="{% static "apexcharts/dist/apexcharts.min.js" %}"></script>
 
 <!-- Demo scripts for this page-->
 <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>

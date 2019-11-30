@@ -28,9 +28,7 @@ urlpatterns = [
     path('upload/', views.upload_csv, name='upload'),
     path('database/', views.database_tables, name='database_tables'),
 
-    path('api/tweets/yearly', views.ChartTweetsYearly.as_view()),
-    path('api/tweets/monthly', views.ChartTweetsMonthly.as_view()),
-    path('api/tweets/daily', views.ChartTweetsDaily.as_view()),
+    path('api/chart', views.Chart.as_view()),
     path('api/graph', views.Graph.as_view()),
     path('api/tweet', views.GetTweet.as_view()),
     path('api/crawler', views.CrawlerStatus.as_view()),
