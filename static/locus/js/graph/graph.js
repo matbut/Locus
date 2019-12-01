@@ -177,7 +177,8 @@ function draw() {
 
   var graphOptions = {
     layout: {
-      randomSeed: 8
+       randomSeed: 8,
+       improvedLayout: false,
     },
     physics: {
       adaptiveTimestep: false
@@ -192,7 +193,8 @@ function draw() {
       color: {
         color: '#737373',
         highlight: '#404040',
-      }
+      },
+      smooth: false,
     },
     groups: {
       article: {

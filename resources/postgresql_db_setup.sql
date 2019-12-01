@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS locus_db;
+DROP USER locus;
 CREATE DATABASE locus_db;
 CREATE USER locus WITH PASSWORD 'locus';
 ALTER ROLE locus SET client_encoding TO 'utf8';

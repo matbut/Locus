@@ -5,20 +5,20 @@ from django.db.models.functions import TruncMonth, TruncDay, TruncYear, TruncWee
 
 from common.dateUtils import count_end_date
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import GoogleResultOfficial
+from googleCrawlerOfficial.models import InternetResult
 from tweetCrawler.models import Tweet
 
 
 def min_objects(db):
-    return db.objects.values('date').aggregate(min=Min('date'))['min'] or datetime.date(datetime.now())
+    return db.objects.values('date').filter(date__isnull=False).aggregate(min=Min('date'))['min'] or datetime.date(datetime.now())
 
 
 def max_objects(db):
-    return db.objects.values('date').aggregate(max=Max('date'))['max'] or datetime.date(datetime.min)
+    return db.objects.values('date').filter(date__isnull=False).aggregate(max=Max('date'))['max'] or datetime.date(datetime.min)
 
 
 def count_min_max_date():
-    dbs = [Tweet, GoogleResultOfficial, ResultArticle]
+    dbs = [Tweet, InternetResult, ResultArticle]
 
     print(min_objects(ResultArticle))
 
@@ -29,17 +29,18 @@ def count_min_max_date():
 
 def filter_objects(db, aggregation, start_date):
     end_date = count_end_date(aggregation, start_date)
-    return db.objects.filter(date__gte=start_date, date__lt=end_date).all()
+    return db.objects.filter(date__isnull=False, date__gte=start_date, date__lt=end_date).all()
 
 
 def count_objects(db, aggregation, start_date):
     end_date = count_end_date(aggregation, start_date)
-    return db.objects.filter(date__gte=start_date, date__lt=end_date).count()
+    return db.objects.filter(date__isnull=False, date__gte=start_date, date__lt=end_date).count()
 
 
 def count_by_aggregation(db, aggregation):
     return list(map(lambda x: [x['aggregated_date'], x['count']],
                     db.objects
+                    .filter(date__isnull=False)
                     .annotate(aggregated_date=trunc_by_aggregation(aggregation))
                     .values('aggregated_date')
                     .annotate(count=Count('link'))
@@ -62,7 +63,7 @@ def aggregate(aggregation):
         "data": count_by_aggregation(Tweet, aggregation)
     }, {
         "name": 'Google',
-        "data": count_by_aggregation(GoogleResultOfficial, aggregation)
+        "data": count_by_aggregation(InternetResult, aggregation)
     }, {
         "name": 'Database',
         "data": count_by_aggregation(ResultArticle, aggregation)

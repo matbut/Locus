@@ -167,7 +167,7 @@ function updateDataBy(aggregate) {
 
       chart.updateOptions({
         chart: {
-          type: barNumber < 30 ? 'bar' : 'line',
+          type: barNumber < 200 ? 'bar' : 'line',
         }
       })
     },
