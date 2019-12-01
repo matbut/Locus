@@ -3,25 +3,21 @@ from dateutil.rrule import rrule, MONTHLY, YEARLY, WEEKLY, DAILY
 
 
 def count_end_date(aggregation, start_date):
-    if aggregation == 'day':
-        return start_date + relativedelta(days=+1)
-    if aggregation == 'week':
-        return start_date + relativedelta(weeks=+1)
-    if aggregation == 'month':
-        return start_date + relativedelta(months=+1)
-    if aggregation == 'year':
-        return start_date + relativedelta(years=+1)
+    return start_date + {
+        'day': relativedelta(days=+1),
+        'week': relativedelta(weeks=+1),
+        'month': relativedelta(months=+1),
+        'year': relativedelta(years=+1)
+    }[aggregation]
 
 
 def date_range(aggregation, start_date, end_date, offset=False):
-    if aggregation == 'day':
-        return days_date_range(start_date, end_date, offset)
-    if aggregation == 'week':
-        return weeks_date_range(start_date, end_date, offset)
-    if aggregation == 'month':
-        return months_date_range(start_date, end_date, offset)
-    if aggregation == 'year':
-        return years_date_range(start_date, end_date, offset)
+    return {
+        'day': days_date_range,
+        'week': weeks_date_range,
+        'month': months_date_range,
+        'year': years_date_range,
+    }[aggregation](start_date, end_date, offset)
 
 
 def days_date_range(start_date, end_date, offset=False):

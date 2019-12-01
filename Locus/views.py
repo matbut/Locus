@@ -82,7 +82,6 @@ class Data(APIView):
     def get(self, request, format=None):
         dateStr = request.query_params['date']
         aggregation = request.query_params['aggregation']
-        type = request.query_params['type']  # not used
 
         date = datetime.strptime(dateStr, '%Y-%m-%d').date()
 
