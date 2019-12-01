@@ -2,6 +2,7 @@ from django.db import models
 
 from googleCrawlerOfficial.models import Domain
 from search.models import SearchParameters
+from tweetCrawler.models import Tweet
 
 
 class ImportedArticle(models.Model):
@@ -27,6 +28,7 @@ class ResultArticle(models.Model):
 
     top_words = models.ManyToManyField(TopWord)
     searches = models.ManyToManyField(SearchParameters)
+    tweets = models.ManyToManyField(Tweet)
     domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)
 
     @property

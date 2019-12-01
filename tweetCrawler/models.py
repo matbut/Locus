@@ -1,6 +1,6 @@
 from django.db import models
 
-from googleCrawlerOfficial.models import GoogleResultOfficial
+from googleCrawlerOfficial.models import InternetResult
 from search.models import SearchParameters
 
 
@@ -28,7 +28,7 @@ class Tweet(models.Model):
 
     user = models.ForeignKey(TwitterUser, on_delete=models.CASCADE, null=True)
     searches = models.ManyToManyField(SearchParameters)
-    google = models.ManyToManyField(GoogleResultOfficial)
+    google = models.ManyToManyField(InternetResult)
 
     @property
     def get_node_id(self):
