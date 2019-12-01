@@ -73,5 +73,16 @@ def is_valid(url):
         return any([bool(re.match(regex, url)) for regex in regex_list['correct']])
 
 
+def clean_youtube_url(url):
+    m = re.match(r'.+/watch\?v=(?P<id>.+)(&.*)?', url)
+    if not m:
+        return url
+    groups = m.groupdict()
+    video_id = groups['id']
+    return 'https://www.youtube.com/watch?v=' + video_id
+
+
 def clean_url(url):
+    if get_domain(url) == 'www.youtube.com':
+        return clean_youtube_url(url)
     return url.split('?')[0].split('#')[0]
