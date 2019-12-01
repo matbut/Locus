@@ -29,6 +29,7 @@ urlpatterns = [
     path('database/', views.database_tables, name='database_tables'),
 
     path('api/chart', views.Chart.as_view()),
+    path('api/data', views.Data.as_view()),
     path('api/graph', views.Graph.as_view()),
     path('api/tweet', views.GetTweet.as_view()),
     path('api/crawler', views.CrawlerStatus.as_view()),

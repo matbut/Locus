@@ -1,5 +1,7 @@
 var aggregation = 'week'
 
+var allData = []
+
 var options = {
   chart: {
     type: 'line',
@@ -24,11 +26,35 @@ var options = {
       },
     },
     events: {
-      zoomed: function (chartContext, {xaxis, yaxis}) {
-        console.log('zoomed',xaxis.min, xaxis.max);
-      },
-      dataPointSelection: function(event, chartContext, config) {
-        console.log('dataPointSelection', event);
+      dataPointSelection: function (e, x, opts) {
+
+        //console.log(allData[opts.seriesIndex]);
+        //console.log(allData[opts.seriesIndex].data[opts.dataPointIndex][0]);
+
+        date = allData[opts.seriesIndex].data[opts.dataPointIndex][0];
+        type = allData[opts.seriesIndex].name.toLowerCase();
+
+        $.ajax({
+          method: "GET",
+          url: '/api/data',
+          data: {
+            date: date,
+            type: type,
+            aggregation: aggregation,
+          },
+          success: function (nodes) {
+            clearTables()
+            for (const node of nodes){
+              addNode(node)
+            }
+            openTab(type);
+          },
+          error: function (errorData) {
+            console.error(errorData)
+          }
+        });
+
+
       }
     },
   },
@@ -92,7 +118,16 @@ function updateDataBy(aggregate) {
       aggregate: aggregate,
     },
     success: function (data) {
-      chart.updateSeries(data, true)
+      allData = data;
+      chart.updateSeries(data, true);
+
+      barNumber = data[0].data.length+data[1].data.length+data[2].data.length
+
+      chart.updateOptions({
+        chart: {
+          type: barNumber<22 ? 'bar' : 'line',
+        }
+      })
     },
     error: function (errorData) {
       console.error(errorData)
@@ -116,7 +151,8 @@ function toggleSeries(checkBox, series) {
   else
     checkBox.classList.replace('btn-primary', 'btn-outline-primary');
 
-  chart.toggleSeries(series)
+  chart.toggleSeries(series);
+  clearTables()
 }
 
 reloadButton = document.getElementById("reloadButton")
@@ -129,6 +165,7 @@ yearAggregateButton = document.getElementById('yearAggregate');
 aggregateButtons = [dayAggregateButton, monthAggregateButton, weekAggregateButton, yearAggregateButton];
 
 function changeActiveTo(clickedButton) {
+  clearTables();
   for (let button of aggregateButtons) {
     button.classList.remove("active")
   }
@@ -142,9 +179,6 @@ function changeActiveTo(clickedButton) {
     case dayAggregateButton:
       aggregation = 'day';
       chart.updateOptions({
-        chart: {
-          type: 'line',
-        },
         xaxis: {
           labels: {
             datetimeFormatter: {
@@ -165,9 +199,6 @@ function changeActiveTo(clickedButton) {
     case weekAggregateButton:
       aggregation = 'week';
       chart.updateOptions({
-        chart: {
-          type: 'line',
-        },
         xaxis: {
           labels: {
             datetimeFormatter: {
@@ -188,9 +219,6 @@ function changeActiveTo(clickedButton) {
     case monthAggregateButton:
       aggregation = 'month';
       chart.updateOptions({
-        chart: {
-          type: 'bar',
-        },
         xaxis: {
           labels: {
             format: 'MMM yyyy',
@@ -206,9 +234,6 @@ function changeActiveTo(clickedButton) {
     case yearAggregateButton:
       aggregation = 'year';
       chart.updateOptions({
-        chart: {
-          type: 'bar',
-        },
         xaxis: {
           labels: {
             format: 'yyyy',

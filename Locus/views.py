@@ -1,17 +1,14 @@
 import logging
 from datetime import datetime
-from datetime import timedelta, date
 
 from django.contrib import messages
-from django.db.models import Count
-from django.db.models.functions import TruncDay
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from Locus.chart import aggregate
+from Locus.chart import aggregate, filter_objects
 from database import uploader
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial, Domain
@@ -76,6 +73,59 @@ def upload_csv(request):
 
 def search(request):
     return render(request, 'search.html')
+
+
+class Data(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        dateStr = request.query_params['date']
+        aggregation = request.query_params['aggregation']
+        type = request.query_params['type']  # not used
+
+        date = datetime.strptime(dateStr, '%Y-%m-%d').date()
+
+        tweet_table = [{
+            "group": 'tweet',
+            "tweet": {
+                "date": tweet.date,
+                "time": tweet.time,
+                "username": tweet.username,
+                "content": tweet.content,
+                "likes": tweet.likes,
+                "replies": tweet.replies,
+                "retweets": tweet.retweets,
+                "link": tweet.link,
+                "userlink": tweet.userlink,
+            }
+        } for tweet in filter_objects(Tweet, aggregation, date)]
+
+        google_table = [{
+            "id": google.get_node_id,
+            "group": 'google',
+            "title": google.page,
+            "google": {
+                "page": google.page,
+                "date": google.date,
+                "link": google.link,
+            }
+        } for google in filter_objects(GoogleResultOfficial, aggregation, date)]
+
+        article_table = [{
+            "group": 'article',
+            "article": {
+                "page": article.page,
+                "date": article.date,
+                "link": article.link,
+                "similarity": "{0:.4f}".format(round(article.similarity, 4)),
+                "title": article.title,
+                "content": article.content,
+                "words": article.get_top_words,
+            }
+        } for article in filter_objects(ResultArticle, aggregation, date)]
+
+        return Response(tweet_table + article_table + google_table)
 
 
 class Chart(APIView):
