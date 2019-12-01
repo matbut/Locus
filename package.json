@@ -4,6 +4,7 @@
   "description": "Components supporting discovery of information flow based on similarity and citation analysis.",
   "main": "index.js",
   "dependencies": {
+    "apexcharts": "^3.10.1",
     "vis-network": "^6.4.0"
   },
   "devDependencies": {
