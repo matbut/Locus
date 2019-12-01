@@ -58,12 +58,14 @@ cd locus_project
 ### Start
 Run worker for searching components:
 ```
-python3 manage.py runworker tweet_crawler google_crawler db_searcher
+python3 manage.py runworker db_ftsearcher db_url_searcher twitter_url_searcher twitter_text_searcher google_searcher internet_search_manager
 ```
 Start server:
 ```
 python3 manage.py runserver
 ```
+
+Alternatively, you can run locus.sh scipt, which performs operations above.
                
 ## Built-With
 * [Twint](https://github.com/twintproject/twint) - Twitter Intelligence Tool

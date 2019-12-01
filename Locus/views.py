@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from Locus.chart import aggregate, filter_objects
 from database import uploader
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import GoogleResultOfficial, Domain
+from googleCrawlerOfficial.models import InternetResult, Domain
 from search.models import SearchParameters, CrawlerStatus as Status
 from tweetCrawler.models import Tweet, TwitterUser
 
@@ -34,7 +34,7 @@ def twitter_tables(request):
 
 
 def google_tables_official(request):
-    google_results = GoogleResultOfficial.objects
+    google_results = InternetResult.objects
     my_date = datetime.now()
     return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
 
@@ -109,7 +109,7 @@ class Data(APIView):
                 "date": google.date,
                 "link": google.link,
             }
-        } for google in filter_objects(GoogleResultOfficial, aggregation, date)]
+        } for google in filter_objects(InternetResult, aggregation, date)]
 
         article_table = [{
             "group": 'article',
@@ -177,7 +177,7 @@ class Graph(APIView):
         search_nodes = [{
             "id": search.get_node_id,
             "group": 'search',
-            "title": search.url + "<br/>" + search.title,
+            "title": search.link + "<br/>" + search.title,
         } for search in SearchParameters.objects.all()]
 
         google_nodes = [{
@@ -189,7 +189,7 @@ class Graph(APIView):
                 "date": google.date,
                 "link": google.link,
             }
-        } for google in GoogleResultOfficial.objects.all()]
+        } for google in InternetResult.objects.all()]
 
         article_nodes = [{
             "id": article.get_node_id,
@@ -216,12 +216,12 @@ class Graph(APIView):
         google_tweet_edges = [{
             "from": tweet.get_node_id,
             "to": google.get_node_id,
-        } for google in GoogleResultOfficial.objects.all() for tweet in google.tweet_set.all()]
+        } for google in InternetResult.objects.all() for tweet in google.tweet_set.all()]
 
         google_edges = [{
             "from": search_node.get_node_id,
             "to": google.get_node_id,
-        } for search_node in SearchParameters.objects.all() for google in search_node.googleresultofficial_set.all()]
+        } for search_node in SearchParameters.objects.all() for google in search_node.internetresult_set.all()]
 
         article_edges = [{
             "from": search_node.get_node_id,
@@ -263,7 +263,7 @@ class Graph(APIView):
             google_domain_user_edges = [{
                 "from": google.get_node_id,
                 "to": google.domain.get_node_id,
-            } for google in GoogleResultOfficial.objects.all()]
+            } for google in InternetResult.objects.all()]
             edges = edges + google_domain_user_edges
 
             db_domain_user_edges = [{

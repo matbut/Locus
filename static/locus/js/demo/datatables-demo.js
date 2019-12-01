@@ -9,13 +9,13 @@ const crawlers = ["tweet_crawler", "google_crawler", "db_searcher"];
 const crawlerEndpoint = '/api/crawler';
 
 document.getElementById("tweetCrawlerDropdown").addEventListener('click', function(){
-  fillCrawler("tweet_crawler")
+  fillCrawler("twitter")
 });
 document.getElementById("googleCrawlerDropdown").addEventListener('click', function(){
-  fillCrawler("google_crawler")
+  fillCrawler("google")
 });
 document.getElementById("databaseSearcher").addEventListener('click', function(){
-  fillCrawler("db_searcher")
+  fillCrawler("db")
 });
 
 function fillCrawler(crawler){
@@ -27,6 +27,7 @@ function fillCrawler(crawler){
     },
     success: function (data) {
       crawlerElement = document.getElementById(crawler);
+      crawlerElement.querySelector('.queued').innerHTML = data.queued;
       crawlerElement.querySelector('.working').innerHTML = data.working;
       crawlerElement.querySelector('.completed').innerHTML = data.completed;
       crawlerElement.querySelector('.failed').innerHTML = data.failed;

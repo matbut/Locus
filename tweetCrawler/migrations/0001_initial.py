@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('likes', models.IntegerField()),
                 ('replies', models.IntegerField()),
                 ('retweets', models.IntegerField()),
-                ('google', models.ManyToManyField(to='googleCrawlerOfficial.GoogleResultOfficial')),
+                ('google', models.ManyToManyField(to='googleCrawlerOfficial.InternetResult')),
                 ('searches', models.ManyToManyField(to='search.SearchParameters')),
             ],
         ),

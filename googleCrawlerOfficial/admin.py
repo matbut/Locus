@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from googleCrawlerOfficial.models import GoogleResultOfficial, Domain
+from googleCrawlerOfficial.models import InternetResult, Domain
 
-admin.site.register(GoogleResultOfficial)
+admin.site.register(InternetResult)
 admin.site.register(Domain)
