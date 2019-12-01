@@ -64,7 +64,8 @@ var options = {
   },
   series: [],
   markers: {
-    size: 5,
+    size: 4,
+    strokeWidth: 0,
   },
   /*  fill: {
       type: 'gradient',
@@ -161,11 +162,13 @@ function updateDataBy(aggregate) {
       allData = data;
       chart.updateSeries(data, true);
 
-      barNumber = data[0].data.length + data[1].data.length + data[2].data.length
+      wholeData = data[0].data.concat(data[1].data).concat(data[2].data);
+
+      barNumber = wholeData.map((a) => Math.sign(a[1])).reduce((a, b) => a + b, 0);
 
       chart.updateOptions({
         chart: {
-          type: barNumber < 22 ? 'bar' : 'line',
+          type: barNumber < 30 ? 'bar' : 'line',
         }
       })
     },

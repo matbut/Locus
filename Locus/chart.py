@@ -1,11 +1,30 @@
 from datetime import datetime
 
-from django.db.models import Min, Max
+from django.db.models import Min, Max, Count
+from django.db.models.functions import TruncMonth, TruncDay, TruncYear, TruncWeek
 
-from common.dateUtils import count_end_date, date_range
+from common.dateUtils import count_end_date
 from database.models import ResultArticle
 from googleCrawlerOfficial.models import GoogleResultOfficial
 from tweetCrawler.models import Tweet
+
+
+def min_objects(db):
+    return db.objects.values('date').aggregate(min=Min('date'))['min'] or datetime.date(datetime.now())
+
+
+def max_objects(db):
+    return db.objects.values('date').aggregate(max=Max('date'))['max'] or datetime.date(datetime.min)
+
+
+def count_min_max_date():
+    dbs = [Tweet, GoogleResultOfficial, ResultArticle]
+
+    print(min_objects(ResultArticle))
+
+    min_date = min([min_objects(db) for db in dbs])
+    max_date = max([max_objects(db) for db in dbs])
+    return min_date, max_date
 
 
 def filter_objects(db, aggregation, start_date):
@@ -18,46 +37,33 @@ def count_objects(db, aggregation, start_date):
     return db.objects.filter(date__gte=start_date, date__lt=end_date).count()
 
 
-def min_objects(db):
-    return (db.objects.values('date').annotate(min=Min('date')) or [{'min': datetime.date(datetime.now())}])[0]['min']
+def count_by_aggregation(db, aggregation):
+    return list(map(lambda x: [x['aggregated_date'], x['count']],
+                    db.objects
+                    .annotate(aggregated_date=trunc_by_aggregation(aggregation))
+                    .values('aggregated_date')
+                    .annotate(count=Count('link'))
+                    .values('aggregated_date', 'count')
+                    .order_by('aggregated_date')))
 
 
-def max_objects(db):
-    return (db.objects.values('date').annotate(max=Max('date')) or [{'max': datetime.date(datetime.min)}])[0]['max']
-
-
-def count_min_max_date():
-    now = datetime.date(datetime.now())
-    dbs = [Tweet, GoogleResultOfficial, ResultArticle]
-    min_date = min([min_objects(db) for db in dbs], default=now)
-    max_date = max([max_objects(db) for db in dbs], default=now)
-    return min_date, max_date
+def trunc_by_aggregation(aggregation):
+    return {
+        'day': TruncDay,
+        'week': TruncWeek,
+        'month': TruncMonth,
+        'year': TruncYear,
+    }[aggregation]('date')
 
 
 def aggregate(aggregation):
-    min_date, max_date = count_min_max_date()
-
-    tweet_results = []
-    google_results = []
-    article_results = []
-
-    for dateTime in date_range(aggregation, min_date, max_date):
-        count = count_objects(Tweet, aggregation, dateTime)
-        tweet_results.append([dateTime.date(), count])
-
-        count = count_objects(GoogleResultOfficial, aggregation, dateTime)
-        google_results.append([dateTime.date(), count])
-
-        count = count_objects(ResultArticle, aggregation, dateTime)
-        article_results.append([dateTime.date(), count])
-
     return [{
         "name": 'Tweets',
-        "data": tweet_results
+        "data": count_by_aggregation(Tweet, aggregation)
     }, {
         "name": 'Google',
-        "data": google_results
+        "data": count_by_aggregation(GoogleResultOfficial, aggregation)
     }, {
         "name": 'Database',
-        "data": article_results
+        "data": count_by_aggregation(ResultArticle, aggregation)
     }]
