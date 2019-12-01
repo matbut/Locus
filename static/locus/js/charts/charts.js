@@ -6,7 +6,7 @@ var options = {
   chart: {
     type: 'line',
     stacked: false,
-    height: 500,
+    height: 250,
     zoom: {
       type: 'x',
       enabled: true,
@@ -44,7 +44,7 @@ var options = {
           },
           success: function (nodes) {
             clearTables()
-            for (const node of nodes){
+            for (const node of nodes) {
               addNode(node)
             }
             openTab(type);
@@ -58,7 +58,7 @@ var options = {
       }
     },
   },
-  colors:['#0084b4', '#00b435', '#7b3db4'],
+  colors: ['#0084b4', '#00b435', '#7b3db4'],
   dataLabels: {
     enabled: false
   },
@@ -66,31 +66,71 @@ var options = {
   markers: {
     size: 5,
   },
-  title: {
-    text: 'Activity',
-    align: 'left'
-  },
-/*  fill: {
-    type: 'gradient',
-    gradient: {
-      shadeIntensity: 1,
-      inverseColors: false,
-      opacityFrom: 0.5,
-      opacityTo: 0,
-      stops: [0, 90, 100]
+  /*  fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        inverseColors: false,
+        opacityFrom: 0.5,
+        opacityTo: 0,
+        stops: [0, 90, 100]
+      },
+    },*/
+  yaxis: [
+    {
+      axisTicks: {
+        show: true,
+      },
+      axisBorder: {
+        show: true,
+        color: '#0084b4'
+      },
+      labels: {
+        style: {
+          color: '#0084b4',
+        }
+      },
     },
-  },*/
-  yaxis: {
-    labels: {
+    {
+      seriesName: 'Google',
+      opposite: true,
+      axisTicks: {
+        show: true,
+      },
+      axisBorder: {
+        show: true,
+        color: '#00b435'
+      },
+      labels: {
+        style: {
+          color: '#00b435',
+        }
+      },
     },
-    title: {
-      text: 'Activity'
+    {
+      seriesName: 'Database',
+      opposite: true,
+      axisTicks: {
+        show: true,
+      },
+      axisBorder: {
+        show: true,
+        color: '#7b3db4'
+      },
+      labels: {
+        style: {
+          color: '#7b3db4',
+        },
+      },
     },
-  },
+  ],
   xaxis: {
     type: 'datetime',
     title: {
       //text: 'Time'
+    },
+    axisTicks: {
+      show: true,
     },
   },
   tooltip: {
@@ -121,11 +161,11 @@ function updateDataBy(aggregate) {
       allData = data;
       chart.updateSeries(data, true);
 
-      barNumber = data[0].data.length+data[1].data.length+data[2].data.length
+      barNumber = data[0].data.length + data[1].data.length + data[2].data.length
 
       chart.updateOptions({
         chart: {
-          type: barNumber<22 ? 'bar' : 'line',
+          type: barNumber < 22 ? 'bar' : 'line',
         }
       })
     },
@@ -141,9 +181,15 @@ showDatabaseButton = document.getElementById("show_database_results");
 
 showButtons = [showTweetButton, showGoogleButton, showDatabaseButton];
 
-showTweetButton.addEventListener("click", function(){toggleSeries(showTweetButton, "Tweets")});
-showGoogleButton.addEventListener("click", function(){toggleSeries(showGoogleButton, "Google")});
-showDatabaseButton.addEventListener("click", function(){toggleSeries(showDatabaseButton, "Database")});
+showTweetButton.addEventListener("click", function () {
+  toggleSeries(showTweetButton, "Tweets")
+});
+showGoogleButton.addEventListener("click", function () {
+  toggleSeries(showGoogleButton, "Google")
+});
+showDatabaseButton.addEventListener("click", function () {
+  toggleSeries(showDatabaseButton, "Database")
+});
 
 function toggleSeries(checkBox, series) {
   if (checkBox.classList.contains('btn-outline-primary'))
@@ -250,8 +296,18 @@ function changeActiveTo(clickedButton) {
   updateDataBy(aggregation);
 }
 
-dayAggregateButton.addEventListener("click", function(){changeActiveTo(dayAggregateButton)});
-monthAggregateButton.addEventListener("click", function(){changeActiveTo(monthAggregateButton)});
-weekAggregateButton.addEventListener("click", function(){changeActiveTo(weekAggregateButton)});
-yearAggregateButton.addEventListener("click", function(){changeActiveTo(yearAggregateButton)});
-reloadButton.addEventListener("click", function(){changeActiveTo(reloadButton)});
+dayAggregateButton.addEventListener("click", function () {
+  changeActiveTo(dayAggregateButton)
+});
+monthAggregateButton.addEventListener("click", function () {
+  changeActiveTo(monthAggregateButton)
+});
+weekAggregateButton.addEventListener("click", function () {
+  changeActiveTo(weekAggregateButton)
+});
+yearAggregateButton.addEventListener("click", function () {
+  changeActiveTo(yearAggregateButton)
+});
+reloadButton.addEventListener("click", function () {
+  changeActiveTo(reloadButton)
+});
