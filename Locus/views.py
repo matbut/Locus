@@ -211,24 +211,29 @@ class Graph(APIView):
         tweet_edges = [{
             "from": tweet.get_node_id,
             "to": search_node.get_node_id,
-        } for search_node in SearchParameters.objects.all() for tweet in search_node.tweet_set.all()]
+        } for search_node in SearchParameters.objects.all() for tweet in search_node.tweets.all()]
 
         google_tweet_edges = [{
             "from": tweet.get_node_id,
             "to": google.get_node_id,
-        } for google in InternetResult.objects.all() for tweet in google.tweet_set.all()]
+        } for google in InternetResult.objects.all() for tweet in google.tweets.all()]
 
         google_edges = [{
             "from": search_node.get_node_id,
             "to": google.get_node_id,
-        } for search_node in SearchParameters.objects.all() for google in search_node.internetresult_set.all()]
+        } for search_node in SearchParameters.objects.all() for google in search_node.internet_articles.all()]
 
         article_edges = [{
             "from": search_node.get_node_id,
             "to": article.get_node_id,
-        } for search_node in SearchParameters.objects.all() for article in search_node.resultarticle_set.all()]
+        } for search_node in SearchParameters.objects.all() for article in search_node.db_articles.all()]
 
-        edges = tweet_edges + google_tweet_edges + google_edges + article_edges
+        tweet_article_edges = [{
+            "from": article.get_node_id,
+            "to": tweet.get_node_id,
+        } for article in ResultArticle.objects.all() for tweet in article.tweets.all()]
+
+        edges = tweet_edges + google_tweet_edges + google_edges + article_edges + tweet_article_edges
 
         if load_twitter_users:
             twitter_user_nodes = [{
