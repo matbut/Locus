@@ -148,6 +148,42 @@ class CrawlerStatus(APIView):
         return Response(status.get_status_json)
 
 
+def node_spec(user):
+    if user.avatar:
+        return {
+            "id": user.get_node_id,
+            "group": 'user',
+            "title": user.username,
+            "shape": 'image' if user.avatar else 'icon',  # ''Font Awesome 5 Free',
+            "size": 40,
+            "image": user.avatar,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "link": user.link,
+            }
+        }
+    return {
+        "id": user.get_node_id,
+        "group": 'user',
+        "title": user.username,
+        "shape": 'image' if user.avatar else 'icon',  # ''Font Awesome 5 Free',
+        "size": 40,
+        "face": "'Font Awesome 5 Free'",
+        "icon": {
+            "weight": "bold",
+            "code": '\uf007',
+            "color": '#00485f',
+        },
+        "user": {
+            "id": user.id,
+            "username": user.username,
+            "link": user.link,
+        }
+    }
+
+
+
 class Graph(APIView):
     authentication_classes = []
     permission_classes = []
@@ -236,16 +272,7 @@ class Graph(APIView):
         edges = tweet_edges + google_tweet_edges + google_edges + article_edges + tweet_article_edges
 
         if load_twitter_users:
-            twitter_user_nodes = [{
-                "id": user.get_node_id,
-                "group": 'user',
-                "title": user.username,
-                "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "link": user.link,
-                }
-            } for user in TwitterUser.objects.all()]
+            twitter_user_nodes = [node_spec(user) for user in TwitterUser.objects.all()]
             nodes = nodes + twitter_user_nodes
 
             twitter_user_edges = [{

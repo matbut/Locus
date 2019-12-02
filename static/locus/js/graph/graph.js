@@ -220,15 +220,7 @@ function draw() {
         }
       },
       user: {
-        shape: 'icon',
         mass: 1,
-        icon: {
-          face: "'Font Awesome 5 Free'",
-          weight: "bold", // Font Awesome 5 doesn't work properly unless bold.
-          code: '\uf007',
-          size: 40,
-          color: '#00485f'
-        }
       },
       domain: {
         shape: 'image',
