@@ -26,11 +26,11 @@ def add_parent(result, parent):
     elif parent.type == DB_URL_SEARCHER_NAME:
         result.db_articles.add(ResultArticle.objects.get(pk=parent.id))
     elif parent.type == TWITTER_URL_SEARCHER_NAME:
-        result.tweet_set.add(Tweet.objects.get(pk=parent.id))
+        result.tweets.add(Tweet.objects.get(pk=parent.id))
     elif parent.type == TWITTER_TEXT_SEARCHER_NAME:
-        result.tweet_set.add(Tweet.objects.get(pk=parent.id))
+        result.tweets.add(Tweet.objects.get(pk=parent.id))
     elif parent.type == INTERNET_SEARCH_MANAGER_NAME:
-        result.google.add(InternetResult.objects.get(pk=parent.id))
+        result.internet_articles.add(InternetResult.objects.get(pk=parent.id))
 
 
 def get_main_search(search_id):

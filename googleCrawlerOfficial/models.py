@@ -16,8 +16,7 @@ class InternetResult(models.Model):
     date = models.DateField(null=True)
     link = models.URLField(primary_key=True)
 
-    searches = models.ManyToManyField(SearchParameters)
-    #tweets = models.ManyToManyField(Tweet)
+    searches = models.ManyToManyField(SearchParameters, related_name='internet_articles')
     domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)
 
     @property

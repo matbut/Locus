@@ -105,7 +105,7 @@ class FTSearcher(SyncConsumer):
                                method='search', body={
                         'link': result.link,
                         'search_id': main_search.id,
-                        'parent': Parent(id=result.link, type=self.name)
+                        'parent': Parent(id=result.link, type=self.name).to_dict()
                     })
 
     def search(self, msg):

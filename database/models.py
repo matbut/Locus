@@ -27,8 +27,8 @@ class ResultArticle(models.Model):
     content = models.TextField()
 
     top_words = models.ManyToManyField(TopWord)
-    searches = models.ManyToManyField(SearchParameters)
-    tweets = models.ManyToManyField(Tweet)
+    searches = models.ManyToManyField(SearchParameters, related_name='db_articles')
+    tweets = models.ManyToManyField(Tweet, related_name='db_articles')
     domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)
 
     @property

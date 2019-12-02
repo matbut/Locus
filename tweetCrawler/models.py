@@ -27,8 +27,8 @@ class Tweet(models.Model):
     retweets = models.IntegerField()
 
     user = models.ForeignKey(TwitterUser, on_delete=models.CASCADE, null=True)
-    searches = models.ManyToManyField(SearchParameters)
-    google = models.ManyToManyField(InternetResult)
+    searches = models.ManyToManyField(SearchParameters, related_name='tweets')
+    internet_articles = models.ManyToManyField(InternetResult, related_name='tweets')
 
     @property
     def get_node_id(self):
