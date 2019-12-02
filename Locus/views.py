@@ -259,6 +259,7 @@ class Graph(APIView):
                 "id": user.get_node_id,
                 "group": 'domain',
                 "title": user.link,
+                "image": "https://www.google.com/s2/favicons?domain={0}".format(user.link),
                 "domain": {
                     "link": user.link,
                 }
