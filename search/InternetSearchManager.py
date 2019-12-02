@@ -1,14 +1,13 @@
 import asyncio
 import logging
 import traceback
-from urllib.parse import urlparse
 
 from channels.consumer import SyncConsumer
 
 from common import statusUpdate
 from common.searcherUtils import send_to_worker, INTERNET_SEARCH_MANAGER_NAME, send_to_websocket, WORKER_NAMES, \
     add_parent, TWITTER_URL_SEARCHER_NAME, DB_URL_SEARCHER_NAME, get_main_search
-from common.url import is_valid
+from common.url import is_valid, get_domain
 from database.models import ImportedArticle
 from googleCrawlerOfficial import patterns
 from googleCrawlerOfficial.models import Domain, InternetResult
@@ -54,7 +53,7 @@ class Manager(SyncConsumer):
                     })
             else:
                 if is_valid(link) and main_search.link != link:
-                    domain_str = urlparse(link).netloc
+                    domain_str = get_domain(link)
                     domain, _ = Domain.objects.get_or_create(link=domain_str)
                     result = get_or_create(link, date, domain_str, domain)
                     add_parent(result, parent)
