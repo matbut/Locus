@@ -154,8 +154,8 @@ def node_spec(user):
             "id": user.get_node_id,
             "group": 'user',
             "title": user.username,
-            "shape": 'image' if user.avatar else 'icon',  # ''Font Awesome 5 Free',
-            "size": 40,
+            "shape": 'circularImage',
+            "size": 30,
             "image": user.avatar,
             "user": {
                 "id": user.id,
@@ -167,7 +167,7 @@ def node_spec(user):
         "id": user.get_node_id,
         "group": 'user',
         "title": user.username,
-        "shape": 'image' if user.avatar else 'icon',  # ''Font Awesome 5 Free',
+        "shape": 'icon',
         "size": 40,
         "face": "'Font Awesome 5 Free'",
         "icon": {
