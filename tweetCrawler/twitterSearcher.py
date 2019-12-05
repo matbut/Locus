@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -48,13 +49,28 @@ def get_or_create(tweet, new_user):
         return result
 
 
+def get_avatar(user_id):
+    c = twint.Config()
+    c.User_id = user_id
+    c.Hide_output = True
+    c.Pandas = True
+    twint.run.Lookup(c)
+    users = twint.storage.panda.User_df
+    avatar = users['avatar'].tolist()[0]
+    twint.storage.panda.clean()
+    return avatar
+
+
 def save_tweet(tweet_str, parent):
     tweet = json.loads(tweet_str)
+
+    user_avatar = get_avatar(tweet['user_id'])
 
     new_user, _ = TwitterUser.objects.get_or_create(
         id=tweet['user_id'],
         username=tweet['username'],
         link=f"https://twitter.com/{tweet['username']}",
+        avatar=user_avatar,
     )
 
     new_tweet = get_or_create(tweet, new_user)
@@ -113,6 +129,7 @@ class TwitterUrlSearcher(SyncConsumer):
             self.log(logging.INFO, 'Finished')
 
         except Exception as e:
+            print(traceback.format_exc())
             self.log(logging.ERROR, 'Failed: {0}'.format(str(e)))
             updater.failure()
 
@@ -168,6 +185,7 @@ class TwitterTextSearcher(SyncConsumer):
             updater.success()
 
         except Exception as e:
+            print(traceback.format_exc())
             self.log(logging.ERROR, 'Failed: {0}'.format(str(e)))
             updater.failure()
 

@@ -8,6 +8,7 @@ class TwitterUser(models.Model):
     id = models.CharField(max_length=128, primary_key=True)
     username = models.CharField(max_length=60)
     link = models.URLField()
+    avatar = models.TextField(default="")
 
     @property
     def get_node_id(self):
