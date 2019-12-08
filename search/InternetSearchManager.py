@@ -3,10 +3,11 @@ import logging
 import traceback
 
 from channels.consumer import SyncConsumer
+from django.db import transaction
 
 from common import statusUpdate
 from common.searcherUtils import send_to_worker, INTERNET_SEARCH_MANAGER_NAME, send_to_websocket, WORKER_NAMES, \
-    add_parent, TWITTER_URL_SEARCHER_NAME, DB_URL_SEARCHER_NAME, get_main_search
+    add_parent, TWITTER_URL_SEARCHER_NAME, DB_URL_SEARCHER_NAME, get_main_search, search_cancelled
 from common.url import is_valid, get_domain
 from database.models import ImportedArticle
 from googleCrawlerOfficial import patterns
@@ -34,42 +35,56 @@ class Manager(SyncConsumer):
         logging.log(level, '[{0}] {1}'.format(self.name, message))
 
     def process_link(self, msg):
-        #self.log(logging.INFO, 'Starting')
+
+        main_search_id = msg['body']['search_id']
+        updater = statusUpdate.get(self.name)
+        updater.in_progress(main_search_id)
+
+        if search_cancelled(main_search_id):
+            self.log(logging.INFO, 'Search cancelled, finishing')
+            updater.success(main_search_id)
+            return
+
         try:
             asyncio.set_event_loop(asyncio.new_event_loop())
             link = msg['body']['link']
             date = patterns.retrieve_date(msg['body'].get('date'))
-            main_search = get_main_search(msg['body']['search_id'])
+            main_search = get_main_search(main_search_id)
             parent = Parent.from_dict(msg['body']['parent'])
             sender = msg['sender']
 
-            if ImportedArticle.objects.filter(link=link).exists():
-                statusUpdate.get(DB_URL_SEARCHER_NAME).queued()
+            if ImportedArticle.objects.filter(link=link).exists() and main_search.db_search:
+                statusUpdate.get(DB_URL_SEARCHER_NAME).queued(main_search_id)
                 send_to_worker(self.channel_layer, sender=sender, where=DB_URL_SEARCHER_NAME,
                                method='search', body={
                         'link': link,
                         'search_id': main_search.id,
                         'parent': parent.to_dict()
                     })
-            else:
-                if is_valid(link) and main_search.link != link:
-                    domain_str = get_domain(link)
-                    domain, _ = Domain.objects.get_or_create(link=domain_str)
-                    result = get_or_create(link, date, domain_str, domain)
-                    add_parent(result, parent)
+                return
 
-                    statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued()
-                    send_to_worker(self.channel_layer, sender=sender, where=TWITTER_URL_SEARCHER_NAME,
-                                   method='search', body={
-                            'link': result.link,
-                            'search_id': main_search.id,
-                            'parent': Parent(id=result.link, type=self.name).to_dict()
-                        })
+            if is_valid(link) and main_search.link != link:
+                try:
+                    with transaction.atomic():
+                        domain_str = get_domain(link)
+                        domain, _ = Domain.objects.get_or_create(link=domain_str)
+                        result = get_or_create(link, date, domain_str, domain)
+                        add_parent(result, parent)
 
-                    if sender not in WORKER_NAMES:
-                        send_to_websocket(self.channel_layer, where=sender, method='success', message='')
+                        if main_search.twitter_search:
+                            statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued(main_search_id)
+                            send_to_worker(self.channel_layer, sender=sender, where=TWITTER_URL_SEARCHER_NAME,
+                                           method='search', body={
+                                    'link': result.link,
+                                    'search_id': main_search.id,
+                                    'parent': Parent(id=result.link, type=self.name).to_dict()
+                                })
+                except Exception as e:
+                    self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
 
-            #self.log(logging.INFO, 'Finished')
+                if sender not in WORKER_NAMES:
+                    send_to_websocket(self.channel_layer, where=sender, method='success', message='')
+
 
         except Exception as e:
             print(traceback.format_exc())

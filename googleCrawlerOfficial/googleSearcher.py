@@ -1,12 +1,14 @@
 import asyncio
 import json
 import logging
+import traceback
 from urllib import request
 from urllib.parse import quote
 
 from channels.consumer import SyncConsumer
 
-from common.searcherUtils import get_main_search, send_to_worker, GOOGLE_SEARCHER_NAME, INTERNET_SEARCH_MANAGER_NAME
+from common.searcherUtils import get_main_search, send_to_worker, GOOGLE_SEARCHER_NAME, INTERNET_SEARCH_MANAGER_NAME, \
+    search_cancelled
 from common import statusUpdate
 from common.url import clean_url
 from googleCrawlerOfficial import patterns
@@ -32,15 +34,32 @@ class Searcher(SyncConsumer):
     def log(self, level, message):
         logging.log(level, '[{0}] {1}'.format(self.name, message))
 
+    def search_parameters_correct(self, msg):
+        if not msg['body']['title']:
+            self.log(logging.INFO, 'Title cannot be empty')
+            return False
+        return True
+
     def search(self, msg):
         self.log(logging.INFO, 'Starting')
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        main_search_id = msg['body']['search_id']
         updater = statusUpdate.get(self.name)
-        updater.in_progress()
+        updater.in_progress(main_search_id)
+
+        if search_cancelled(main_search_id):
+            self.log(logging.INFO, 'Search cancelled, finishing')
+            updater.success(main_search_id)
+            return
+
+        if not self.search_parameters_correct(msg):
+            self.log(logging.INFO, 'Parameters incorrect, finishing')
+            updater.success(main_search_id)
+            return
 
         try:
-            main_search = get_main_search(msg['body']['search_id'])
+            main_search = get_main_search(main_search_id)
             title = msg['body']['title']
             link = msg['body']['link']
             parent = Parent.from_dict(msg['body']['parent'])
@@ -54,7 +73,7 @@ class Searcher(SyncConsumer):
                 if item['link'] == link:
                     continue
                 # send to InternetSearchManager
-                statusUpdate.get(INTERNET_SEARCH_MANAGER_NAME).queued()
+                statusUpdate.get(INTERNET_SEARCH_MANAGER_NAME).queued(main_search_id)
                 send_to_worker(self.channel_layer, sender=sender, where=INTERNET_SEARCH_MANAGER_NAME,
                                method='process_link', body={
                         'link': clean_url(item['link']),
@@ -63,9 +82,10 @@ class Searcher(SyncConsumer):
                         'search_id': main_search.id,
                     })
 
-            updater.success()
+            updater.success(main_search_id)
             self.log(logging.INFO, 'Finished')
 
         except Exception as e:
-            updater.failure()
+            print(traceback.format_exc())
+            updater.failure(main_search_id)
             self.log(logging.WARNING, 'Failed: {0}'.format(str(e)))
