@@ -103,14 +103,14 @@ class FTSearcher(SyncConsumer):
             result = save_or_skip(result_article, main_search, parent)
             if result and where not in WORKER_NAMES:
                 send_to_websocket(self.channel_layer, where=where, method='success', message='')
-                if result.link != main_search.link and main_search.twitter_search:
-                    statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued(main_search.id)
-                    send_to_worker(self.channel_layer, sender=self.name, where=TWITTER_URL_SEARCHER_NAME,
-                                   method='search', body={
-                            'link': result.link,
-                            'search_id': main_search.id,
-                            'parent': Parent(id=result.link, type=self.name).to_dict()
-                        })
+            if result and result.link != main_search.link and main_search.twitter_search:
+                statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued(main_search.id)
+                send_to_worker(self.channel_layer, sender=self.name, where=TWITTER_URL_SEARCHER_NAME,
+                               method='search', body={
+                        'link': result.link,
+                        'search_id': main_search.id,
+                        'parent': Parent(id=result.link, type=self.name).to_dict()
+                    })
         except Exception as e:
             self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
 
@@ -174,6 +174,14 @@ class UrlSearcher(SyncConsumer):
             result = save_or_skip(result_article, main_search, parent)
             if result and where not in WORKER_NAMES:
                 send_to_websocket(self.channel_layer, where=where, method='success', message='')
+            if result and result.link != main_search.link and main_search.twitter_search:
+                statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued(main_search.id)
+                send_to_worker(self.channel_layer, sender=self.name, where=TWITTER_URL_SEARCHER_NAME,
+                               method='search', body={
+                        'link': result.link,
+                        'search_id': main_search.id,
+                        'parent': Parent(id=result.link, type=self.name).to_dict()
+                    })
         except Exception as e:
             self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
 

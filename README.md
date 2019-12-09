@@ -58,7 +58,7 @@ cd locus_project
 ### Start
 Run worker for searching components:
 ```
-python3 manage.py runworker db_ftsearcher db_url_searcher twitter_url_searcher twitter_text_searcher google_searcher internet_search_manager
+python3 manage.py runworker db_ftsearcher db_url_searcher twitter_url_searcher twitter_text_searcher google_searcher link_manager
 ```
 Start server:
 ```
