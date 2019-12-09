@@ -41,9 +41,29 @@ month = {
     'gru': 'Dec'
 }
 
+day = {
+    'poniedzialek': '00',
+    'pon': '00',
+    'pn': '00',
+    'wtorek': '01',
+    'wt': '01',
+    'sroda': '02',
+    'sr': '02',
+    'czwartek': '03',
+    'czw': '03',
+    'cz': '03',
+    'piatek': '04',
+    'pt': '04',
+    'sobota': '05',
+    'sob': '05',
+    'sb': '05',
+    'niedziela': '06',
+    'nie': '06',
+    'nd': '06',
+}
 
-LOCALE_MONTH_SHORT = '%l'
-LOCALE_MONTH_LONG = '%L'
+LOCALE_MONTH = '%L'
+LOCALE_DAY = '%l'
 
 
 def to_datetime(date_time):
@@ -61,13 +81,12 @@ def replace_month(str_date, regex):
 
 def parse_date(date_str, regex):
     date_str = remove_diacritics(date_str.lower())
-    print(date_str)
-    if LOCALE_MONTH_LONG in regex:
-        regex = regex.replace(LOCALE_MONTH_LONG, '%b')
+    if LOCALE_MONTH in regex:
+        regex = regex.replace(LOCALE_MONTH, '%b')
         for pl_month in month:
             date_str = date_str.replace(pl_month, month[pl_month])
-    if LOCALE_MONTH_SHORT in regex:
-        regex = regex.replace(LOCALE_MONTH_SHORT, '%b')
-        for pl_month in month:
-            date_str = date_str.replace(pl_month, month[pl_month])
+    if LOCALE_DAY in regex:
+        regex = regex.replace(LOCALE_DAY, '%d')
+        for pl_day in day:
+            date_str = date_str.replace(pl_day, day[pl_day])
     return datetime.datetime.strptime(date_str, regex)

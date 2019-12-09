@@ -159,9 +159,46 @@
       </li>
     </ul>
 
-    <div id="content-wrapper">
+    <div class="card-body" id="content-wrapper">
         <form action="{% url "upload" %}" method="POST" enctype="multipart/form-data" class="form-horizontal">
+            <p>Please, provide a delimiter, a date pattern and numbers of columns with article information. <br/> Leftmost column has number 0.</p>
+            <br/>
+            <div class="form-row col-md-8">
+                <div class="form-group col-md-2">
+                    <label for="link-col">Link</label>
+                    <input type="number" class="form-control" id="link-col" name="link" required="required" placeholder="-1">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="title-col">Title</label>
+                    <input type="number" class="form-control" id="title-col" name="title" required="required" placeholder="-1">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="content-col">Content</label>
+                    <input type="number" class="form-control" id="content-col" name="content" required="required" placeholder="-1">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="date-col">Date</label>
+                    <input type="number" class="form-control" id="date-col" name="date" required="required" placeholder="-1">
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="delimiter">Delimiter</label>
+                    <input type="text" class="form-control" id="delimiter" name="delimiter" required="required" placeholder=";">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="date-regex">Date pattern</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="date-regex" name="pattern" required="required" placeholder="%Y-%L-%d %H:%M">
+                        <span class="input-group-append">
+                            <button class="btn btn-outline-secondary border-left-0 border" type="button" data-toggle="popover" data-html="true" data-placement="right" title="Most important patterns"
+                                    data-content="%Y - year <br> %m - month number <br> %L - polish month text <br> %l - polish week day text <br> %d - day number <br> %H - hour <br> %M - minute <br> %s - second">
+                                <i class="fa fa-info-circle"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
             {% csrf_token %}
+            <!--div class="alert alert-warning col-md-8" id="msg-warning" role="alert">Right now only semi-colon delimiter is supported</div-->
             <div class="form-group">
                 <div class="custom-file col-md-8">
                     <input type="file" class="custom-file-input" required="required" name="csv_file" id="csv_file"/>
@@ -173,7 +210,6 @@
                      <button class="btn btn-primary"> <span class="glyphicon glyphicon-upload" id="upload" style="margin-right:5px;"></span>Upload </button>
                 </div>
             </div>
-            <div class="alert alert-warning col-md-8" id="msg-warning" role="alert">Right now only coma delimiter is supported</div>
         </form>
         {% if messages %}
             {% for message in messages %}
