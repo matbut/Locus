@@ -72,12 +72,10 @@ class WSConsumer(WebsocketConsumer):
             self.send('done')
         self.jobs = 0
 
-    #def failure(self, signal):
-    #    logging.warning('Failure: {0}'.format(signal['message']))
 
     def send_search_request(self, where, text_data_json, search_parameters_id, search_type='search'):
         logging.info('Sending request to {0} component'.format(where))
-        statusUpdate.get(where).queued()
+        statusUpdate.get(where).queued(search_parameters_id)
         send_to_worker(self.channel_layer, sender=self.id, where=where, method=search_type, body={
             'link': clean_url(text_data_json['url']),
             'title': text_data_json['title'],

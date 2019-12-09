@@ -1,48 +1,47 @@
 import asyncio
-import json
 import logging
-import os
 import traceback
 from datetime import datetime
-from pathlib import Path
 
 import twint
 from channels.consumer import SyncConsumer
+from django.db import transaction
 
-from common.searcherUtils import send_to_worker, send_to_websocket, TWITTER_URL_SEARCHER_NAME, \
-    TWITTER_TEXT_SEARCHER_NAME, WORKER_NAMES, add_parent, INTERNET_SEARCH_MANAGER_NAME, get_main_search
 from common import statusUpdate
+from common.searcherUtils import send_to_worker, send_to_websocket, TWITTER_URL_SEARCHER_NAME, \
+    TWITTER_TEXT_SEARCHER_NAME, WORKER_NAMES, add_parent, INTERNET_SEARCH_MANAGER_NAME, get_main_search, \
+    search_cancelled
 from common.url import clean_url
 from search.models import Parent
 from .models import Tweet, TwitterUser
 
 
-def get_twint_configuration(tweets_file_path):
+def get_twint_configuration(tweets):
     c = twint.Config()
     c.Limit = 100
     c.Hide_output = True
     c.Popular_tweets = True
-    c.Store_json = True
-    c.Output = tweets_file_path
+    c.Store_object = True
+    c.Store_object_tweets_list = tweets
     return c
 
 
 def get_or_create(tweet, new_user):
-    if Tweet.objects.filter(id=tweet['id']).exists():
-        return Tweet.objects.get(pk=tweet['id'])
+    if Tweet.objects.filter(id=tweet.id).exists():
+        return Tweet.objects.get(pk=tweet.id)
     else:
-        epoch = int(tweet['created_at'])
+        epoch = int(tweet.datetime)
         result = Tweet(
-            id=tweet['id'],
-            content=tweet['tweet'],
+            id=tweet.id,
+            content=tweet.tweet,
             date=datetime.utcfromtimestamp(epoch / 1000.0).date(),
             time=datetime.utcfromtimestamp(epoch / 1000.0).time(),
-            username=tweet['username'],
-            userlink=f"https://twitter.com/{tweet['username']}",
-            link=tweet['link'],
-            likes=tweet['likes_count'],
-            replies=tweet['replies_count'],
-            retweets=tweet['retweets_count'],
+            username=tweet.username,
+            userlink=f"https://twitter.com/{tweet.username}",
+            link=tweet.link,
+            likes=tweet.likes_count,
+            replies=tweet.replies_count,
+            retweets=tweet.retweets_count,
             user=new_user,
         )
         result.save()
@@ -60,22 +59,20 @@ def get_avatar(user_id):
     twint.storage.panda.clean()
     return avatar
 
-
-def save_tweet(tweet_str, parent):
-    tweet = json.loads(tweet_str)
-
-    user_avatar = get_avatar(tweet['user_id'])
+@transaction.atomic
+def save_tweet(tweet, parent):
+    user_avatar = get_avatar(tweet.user_id)
 
     new_user, _ = TwitterUser.objects.get_or_create(
-        id=tweet['user_id'],
-        username=tweet['username'],
-        link=f"https://twitter.com/{tweet['username']}",
+        id=tweet.user_id,
+        username=tweet.username,
+        link=f"https://twitter.com/{tweet.username}",
         avatar=user_avatar,
     )
 
     new_tweet = get_or_create(tweet, new_user)
     add_parent(new_tweet, parent)
-    return new_tweet.id, tweet['urls']
+    return new_tweet.id, tweet.urls
 
 
 class TwitterUrlSearcher(SyncConsumer):
@@ -86,52 +83,65 @@ class TwitterUrlSearcher(SyncConsumer):
     def log(self, level, message):
         logging.log(level, '[{0}] {1}'.format(self.name, message))
 
-    def save_tweet(self, tweet_str, parent, where):
-        save_tweet(tweet_str, parent)
-        if where not in WORKER_NAMES:
-            send_to_websocket(self.channel_layer, where=where, method='success', message='')
+    def save_tweet(self, tweet, parent, where):
+        try:
+            save_tweet(tweet, parent)
+            if where not in WORKER_NAMES:
+                send_to_websocket(self.channel_layer, where=where, method='success', message='')
+        except Exception as e:
+            self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
+
+    def search_parameters_correct(self, msg):
+        if not msg['body']['link']:
+            self.log(logging.INFO, 'Link cannot be empty')
+            return False
+        return True
 
     def search(self, msg):
 
         self.log(logging.INFO, 'Starting')
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        main_search_id = msg['body']['search_id']
         updater = statusUpdate.get(self.name)
-        updater.in_progress()
+        updater.in_progress(main_search_id)
+
+        if search_cancelled(main_search_id):
+            self.log(logging.INFO, 'Search cancelled, finishing')
+            updater.success(main_search_id)
+            return
+
+        if not self.search_parameters_correct(msg):
+            self.log(logging.INFO, 'Parameters incorrect, finishing')
+            updater.success(main_search_id)
+            return
 
         try:
-            tweets_file_path = '{0}/.locus/tmp_{1}.json'.format(str(Path.home()), self.name)
-
             link = msg['body']['link']
             parent = Parent.from_dict(msg['body']['parent'])
             sender = msg['sender']
 
             # Configure
-            c = get_twint_configuration(tweets_file_path)
+            tweets = []
+            c = get_twint_configuration(tweets)
 
             # Search
             c.Search = link
             c.Links = "include"
             twint.run.Search(c)
 
-            if os.path.isfile(tweets_file_path):
-                with open(tweets_file_path, 'r') as tweets_file:
-                    tweets = tweets_file.readlines()
+            self.log(logging.INFO, f'{len(tweets)} tweets were downloaded.')
 
-                    self.log(logging.INFO, f'{len(tweets)} tweets were downloaded.')
+            for tweet in tweets:
+                self.save_tweet(tweet, parent, sender)
 
-                    for tweet_str in tweets:
-                        self.save_tweet(tweet_str, parent, sender)
-
-                os.remove(tweets_file_path)
-
-            updater.success()
+            updater.success(main_search_id)
             self.log(logging.INFO, 'Finished')
 
         except Exception as e:
             print(traceback.format_exc())
             self.log(logging.ERROR, 'Failed: {0}'.format(str(e)))
-            updater.failure()
+            updater.failure(main_search_id)
 
 
 class TwitterTextSearcher(SyncConsumer):
@@ -142,56 +152,71 @@ class TwitterTextSearcher(SyncConsumer):
     def log(self, level, message):
         logging.log(level, '[{0}] {1}'.format(self.name, message))
 
-    def save_tweet(self, tweet_str, parent, where):
-        tweet_id, links = save_tweet(tweet_str, parent)
-        if where not in WORKER_NAMES:
-            send_to_websocket(self.channel_layer, where=where, method='success', message='')
-        return tweet_id, links
+    def save_tweet(self, tweet, parent, where):
+        try:
+            tweet_id, links = save_tweet(tweet, parent)
+            if where not in WORKER_NAMES:
+                send_to_websocket(self.channel_layer, where=where, method='success', message='')
+            return tweet_id, links
+        except Exception as e:
+            self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
+            return None, None
+
+    def search_parameters_correct(self, msg):
+        if not msg['body']['title']:
+            self.log(logging.INFO, 'Title cannot be empty')
+            return False
+        return True
 
     def search(self, msg):
 
         self.log(logging.INFO, 'Starting')
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        main_search_id = msg['body']['search_id']
         updater = statusUpdate.get(self.name)
-        updater.in_progress()
+        updater.in_progress(main_search_id)
+
+        if search_cancelled(main_search_id):
+            self.log(logging.INFO, 'Search cancelled, finishing')
+            updater.success(main_search_id)
+            return
+
+        if not self.search_parameters_correct(msg):
+            self.log(logging.INFO, 'Parameters incorrect, finishing')
+            updater.success(main_search_id)
+            return
 
         try:
-            tweets_file_path = '{0}/.locus/tmp_{1}.json'.format(str(Path.home()), self.name)
-
-            main_search = get_main_search(msg['body']['search_id'])
+            main_search = get_main_search(main_search_id)
             title = msg['body']['title']
             parent = Parent.from_dict(msg['body']['parent'])
             sender = msg['sender']
             # Configure
-            c = get_twint_configuration(tweets_file_path)
+            tweets=[]
+            c = get_twint_configuration(tweets)
 
             # Search
             c.Search = title
             twint.run.Search(c)
 
-            if os.path.isfile(tweets_file_path):
-                with open(tweets_file_path, 'r') as tweets_file:
-                    tweets = tweets_file.readlines()
+            self.log(logging.INFO, f'{len(tweets)} tweets were downloaded.')
 
-                    self.log(logging.INFO, f'{len(tweets)} tweets were downloaded.')
+            for tweet in tweets:
+                tweet_id, links = self.save_tweet(tweet, parent, sender)
+                if tweet_id:
+                    self.send_to_internet_search_manager(links, Parent(type=self.name, id=tweet_id), main_search.id)
 
-                    for tweet_str in tweets:
-                        tweet_id, links = self.save_tweet(tweet_str, parent, sender)
-                        self.send_to_internet_search_manager(links, Parent(type=self.name, id=tweet_id), main_search.id)
-
-                os.remove(tweets_file_path)
-
-            updater.success()
+            updater.success(main_search_id)
 
         except Exception as e:
             print(traceback.format_exc())
             self.log(logging.ERROR, 'Failed: {0}'.format(str(e)))
-            updater.failure()
+            updater.failure(main_search_id)
 
     def send_to_internet_search_manager(self, links, parent, search_id):
         for link in links:
-            statusUpdate.get(INTERNET_SEARCH_MANAGER_NAME).queued()
+            statusUpdate.get(INTERNET_SEARCH_MANAGER_NAME).queued(search_id)
             send_to_worker(self.channel_layer, sender=self.name, where=INTERNET_SEARCH_MANAGER_NAME,
                            method='process_link', body={
                     'link': clean_url(link),

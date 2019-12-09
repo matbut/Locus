@@ -1,15 +1,17 @@
 import asyncio
 import logging
 import string
+import traceback
 
 import numpy as np
 from channels.consumer import SyncConsumer
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
+from django.db import transaction
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from common.searcherUtils import get_main_search, send_to_websocket, DB_FTSEARCHER_NAME, DB_URL_SEARCHER_NAME, \
-    WORKER_NAMES, add_parent, send_to_worker, TWITTER_URL_SEARCHER_NAME
+    WORKER_NAMES, add_parent, send_to_worker, TWITTER_URL_SEARCHER_NAME, search_cancelled
 from common import statusUpdate
 from common.textUtils import remove_diacritics, remove_stopwords
 from database.models import ImportedArticle, ResultArticle, TopWord
@@ -31,6 +33,7 @@ def get_or_create(result_article, domain, similarity):
         return result
 
 
+@transaction.atomic
 def save_or_skip(result_article, main_search, parent):
     result_content = result_article.content
 
@@ -96,27 +99,47 @@ class FTSearcher(SyncConsumer):
     def save_or_skip(self, result_article, main_search, parent, where):
         if result_article.link == main_search.link:
             return
-        result = save_or_skip(result_article, main_search, parent)
-        if result and where not in WORKER_NAMES:
-            send_to_websocket(self.channel_layer, where=where, method='success', message='')
-            if result.link != main_search.link:
-                statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued()
-                send_to_worker(self.channel_layer, sender=self.name, where=TWITTER_URL_SEARCHER_NAME,
-                               method='search', body={
-                        'link': result.link,
-                        'search_id': main_search.id,
-                        'parent': Parent(id=result.link, type=self.name).to_dict()
-                    })
+        try:
+            result = save_or_skip(result_article, main_search, parent)
+            if result and where not in WORKER_NAMES:
+                send_to_websocket(self.channel_layer, where=where, method='success', message='')
+                if result.link != main_search.link and main_search.twitter_search:
+                    statusUpdate.get(TWITTER_URL_SEARCHER_NAME).queued(main_search.id)
+                    send_to_worker(self.channel_layer, sender=self.name, where=TWITTER_URL_SEARCHER_NAME,
+                                   method='search', body={
+                            'link': result.link,
+                            'search_id': main_search.id,
+                            'parent': Parent(id=result.link, type=self.name).to_dict()
+                        })
+        except Exception as e:
+            self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
+
+    def search_parameters_correct(self, msg):
+        if not msg['body']['title']:
+            self.log(logging.INFO, 'Title cannot be empty')
+            return False
+        return True
 
     def search(self, msg):
         self.log(logging.INFO, 'Starting')
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        main_search_id = msg['body']['search_id']
         updater = statusUpdate.get(self.name)
-        updater.in_progress()
+        updater.in_progress(main_search_id)
+
+        if search_cancelled(main_search_id):
+            self.log(logging.INFO, 'Search cancelled, finishing')
+            updater.success(main_search_id)
+            return
+
+        if not self.search_parameters_correct(msg):
+            self.log(logging.INFO, 'Parameters incorrect, finishing')
+            updater.success(main_search_id)
+            return
 
         try:
-            main_search = get_main_search(msg['body']['search_id'])
+            main_search = get_main_search(main_search_id)
             title = msg['body']['title']
             parent = Parent.from_dict(msg['body']['parent'])
             sender = msg['sender']
@@ -127,12 +150,13 @@ class FTSearcher(SyncConsumer):
             for result_article in result:
                 self.save_or_skip(result_article, main_search, parent, sender)
 
-            updater.success()
+            updater.success(main_search_id)
 
             self.log(logging.INFO, 'Finished')
 
         except Exception as e:
-            updater.failure()
+            print(traceback.format_exc())
+            updater.failure(main_search_id)
             self.log(logging.WARNING, 'Failed: {0}'.format(str(e)))
 
 
@@ -146,19 +170,39 @@ class UrlSearcher(SyncConsumer):
         logging.log(level, '[{0}] {1}'.format(self.name, message))
 
     def save_or_skip(self, result_article, main_search, parent, where):
-        result = save_or_skip(result_article, main_search, parent)
-        if result and where not in WORKER_NAMES:
-            send_to_websocket(self.channel_layer, where=where, method='success', message='')
+        try:
+            result = save_or_skip(result_article, main_search, parent)
+            if result and where not in WORKER_NAMES:
+                send_to_websocket(self.channel_layer, where=where, method='success', message='')
+        except Exception as e:
+            self.log(logging.WARNING, 'Object was not added to database: {}'.format(str(e)))
+
+    def search_parameters_correct(self, msg):
+        if not msg['body']['link']:
+            self.log(logging.INFO, 'Link cannot be empty')
+            return False
+        return True
 
     def search(self, msg):
         self.log(logging.INFO, 'Starting')
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+        main_search_id = msg['body']['search_id']
         updater = statusUpdate.get(self.name)
-        updater.in_progress()
+        updater.in_progress(main_search_id)
+
+        if search_cancelled(main_search_id):
+            self.log(logging.INFO, 'Search cancelled, finishing')
+            updater.success(main_search_id)
+            return
+
+        if not self.search_parameters_correct(msg):
+            self.log(logging.INFO, 'Parameters incorrect, finishing')
+            updater.success(main_search_id)
+            return
 
         try:
-            main_search = get_main_search(msg['body']['search_id'])
+            main_search = get_main_search(main_search_id)
             link = msg['body']['link']
             parent = Parent.from_dict(msg['body']['parent'])
             sender = msg['sender']
@@ -166,9 +210,10 @@ class UrlSearcher(SyncConsumer):
             result_article = ImportedArticle.objects.get(pk=link)
             self.save_or_skip(result_article, main_search, parent, sender)
 
-            updater.success()
+            updater.success(main_search_id)
             self.log(logging.INFO, 'Finished')
 
         except Exception as e:
-            updater.failure()
+            print(traceback.format_exc())
+            updater.failure(main_search_id)
             self.log(logging.WARNING, 'Failed: {0}'.format(str(e)))

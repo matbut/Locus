@@ -58,3 +58,7 @@ def send_to_websocket(channel_layer, where, method, message):
 
 def is_worker(sender):
     return sender in WORKER_NAMES
+
+
+def search_cancelled(search_id):
+    return not SearchParameters.objects.filter(pk=search_id).exists()
