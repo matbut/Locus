@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 from channels.consumer import SyncConsumer
 
-from common.searcherUtils import get_main_search, send_to_worker, GOOGLE_SEARCHER_NAME, INTERNET_SEARCH_MANAGER_NAME, \
+from common.searcherUtils import get_main_search, send_to_worker, GOOGLE_SEARCHER_NAME, LINK_MANAGER_NAME, \
     search_cancelled
 from common import statusUpdate
 from common.url import clean_url
@@ -73,8 +73,8 @@ class Searcher(SyncConsumer):
                 if item['link'] == link:
                     continue
                 # send to InternetSearchManager
-                statusUpdate.get(INTERNET_SEARCH_MANAGER_NAME).queued(main_search_id)
-                send_to_worker(self.channel_layer, sender=sender, where=INTERNET_SEARCH_MANAGER_NAME,
+                statusUpdate.get(LINK_MANAGER_NAME).queued(main_search_id)
+                send_to_worker(self.channel_layer, sender=sender, where=LINK_MANAGER_NAME,
                                method='process_link', body={
                         'link': clean_url(item['link']),
                         'date': item['snippet'],

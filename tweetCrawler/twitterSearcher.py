@@ -9,7 +9,7 @@ from django.db import transaction
 
 from common import statusUpdate
 from common.searcherUtils import send_to_worker, send_to_websocket, TWITTER_URL_SEARCHER_NAME, \
-    TWITTER_TEXT_SEARCHER_NAME, WORKER_NAMES, add_parent, INTERNET_SEARCH_MANAGER_NAME, get_main_search, \
+    TWITTER_TEXT_SEARCHER_NAME, WORKER_NAMES, add_parent, LINK_MANAGER_NAME, get_main_search, \
     search_cancelled
 from common.url import clean_url
 from search.models import Parent
@@ -55,7 +55,7 @@ def get_avatar(user_id):
     c.Pandas = True
     twint.run.Lookup(c)
     users = twint.storage.panda.User_df
-    avatar = users['avatar'].tolist()[0]
+    avatar = users.get('avatar').tolist()[0] if 'avatar' in users.columns else ''
     twint.storage.panda.clean()
     return avatar
 
@@ -216,8 +216,8 @@ class TwitterTextSearcher(SyncConsumer):
 
     def send_to_internet_search_manager(self, links, parent, search_id):
         for link in links:
-            statusUpdate.get(INTERNET_SEARCH_MANAGER_NAME).queued(search_id)
-            send_to_worker(self.channel_layer, sender=self.name, where=INTERNET_SEARCH_MANAGER_NAME,
+            statusUpdate.get(LINK_MANAGER_NAME).queued(search_id)
+            send_to_worker(self.channel_layer, sender=self.name, where=LINK_MANAGER_NAME,
                            method='process_link', body={
                     'link': clean_url(link),
                     'parent': parent.to_dict(),

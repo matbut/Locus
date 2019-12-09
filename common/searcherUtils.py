@@ -12,10 +12,10 @@ DB_URL_SEARCHER_NAME = 'db_url_searcher'
 TWITTER_URL_SEARCHER_NAME = 'twitter_url_searcher'
 TWITTER_TEXT_SEARCHER_NAME = 'twitter_text_searcher'
 GOOGLE_SEARCHER_NAME = 'google_searcher'
-INTERNET_SEARCH_MANAGER_NAME = 'internet_search_manager'
+LINK_MANAGER_NAME = 'link_manager'
 
 WORKER_NAMES = [DB_FTSEARCHER_NAME, DB_URL_SEARCHER_NAME, TWITTER_URL_SEARCHER_NAME, TWITTER_TEXT_SEARCHER_NAME,
-                GOOGLE_SEARCHER_NAME, INTERNET_SEARCH_MANAGER_NAME]
+                GOOGLE_SEARCHER_NAME, LINK_MANAGER_NAME]
 
 
 def add_parent(result, parent):
@@ -29,7 +29,7 @@ def add_parent(result, parent):
         result.tweets.add(Tweet.objects.get(pk=parent.id))
     elif parent.type == TWITTER_TEXT_SEARCHER_NAME:
         result.tweets.add(Tweet.objects.get(pk=parent.id))
-    elif parent.type == INTERNET_SEARCH_MANAGER_NAME:
+    elif parent.type == LINK_MANAGER_NAME:
         result.internet_articles.add(InternetResult.objects.get(pk=parent.id))
 
 

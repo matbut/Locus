@@ -18,7 +18,7 @@ logging.basicConfig(format='[%(asctime)s] %(message)s')
 logging.getLogger().setLevel(logging.INFO)
 
 
-class WSConsumer(WebsocketConsumer):
+class Broker(WebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

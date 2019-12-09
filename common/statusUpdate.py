@@ -1,7 +1,7 @@
 from django.db.models import F
 
 from common.searcherUtils import DB_FTSEARCHER_NAME, DB_URL_SEARCHER_NAME, TWITTER_URL_SEARCHER_NAME, \
-    TWITTER_TEXT_SEARCHER_NAME, GOOGLE_SEARCHER_NAME, INTERNET_SEARCH_MANAGER_NAME, search_cancelled
+    TWITTER_TEXT_SEARCHER_NAME, GOOGLE_SEARCHER_NAME, LINK_MANAGER_NAME, search_cancelled
 from search.models import CrawlerStatus
 
 
@@ -40,7 +40,7 @@ updaters = {
     TWITTER_URL_SEARCHER_NAME: twitter_updater,
     TWITTER_TEXT_SEARCHER_NAME: twitter_updater,
     GOOGLE_SEARCHER_NAME: google_updater,
-    INTERNET_SEARCH_MANAGER_NAME: internet_manager_updater,
+    LINK_MANAGER_NAME: internet_manager_updater,
 }
 
 

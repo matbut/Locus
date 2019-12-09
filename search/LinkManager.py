@@ -6,7 +6,7 @@ from channels.consumer import SyncConsumer
 from django.db import transaction
 
 from common import statusUpdate
-from common.searcherUtils import send_to_worker, INTERNET_SEARCH_MANAGER_NAME, send_to_websocket, WORKER_NAMES, \
+from common.searcherUtils import send_to_worker, LINK_MANAGER_NAME, send_to_websocket, WORKER_NAMES, \
     add_parent, TWITTER_URL_SEARCHER_NAME, DB_URL_SEARCHER_NAME, get_main_search, search_cancelled
 from common.url import is_valid, get_domain
 from database.models import ImportedArticle
@@ -28,7 +28,7 @@ class Manager(SyncConsumer):
 
     def __init__(self, scope):
         super().__init__(scope)
-        self.name = INTERNET_SEARCH_MANAGER_NAME
+        self.name = LINK_MANAGER_NAME
         self.log(logging.INFO, 'Init')
 
     def log(self, level, message):
