@@ -34,11 +34,11 @@ def get_or_create(result_article, domain, similarity):
 
 
 @transaction.atomic
-def save_or_skip(result_article, main_search, parent):
+def save_or_skip(result_article, main_search, parent, skip_similarity_check=False):
     result_content = result_article.content
 
     similarity, top_words, counts = count_similarity(main_search.content, result_content, top=5)
-    if similarity > cosine_similarity_threshold:
+    if skip_similarity_check or similarity > cosine_similarity_threshold:
         words = [TopWord(word=word, count=count) for word, count in zip(top_words, counts)]
         domain, _ = Domain.objects.get_or_create(link=result_article.page)
         article = get_or_create(result_article, domain, similarity)
@@ -171,7 +171,7 @@ class UrlSearcher(SyncConsumer):
 
     def save_or_skip(self, result_article, main_search, parent, where):
         try:
-            result = save_or_skip(result_article, main_search, parent)
+            result = save_or_skip(result_article, main_search, parent, skip_similarity_check=True)
             if result and where not in WORKER_NAMES:
                 send_to_websocket(self.channel_layer, where=where, method='success', message='')
             if result and result.link != main_search.link and main_search.twitter_search:
