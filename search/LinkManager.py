@@ -15,11 +15,11 @@ from searchEngine.models import Domain, InternetResult
 from search.models import Parent
 
 
-def get_or_create(link, date, domain_str, domain):
+def get_or_create(link, date, domain_str, domain, title, snippet):
     if InternetResult.objects.filter(link=link).exists():
         return InternetResult.objects.get(link=link)
     else:
-        result = InternetResult(page=domain_str, date=date, link=link, domain=domain)
+        result = InternetResult(page=domain_str, date=date, link=link, domain=domain, title=title, snippet=snippet)
         result.save()
         return result
 
@@ -49,6 +49,8 @@ class Manager(SyncConsumer):
             asyncio.set_event_loop(asyncio.new_event_loop())
             link = msg['body']['link']
             date = patterns.retrieve_date(msg['body'].get('date'))
+            title = msg['body'].get('title') or ''
+            snippet = msg['body'].get('snippet') or ''
             main_search = get_main_search(main_search_id)
             parent = Parent.from_dict(msg['body']['parent'])
             sender = msg['sender']
@@ -68,7 +70,7 @@ class Manager(SyncConsumer):
                     with transaction.atomic():
                         domain_str = get_domain(link)
                         domain, _ = Domain.objects.get_or_create(link=domain_str)
-                        result = get_or_create(link, date, domain_str, domain)
+                        result = get_or_create(link, date, domain_str, domain, title, snippet)
                         add_parent(result, parent)
 
                         if main_search.twitter_search:
