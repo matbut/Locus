@@ -11,7 +11,7 @@ from common.searcherUtils import get_main_search, send_to_worker, GOOGLE_SEARCHE
     search_cancelled
 from common import statusUpdate
 from common.url import clean_url
-from googleCrawlerOfficial import patterns
+from searchEngine import patterns
 from search.models import Parent
 
 

@@ -11,9 +11,9 @@ from rest_framework.views import APIView
 from Locus.chart import aggregate, filter_objects
 from database import uploader
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import InternetResult, Domain
-from search.models import SearchParameters, CrawlerStatus as Status
-from tweetCrawler.models import Tweet, TwitterUser
+from searchEngine.models import InternetResult, Domain
+from search.models import SearchParameters, SearcherStatus as Status
+from twitter.models import Tweet, TwitterUser
 
 
 def charts(request):

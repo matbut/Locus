@@ -10,8 +10,8 @@ from common.searcherUtils import send_to_worker, LINK_MANAGER_NAME, send_to_webs
     add_parent, TWITTER_URL_SEARCHER_NAME, DB_URL_SEARCHER_NAME, get_main_search, search_cancelled
 from common.url import is_valid, get_domain
 from database.models import ImportedArticle
-from googleCrawlerOfficial import patterns
-from googleCrawlerOfficial.models import Domain, InternetResult
+from searchEngine import patterns
+from searchEngine.models import Domain, InternetResult
 from search.models import Parent
 
 

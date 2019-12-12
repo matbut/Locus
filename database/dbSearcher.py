@@ -15,7 +15,7 @@ from common.searcherUtils import get_main_search, send_to_websocket, DB_FTSEARCH
 from common import statusUpdate
 from common.textUtils import remove_diacritics, remove_stopwords
 from database.models import ImportedArticle, ResultArticle, TopWord
-from googleCrawlerOfficial.models import Domain
+from searchEngine.models import Domain
 from search.models import Parent
 
 postgresql_rank_threshold = 0.3

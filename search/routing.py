@@ -6,8 +6,8 @@ from django.conf.urls import url
 from common import searcherUtils
 from search.LinkManager import Manager as LinkManager
 from search.SearchBroker import Broker
-from tweetCrawler.twitterSearcher import TwitterUrlSearcher, TwitterTextSearcher
-from googleCrawlerOfficial.googleSearcher import Searcher as GoogleSearcher
+from twitter.twitterSearcher import TwitterUrlSearcher, TwitterTextSearcher
+from searchEngine.googleSearcher import Searcher as GoogleSearcher
 from database.dbSearcher import FTSearcher, UrlSearcher
 
 websocket_urlpatterns = [
