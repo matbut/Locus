@@ -229,6 +229,7 @@ function changeActiveTo(clickedButton) {
       chart.updateOptions({
         xaxis: {
           labels: {
+            format: "d MMM yyyy",
             datetimeFormatter: {
               year: 'yyyy',
               month: 'MMM \'yy',
@@ -249,6 +250,7 @@ function changeActiveTo(clickedButton) {
       chart.updateOptions({
         xaxis: {
           labels: {
+            format: "d MMM yyyy",
             datetimeFormatter: {
               year: 'yyyy',
               month: 'MMM \'yy',
