@@ -5,8 +5,8 @@ from django.db.models.functions import TruncMonth, TruncDay, TruncYear, TruncWee
 
 from common.dateUtils import count_end_date
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import InternetResult
-from tweetCrawler.models import Tweet
+from searchEngine.models import InternetResult
+from twitter.models import Tweet
 
 
 def min_objects(db):

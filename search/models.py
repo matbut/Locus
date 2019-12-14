@@ -34,8 +34,8 @@ class SearchParameters(models.Model):
         return 'search' + str(self.id)
 
 
-class CrawlerStatus(models.Model):
-    crawler = models.CharField(max_length=64, primary_key=True)
+class SearcherStatus(models.Model):
+    searcher = models.CharField(max_length=64, primary_key=True)
     queued = models.IntegerField(default=0)
     in_progress = models.IntegerField(default=0)
     success = models.IntegerField(default=0)

@@ -1,6 +1,6 @@
 from django.db import models
 
-from googleCrawlerOfficial.models import InternetResult
+from searchEngine.models import InternetResult
 from search.models import SearchParameters
 
 

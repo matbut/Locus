@@ -11,7 +11,7 @@ patterns = {
     'www.tvp.info': {
         'correct': [],
         'incorrect': [
-            '^.+/(polska|swiat|wideo|opinie|pogoda|zobacz-online|twoje-info|biznes|spoleczenstwo|kultura|nauka|rozmaitosci|polska-to-wiecej|raporty|foto)$',
+            '^.+/(tag|polska|swiat|wideo|opinie|pogoda|zobacz-online|twoje-info|biznes|spoleczenstwo|kultura|nauka|rozmaitosci|polska-to-wiecej|raporty|foto)$',
             '^.+www.tvp.info/?$',
         ]
     },
@@ -63,6 +63,8 @@ def patterns_not_exist_or_are_empty(regex_list):
 
 
 def is_valid(url):
+    if not re.match('^https?://.*/.+$', url):
+        return False
     domain = get_domain(url)
     regex_list = patterns.get(domain)
     if patterns_not_exist_or_are_empty(regex_list):

@@ -11,9 +11,9 @@ from rest_framework.views import APIView
 from Locus.chart import aggregate, filter_objects
 from database import uploader
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import InternetResult, Domain
-from search.models import SearchParameters, CrawlerStatus as Status
-from tweetCrawler.models import Tweet, TwitterUser
+from searchEngine.models import InternetResult, Domain
+from search.models import SearchParameters, SearcherStatus as Status
+from twitter.models import Tweet, TwitterUser
 
 
 def charts(request):
@@ -49,20 +49,28 @@ def upload_csv(request):
     if "GET" == request.method:
         return render(request, "upload.html", data)
     try:
-
         csv_file = request.FILES["csv_file"]
         if not csv_file.name.endswith('.csv'):
             messages.error(request, 'File is not CSV type')
             return HttpResponseRedirect(reverse("upload"))
 
+        params = {
+            'link': int(request.POST.get('link')),
+            'title': int(request.POST.get('title')),
+            'content': int(request.POST.get('content')),
+            'date': int(request.POST.get('date')),
+            'pattern': request.POST.get('pattern'),
+            'delimiter': request.POST.get('delimiter'),
+        }
+
         if csv_file.multiple_chunks():
             with open('/tmp/locus.csv', 'wb+') as destination:
                 for chunk in csv_file.chunks():
                     destination.write(chunk)
-                uploader.read_upload('/tmp/locus.csv')
+                uploader.read_upload('/tmp/locus.csv', params)
         else:
             file_data = csv_file.read().decode("utf-8")
-            uploader.upload(file_data)
+            uploader.upload(file_data, params)
         messages.success(request, 'File uploaded successfully')
     except Exception as e:
         logging.getLogger("error_logger").error("Unable to upload file. " + repr(e))
