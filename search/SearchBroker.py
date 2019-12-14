@@ -10,9 +10,9 @@ from common import searcherUtils, statusUpdate
 from common.searcherUtils import send_to_worker, MAIN_SEARCH_NAME
 from common.url import clean_url
 from database.models import ResultArticle, TopWord
-from googleCrawlerOfficial.models import InternetResult, Domain
-from search.models import SearchParameters, CrawlerStatus, Parent
-from tweetCrawler.models import Tweet, TwitterUser
+from searchEngine.models import InternetResult, Domain
+from search.models import SearchParameters, SearcherStatus, Parent
+from twitter.models import Tweet, TwitterUser
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')
 logging.getLogger().setLevel(logging.INFO)
@@ -85,7 +85,7 @@ class Broker(WebsocketConsumer):
         self.jobs += 1
 
     def delete_tables(self):
-        CrawlerStatus.objects.all().delete()
+        SearcherStatus.objects.all().delete()
         TwitterUser.objects.all().delete()
         Tweet.objects.all().delete()
         InternetResult.objects.all().delete()
@@ -96,7 +96,7 @@ class Broker(WebsocketConsumer):
 
     def reset_crawler_status(self):
         for crawler in ['twitter', 'google', 'db']:
-            if CrawlerStatus.objects.filter(pk=crawler).exists():
-                CrawlerStatus.objects.filter(pk=crawler).update(queued=0, in_progress=0, success=0, failure=0)
+            if SearcherStatus.objects.filter(pk=crawler).exists():
+                SearcherStatus.objects.filter(pk=crawler).update(queued=0, in_progress=0, success=0, failure=0)
             else:
-                CrawlerStatus(crawler=crawler).save()
+                SearcherStatus(searcher=crawler).save()

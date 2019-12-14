@@ -1,9 +1,9 @@
 from asgiref.sync import async_to_sync
 
 from database.models import ResultArticle
-from googleCrawlerOfficial.models import InternetResult
+from searchEngine.models import InternetResult
 from search.models import SearchParameters
-from tweetCrawler.models import Tweet
+from twitter.models import Tweet
 
 MAIN_SEARCH_NAME = 'main_search'
 

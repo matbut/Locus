@@ -11,6 +11,7 @@
   <meta name="author" content="Mateusz Buta & Aleksandra Mazur">
 
   <title>Locus Result</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
   <!-- Custom fonts for this template-->
   <link href="{% static "locus/vendor/fontawesome-free/css/all.min.css" %}" rel="stylesheet" type="text/css">
@@ -27,7 +28,7 @@
 
 <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
-  <a class="navbar-brand mr-1" href="{% url 'search' %}"><i class="fas fa-dove"></i> Locus</a>
+  <a class="navbar-brand mr-1" href="{% url 'search' %}">Locus</a>
 
   <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
     <i class="fas fa-bars"></i>
@@ -47,109 +48,88 @@
 
   <!-- Navbar -->
   <ul class="navbar-nav ml-auto ml-md-0">
-    <li class="nav-item dropdown no-arrow mx-1">
-      <a class="nav-link dropdown-toggle" href="#" id="tweetCrawlerDropdown" role="button" data-toggle="dropdown"
-         aria-haspopup="true" aria-expanded="false">
-        <i class="fab fa-twitter fa-fw"></i>
-        Twitter crawler
-      </a>
-      <div class="dropdown-menu dropdown-menu-left" aria-labelledby="tweetCrawlerDropdown" id="twitter">
-        <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
-          <tr>
-            <td><i class="fas fa-clock"></i> Pending</td>
+      <li class="nav-item dropdown no-arrow mx-1">
+        <a class="nav-link dropdown-toggle" href="#" id="tweetCrawlerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fab fa-twitter fa-fw"></i>
+            Twitter search
+        </a>
+        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="tweetCrawlerDropdown" id="twitter">
+            <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
+                <tr>
+                  <td><i class="fas fa-clock"></i> Pending</td>
                   <td><div class="queued"></div></td>
                 </tr>
                 <tr>
                   <td><i class="fas fa-play-circle"></i> Working</td>
-            <td>
-              <div class="working"></div>
-            </td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-check-circle"></i> Finished</td>
-            <td>
-              <div class="completed"></div>
-            </td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-exclamation-circle"></i> Failed</td>
-            <td>
-              <div class="failed"></div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </li>
-    <li class="nav-item dropdown no-arrow mx-1">
-      <a class="nav-link dropdown-toggle" href="#" id="googleCrawlerDropdown" role="button" data-toggle="dropdown"
-         aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-globe-europe fa-fw"></i>
-        Google crawler
-      </a>
-      <div class="dropdown-menu dropdown-menu-left" aria-labelledby="googleCrawlerDropdown" id="google">
-        <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
+                  <td><div class="working"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-check-circle"></i> Finished</td>
+                  <td><div class="completed"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-exclamation-circle"></i> Failed</td>
+                  <td><div class="failed"></div></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </li>
+      <li class="nav-item dropdown no-arrow mx-1">
+        <a class="nav-link dropdown-toggle" href="#" id="googleCrawlerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-globe-europe fa-fw"></i>
+          Google search
+        </a>
+        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="googleCrawlerDropdown" id="google">
+            <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
                 <tr>
                   <td><i class="fas fa-clock"></i> Pending</td>
                   <td><div class="queued"></div></td>
                 </tr>
-          <tr>
-            <td><i class="fas fa-play-circle"></i> Working</td>
-            <td>
-              <div class="working"></div>
-            </td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-check-circle"></i> Finished</td>
-            <td>
-              <div class="completed"></div>
-            </td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-exclamation-circle"></i> Failed</td>
-            <td>
-              <div class="failed"></div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </li>
-    <li class="nav-item dropdown no-arrow">
-      <a class="nav-link dropdown-toggle" href="#" id="databaseSearcher" role="button" data-toggle="dropdown"
-         aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-file-alt fa-fw"></i>
-        Database search
-      </a>
-      <div class="dropdown-menu dropdown-menu-left" aria-labelledby="databaseSearcher" id="db">
-        <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
+                <tr>
+                  <td><i class="fas fa-play-circle"></i> Working</td>
+                  <td><div class="working"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-check-circle"></i> Finished</td>
+                  <td><div class="completed"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-exclamation-circle"></i> Failed</td>
+                  <td><div class="failed"></div></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </li>
+      <li class="nav-item dropdown no-arrow">
+        <a class="nav-link dropdown-toggle" href="#" id="databaseSearcher" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-file-alt fa-fw"></i>
+            Database search
+        </a>
+        <div class="dropdown-menu dropdown-menu-left" aria-labelledby="databaseSearcher" id="db">
+            <table class="table" style="margin-bottom: 0; margin-top: 0; padding-bottom: 0; padding-top: 0">
                 <tr>
                   <td><i class="fas fa-clock"></i> Pending</td>
                   <td><div class="queued"></div></td>
                 </tr>
-          <tr>
-            <td><i class="fas fa-play-circle"></i> Working</td>
-            <td>
-              <div class="working"></div>
-            </td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-check-circle"></i> Finished</td>
-            <td>
-              <div class="completed"></div>
-            </td>
-          </tr>
-          <tr>
-            <td><i class="fas fa-exclamation-circle"></i> Failed</td>
-            <td>
-              <div class="failed"></div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </li>
-  </ul>
+                <tr>
+                  <td><i class="fas fa-play-circle"></i> Working</td>
+                  <td><div class="working"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-check-circle"></i> Finished</td>
+                  <td><div class="completed"></div></td>
+                </tr>
+                <tr>
+                  <td><i class="fas fa-exclamation-circle"></i> Failed</td>
+                  <td><div class="failed"></div></td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+      </li>
+    </ul>
 
   <ul class="navbar-nav ml-auto ">
     <li class="nav-item dropdown no-arrow mx-1">

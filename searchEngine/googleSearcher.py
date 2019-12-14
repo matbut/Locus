@@ -11,7 +11,7 @@ from common.searcherUtils import get_main_search, send_to_worker, GOOGLE_SEARCHE
     search_cancelled
 from common import statusUpdate
 from common.url import clean_url
-from googleCrawlerOfficial import patterns
+from searchEngine import patterns
 from search.models import Parent
 
 
@@ -74,12 +74,15 @@ class Searcher(SyncConsumer):
                     continue
                 # send to InternetSearchManager
                 statusUpdate.get(LINK_MANAGER_NAME).queued(main_search_id)
+                snippet_parts = item['snippet'].split('...')
                 send_to_worker(self.channel_layer, sender=sender, where=LINK_MANAGER_NAME,
                                method='process_link', body={
                         'link': clean_url(item['link']),
                         'date': item['snippet'],
                         'parent': parent.to_dict(),
                         'search_id': main_search.id,
+                        'snippet': snippet_parts[-1] or snippet_parts[-2],
+                        'title': item['title'].split('...')[0],
                     })
 
             updater.success(main_search_id)

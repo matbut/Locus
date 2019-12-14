@@ -2,7 +2,7 @@ from django.db.models import F
 
 from common.searcherUtils import DB_FTSEARCHER_NAME, DB_URL_SEARCHER_NAME, TWITTER_URL_SEARCHER_NAME, \
     TWITTER_TEXT_SEARCHER_NAME, GOOGLE_SEARCHER_NAME, LINK_MANAGER_NAME, search_cancelled
-from search.models import CrawlerStatus
+from search.models import SearcherStatus
 
 
 class StatusUpdater:
@@ -11,22 +11,22 @@ class StatusUpdater:
 
     def queued(self, search_id):
         if not search_cancelled(search_id):
-            CrawlerStatus.objects.filter(pk=self.crawler).update(queued=F('queued') + 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(queued=F('queued') + 1)
 
     def in_progress(self, search_id):
         if not search_cancelled(search_id):
-            CrawlerStatus.objects.filter(pk=self.crawler).update(in_progress=F('in_progress') + 1)
-            CrawlerStatus.objects.filter(pk=self.crawler).update(queued=F('queued') - 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(in_progress=F('in_progress') + 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(queued=F('queued') - 1)
 
     def success(self, search_id):
         if not search_cancelled(search_id):
-            CrawlerStatus.objects.filter(pk=self.crawler).update(in_progress=F('in_progress') - 1)
-            CrawlerStatus.objects.filter(pk=self.crawler).update(success=F('success') + 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(in_progress=F('in_progress') - 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(success=F('success') + 1)
 
     def failure(self, search_id):
         if not search_cancelled(search_id):
-            CrawlerStatus.objects.filter(pk=self.crawler).update(in_progress=F('in_progress') - 1)
-            CrawlerStatus.objects.filter(pk=self.crawler).update(failure=F('failure') + 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(in_progress=F('in_progress') - 1)
+            SearcherStatus.objects.filter(pk=self.crawler).update(failure=F('failure') + 1)
 
 
 twitter_updater = StatusUpdater('twitter')

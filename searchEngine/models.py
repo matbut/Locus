@@ -15,6 +15,8 @@ class InternetResult(models.Model):
     page = models.TextField()
     date = models.DateField(null=True)
     link = models.URLField(primary_key=True)
+    title = models.TextField(default="")
+    snippet = models.TextField(default="")
 
     searches = models.ManyToManyField(SearchParameters, related_name='internet_articles')
     domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)

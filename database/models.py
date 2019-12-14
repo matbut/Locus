@@ -1,8 +1,8 @@
 from django.db import models
 
-from googleCrawlerOfficial.models import Domain
+from searchEngine.models import Domain
 from search.models import SearchParameters
-from tweetCrawler.models import Tweet
+from twitter.models import Tweet
 
 
 class ImportedArticle(models.Model):
