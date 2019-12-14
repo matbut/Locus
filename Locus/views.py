@@ -191,7 +191,6 @@ def node_spec(user):
     }
 
 
-
 class Graph(APIView):
     authentication_classes = []
     permission_classes = []
