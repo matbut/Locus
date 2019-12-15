@@ -12,8 +12,8 @@ from Locus.chart import aggregate, filter_objects
 from Locus.widget import users, top_words, hashtags
 from database import uploader
 from database.models import ResultArticle
-from search.models import SearchParameters, SearcherStatus as Status
-from searchEngine.models import InternetResult, Domain, get_global_title_top_five
+from search.models import SearchParameters, SearcherStatus as Status, Domain
+from searchEngine.models import InternetResult, get_global_title_top_five
 from twitter.models import Tweet, TwitterUser
 
 
@@ -329,6 +329,12 @@ class Graph(APIView):
                 "to": article.domain.get_node_id,
             } for article in ResultArticle.objects.all()]
             edges = edges + db_domain_user_edges
+
+            search_domain_user_edges = [{
+                "from": search.get_node_id,
+                "to": search.domain.get_node_id,
+            } for search in SearchParameters.objects.all()]
+            edges = edges + search_domain_user_edges
 
         print(load_domain_users)
 
