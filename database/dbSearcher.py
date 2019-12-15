@@ -3,20 +3,19 @@ import logging
 import string
 import traceback
 
-import numpy as np
 from channels.consumer import SyncConsumer
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 from django.db import transaction
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from common import statusUpdate
 from common.searcherUtils import get_main_search, send_to_websocket, DB_FTSEARCHER_NAME, DB_URL_SEARCHER_NAME, \
     WORKER_NAMES, add_parent, send_to_worker, TWITTER_URL_SEARCHER_NAME, search_cancelled
-from common import statusUpdate
-from common.textUtils import remove_diacritics, remove_stopwords
+from common.textUtils import remove_diacritics, remove_stopwords, remove_punctuation, get_top_words_count
 from database.models import ImportedArticle, ResultArticle, TopWord
-from searchEngine.models import Domain
 from search.models import Parent
+from searchEngine.models import Domain
 
 postgresql_rank_threshold = 0.3
 cosine_similarity_threshold = 0.13
@@ -59,23 +58,20 @@ def prepare_title(title):
 
 def count_similarity(text1, text2, top=5):
     # preprocessing
-    texts = [[w.lower() for w in text.translate(str.maketrans('', '', string.punctuation)).split()] for text in
+    texts = [[w.lower() for w in remove_punctuation(text).split()] for text in
              [text1, text2]]
     texts = [remove_stopwords(text) for text in texts]
     texts = [remove_diacritics(' '.join(text)) for text in texts]
 
     # find most frequent words
-    count_vectorizer = CountVectorizer()
-    count_matrix = count_vectorizer.fit_transform(texts)
-    features = count_vectorizer.get_feature_names()
-    indices = np.argsort(count_matrix[1].toarray().astype('int')).flatten()[::-1]
+    words, counts = get_top_words_count(texts, top, text_num=1)
 
     # count similarity
     tfidf_vectorizer = TfidfVectorizer()
     tfidf_matrix = tfidf_vectorizer.fit_transform(texts)
     sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
 
-    return sim[0][0], np.array(features)[indices][:top], count_matrix.toarray()[1][indices][:top]
+    return sim[0][0], words, counts
 
 
 def find_articles(title_without_stop):
