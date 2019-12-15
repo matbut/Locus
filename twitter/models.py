@@ -15,6 +15,15 @@ class TwitterUser(models.Model):
         return 'twitterUser' + str(self.id)
 
 
+class Hashtag(models.Model):
+    id = models.CharField(max_length=128, primary_key=True)
+    link = models.URLField(null=True)
+
+    @property
+    def get_node_id(self):
+        return 'hashtag' + str(self.id)
+
+
 class Tweet(models.Model):
     id = models.CharField(max_length=128, primary_key=True)
     content = models.TextField()
@@ -26,6 +35,7 @@ class Tweet(models.Model):
     likes = models.IntegerField()
     replies = models.IntegerField()
     retweets = models.IntegerField()
+    hashtags = models.ManyToManyField(Hashtag)
 
     user = models.ForeignKey(TwitterUser, on_delete=models.CASCADE, null=True)
     searches = models.ManyToManyField(SearchParameters, related_name='tweets')

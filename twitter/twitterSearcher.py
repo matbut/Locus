@@ -13,7 +13,7 @@ from common.searcherUtils import send_to_worker, send_to_websocket, TWITTER_URL_
     search_cancelled
 from common.url import clean_url
 from search.models import Parent
-from .models import Tweet, TwitterUser
+from .models import Tweet, TwitterUser, Hashtag
 
 
 def get_twint_configuration(tweets):
@@ -24,6 +24,15 @@ def get_twint_configuration(tweets):
     c.Store_object = True
     c.Store_object_tweets_list = tweets
     return c
+
+
+def add_hashtags(tweet, hashtags):
+    for hashtag in hashtags:
+        saved_hashtag, _ = Hashtag.objects.get_or_create(
+            id=hashtag,
+            link=f"https://twitter.com/hashtag/{hashtag}?src=hash"
+        )
+        tweet.hashtags.add(saved_hashtag)
 
 
 def get_or_create(tweet, new_user):
@@ -45,6 +54,7 @@ def get_or_create(tweet, new_user):
             user=new_user,
         )
         result.save()
+        add_hashtags(result, tweet.hashtags)
         return result
 
 

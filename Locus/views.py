@@ -9,10 +9,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Locus.chart import aggregate, filter_objects
+from Locus.widget import users, top_words, hashtags
 from database import uploader
 from database.models import ResultArticle
-from searchEngine.models import InternetResult, Domain
 from search.models import SearchParameters, SearcherStatus as Status
+from searchEngine.models import InternetResult, Domain, get_global_title_top_five
 from twitter.models import Tweet, TwitterUser
 
 
@@ -29,19 +30,32 @@ def graph(request):
 
 def twitter_tables(request):
     tweets = Tweet.objects
-    my_date = datetime.now()
-    return render(request, 'twitter_tables.html', {'tweets': tweets, 'date': my_date})
+    return render(request, 'twitter_tables.html', {
+        'tweets': tweets,
+        'date': datetime.now(),
+        'stats': hashtags(),
+        'count': Tweet.objects.count(),
+    })
 
 
 def google_tables_official(request):
     google_results = InternetResult.objects
-    my_date = datetime.now()
-    return render(request, 'google_tables.html', {'google_results': google_results, 'date': my_date})
+    return render(request, 'google_tables.html', {
+        'google_results': google_results,
+        'date': datetime.now(),
+        'stats': get_global_title_top_five(),
+        'count': InternetResult.objects.count(),
+    })
 
 
 def database_tables(request):
     database_results = ResultArticle.objects
-    return render(request, 'database_tables.html', {'database_results': database_results})
+    return render(request, 'database_tables.html', {
+        'database_results': database_results,
+        'date': datetime.now(),
+        'stats': top_words(),
+        'count': ResultArticle.objects.count(),
+    })
 
 
 def upload_csv(request):
@@ -116,6 +130,8 @@ class Data(APIView):
                 "page": google.page,
                 "date": google.date,
                 "link": google.link,
+                "title": google.title,
+                "snippet": google.snippet,
             }
         } for google in filter_objects(InternetResult, aggregation, date)]
 
@@ -191,7 +207,6 @@ def node_spec(user):
     }
 
 
-
 class Graph(APIView):
     authentication_classes = []
     permission_classes = []
@@ -232,6 +247,8 @@ class Graph(APIView):
                 "page": google.page,
                 "date": google.date,
                 "link": google.link,
+                "title": google.title,
+                "snippet": google.snippet,
             }
         } for google in InternetResult.objects.all()]
 
@@ -327,3 +344,12 @@ class GetTweet(APIView):
         tweet = Tweet.objects.get(id=1191383982392389632)
 
         return Response({"tweet": tweet.__dict__})
+
+
+class UserStats(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        resultType = request.query_params['resultType']
+        return Response(users(resultType))
