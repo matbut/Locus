@@ -1,10 +1,11 @@
-from django.db.models import F, Count
+from django.db.models import F, Count, Sum
 
-from database.models import ResultArticle
+from database.models import ResultArticle, TopWord
 from searchEngine.models import InternetResult
 from twitter.models import Tweet
 
-top = 7
+top_users_num = 7
+top_words_num = 5
 others_name = "others"
 
 
@@ -20,10 +21,10 @@ def users(resultType):
     all_labels = list(map(lambda x: x['username'], result))
     all_series = list(map(lambda x: x['count'], result))
 
-    labels = all_labels[:top]
+    labels = all_labels[:top_users_num]
     labels.append(others_name)
-    series = all_series[:top]
-    others = sum(all_series[top:])
+    series = all_series[:top_users_num]
+    others = sum(all_series[top_users_num:])
     series.append(others)
 
     return {
@@ -54,3 +55,11 @@ def article_users():
         .annotate(username=F('domain')) \
         .annotate(count=Count('link')) \
         .order_by('-count')
+
+
+def top_words():
+    return TopWord.objects \
+        .values('word') \
+        .annotate(name=F('word')) \
+        .annotate(count=Sum('count')) \
+        .order_by('-count')[:top_words_num]

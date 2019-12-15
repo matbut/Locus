@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Locus.chart import aggregate, filter_objects
-from Locus.widget import users
+from Locus.widget import users, top_words
 from database import uploader
 from database.models import ResultArticle
 from search.models import SearchParameters, SearcherStatus as Status
@@ -81,22 +81,7 @@ def database_tables(request):
     return render(request, 'database_tables.html', {
         'database_results': database_results,
         'date': datetime.now(),
-        'stats': [{
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }]
+        'stats': top_words(),
     })
 
 
