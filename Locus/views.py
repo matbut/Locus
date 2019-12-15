@@ -13,7 +13,7 @@ from Locus.widget import users
 from database import uploader
 from database.models import ResultArticle
 from search.models import SearchParameters, SearcherStatus as Status
-from searchEngine.models import InternetResult, Domain
+from searchEngine.models import InternetResult, Domain, get_global_title_top_five
 from twitter.models import Tweet, TwitterUser
 
 
@@ -57,22 +57,7 @@ def google_tables_official(request):
     return render(request, 'google_tables.html', {
         'google_results': google_results,
         'date': datetime.now(),
-        'stats': [{
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }]
+        'stats': get_global_title_top_five()
     })
 
 

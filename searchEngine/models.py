@@ -1,5 +1,6 @@
 from django.db import models
 
+from common.textUtils import remove_punctuation, remove_stopwords, remove_diacritics, get_top_words_count
 from search.models import SearchParameters
 
 
@@ -31,3 +32,10 @@ class InternetResult(models.Model):
     @property
     def get_node_id(self):
         return 'google' + str(self.link)
+
+
+def get_global_title_top_five():
+    title_concat = ' '.join([r.title for r in InternetResult.objects.all()]).lower()
+    title_concat = remove_diacritics(remove_stopwords(remove_punctuation(title_concat)))
+    words, counts = get_top_words_count([title_concat], top=5)
+    return [{'name': w, 'count': c} for w, c in zip(words, counts)]
