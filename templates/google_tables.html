@@ -288,6 +288,8 @@
                 <th>Date</th>
                 <th>Page</th>
                 <th>Link</th>
+                <th>Html title tag</th>
+                <th>Snippet</th>
               </tr>
               </thead>
               <tbody>
@@ -295,8 +297,9 @@
                 <tr>
                   <td>{{ result.get_date }}</td>
                   <td><a href=http://{{ result.page }} target="_blank">{{ result.page }}</td>
-                  <td><a href={{ result.link }} target="_blank" data-toggle="tooltip" title={{ result.link }}>link</a>
-                  </td>
+                  <td><a href={{ result.link }} target="_blank" data-toggle="tooltip" title={{ result.link }}>link</a></td>
+                  <td>{{ result.title }}</td>
+                  <td>{{ result.snippet }}</td>
                 </tr>
               {% endfor %}
               </tbody>
