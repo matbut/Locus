@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Locus.chart import aggregate, filter_objects
-from Locus.widget import users, top_words
+from Locus.widget import users, top_words, hashtags
 from database import uploader
 from database.models import ResultArticle
 from search.models import SearchParameters, SearcherStatus as Status
@@ -33,22 +33,7 @@ def twitter_tables(request):
     return render(request, 'twitter_tables.html', {
         'tweets': tweets,
         'date': datetime.now(),
-        'stats': [{
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }, {
-            'name': 'word1',
-            'count': 10,
-        }],
+        'stats': hashtags(),
         'count': Tweet.objects.count(),
     })
 

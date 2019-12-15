@@ -2,7 +2,7 @@ from django.db.models import F, Count, Sum
 
 from database.models import ResultArticle, TopWord
 from searchEngine.models import InternetResult
-from twitter.models import Tweet
+from twitter.models import Tweet, Hashtag
 
 top_users_num = 7
 top_words_num = 5
@@ -69,3 +69,11 @@ def count(result_type):
         'google': InternetResult,
         'article': ResultArticle,
     }[result_type].objects.count()
+
+
+def hashtags():
+    return Hashtag.objects \
+        .values('id') \
+        .annotate(name=F('id')) \
+        .annotate(count=Count('tweet')) \
+        .order_by('-count')[:top_words_num]
