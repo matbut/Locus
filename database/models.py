@@ -1,7 +1,6 @@
 from django.db import models
 
-from searchEngine.models import Domain
-from search.models import SearchParameters
+from search.models import SearchParameters, Domain
 from twitter.models import Tweet
 
 

@@ -12,8 +12,8 @@ from common.searcherUtils import send_to_worker, LINK_MANAGER_NAME, send_to_webs
 from common.url import is_valid, get_domain
 from database.models import ImportedArticle
 from searchEngine import patterns
-from searchEngine.models import Domain, InternetResult
-from search.models import Parent
+from searchEngine.models import InternetResult
+from search.models import Parent, Domain
 
 
 def get_or_create(link, date, domain_str, domain, title, snippet):

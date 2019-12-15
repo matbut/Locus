@@ -1,5 +1,7 @@
 from django.db import models
 
+from common.url import get_domain
+
 
 class Parent:
     def __init__(self, id, type):
@@ -20,6 +22,13 @@ class Parent:
         )
 
 
+class Domain(models.Model):
+    link = models.URLField(primary_key=True)
+
+    @property
+    def get_node_id(self):
+        return 'domainUser' + str(self.link)
+
 class SearchParameters(models.Model):
     link = models.TextField()
     title = models.TextField()
@@ -29,9 +38,18 @@ class SearchParameters(models.Model):
     google_search = models.BooleanField(default=False)
     db_search = models.BooleanField(default=False)
 
+    domain = models.ForeignKey(Domain, null=True, on_delete=models.SET_NULL)
+
     @property
     def get_node_id(self):
         return 'search' + str(self.id)
+
+    @classmethod
+    def create(cls, link, title, content, twitter_search=False, google_search=False, db_search=False):
+        domain, _ = Domain.objects.get_or_create(link=get_domain(link))
+        return cls(link=link, title=title, content=content,
+                   twitter_search=twitter_search, google_search=google_search, db_search=db_search,
+                   domain=domain)
 
 
 class SearcherStatus(models.Model):

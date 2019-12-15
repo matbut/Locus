@@ -1,15 +1,7 @@
 from django.db import models
 
 from common.textUtils import remove_punctuation, remove_stopwords, remove_diacritics, get_top_words_count
-from search.models import SearchParameters
-
-
-class Domain(models.Model):
-    link = models.URLField(primary_key=True)
-
-    @property
-    def get_node_id(self):
-        return 'domainUser' + str(self.link)
+from search.models import SearchParameters, Domain
 
 
 class InternetResult(models.Model):

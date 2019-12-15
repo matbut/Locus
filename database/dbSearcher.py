@@ -14,8 +14,7 @@ from common.searcherUtils import get_main_search, send_to_websocket, DB_FTSEARCH
     WORKER_NAMES, add_parent, send_to_worker, TWITTER_URL_SEARCHER_NAME, search_cancelled
 from common.textUtils import remove_diacritics, remove_stopwords, remove_punctuation, get_top_words_count
 from database.models import ImportedArticle, ResultArticle, TopWord
-from search.models import Parent
-from searchEngine.models import Domain
+from search.models import Parent, Domain
 
 postgresql_rank_threshold = 0.3
 cosine_similarity_threshold = 0.13

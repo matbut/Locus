@@ -24,6 +24,8 @@ def remove_punctuation(s):
 
 
 def get_top_words_count(texts, top, text_num=0):
+    if not texts or not any(bool(text) for text in texts):
+        return [], []
     count_vectorizer = CountVectorizer()
     count_matrix = count_vectorizer.fit_transform(texts)
     features = count_vectorizer.get_feature_names()
