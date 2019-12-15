@@ -6,8 +6,7 @@ var othersColor = '#B0C4DE';
 var optionDonut = {
   chart: {
     type: 'donut',
-    width: '100%',
-    height: '100%'
+    height: '260px',
   },
   dataLabels: {
     enabled: false,
