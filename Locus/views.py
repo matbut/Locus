@@ -48,7 +48,8 @@ def twitter_tables(request):
         }, {
             'name': 'word1',
             'count': 10,
-        }]
+        }],
+        'count': Tweet.objects.count(),
     })
 
 
@@ -72,7 +73,8 @@ def google_tables_official(request):
         }, {
             'name': 'word1',
             'count': 10,
-        }]
+        }],
+        'count': InternetResult.objects.count(),
     })
 
 
@@ -82,6 +84,7 @@ def database_tables(request):
         'database_results': database_results,
         'date': datetime.now(),
         'stats': top_words(),
+        'count': ResultArticle.objects.count(),
     })
 
 

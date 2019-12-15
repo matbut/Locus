@@ -75,9 +75,7 @@ $.ajax({
         sparkOptions.subtitle.text = 'Article Results';
         break;
     }
-    sparkOptions.title.text = sparkOptions.series[0].data.reduce(function (total, element) {
-      return total + element[1];
-    }, 0);
+    sparkOptions.title.text = count;
 
     sparkChart = new ApexCharts(document.querySelector("#spark1"), sparkOptions).render();
 

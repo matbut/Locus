@@ -379,7 +379,10 @@
 <script src="{% static "apexcharts/dist/apexcharts.min.js" %}"></script>
 
 <!-- Demo scripts for this page-->
-<script>var resultType = "tweet"</script>
+<script>
+  var resultType = "tweet";
+  var count = {{ count }};
+</script>
 <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
 <script src="{% static "locus/js/widgets/sparkChart.js" %}"></script>
 <script src="{% static "locus/js/widgets/donutChart.js" %}"></script>

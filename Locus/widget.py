@@ -10,8 +10,6 @@ others_name = "others"
 
 
 def users(resultType):
-    print(resultType)
-
     result = {
         'tweet': tweet_users,
         'google': google_users,
@@ -63,3 +61,11 @@ def top_words():
         .annotate(name=F('word')) \
         .annotate(count=Sum('count')) \
         .order_by('-count')[:top_words_num]
+
+
+def count(result_type):
+    return {
+        'tweet': Tweet,
+        'google': InternetResult,
+        'article': ResultArticle,
+    }[result_type].objects.count()
