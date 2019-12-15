@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import traceback
+from datetime import datetime
 
 from channels.consumer import SyncConsumer
 from django.db import transaction
@@ -48,7 +49,7 @@ class Manager(SyncConsumer):
         try:
             asyncio.set_event_loop(asyncio.new_event_loop())
             link = msg['body']['link']
-            date = patterns.retrieve_date(msg['body'].get('date'))
+            date = datetime.fromtimestamp(int(msg['body'].get('date'))) if msg['body'].get('date') else None
             title = msg['body'].get('title') or ''
             snippet = msg['body'].get('snippet') or ''
             main_search = get_main_search(main_search_id)

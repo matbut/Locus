@@ -10,8 +10,8 @@ from common import searcherUtils, statusUpdate
 from common.searcherUtils import send_to_worker, MAIN_SEARCH_NAME
 from common.url import clean_url
 from database.models import ResultArticle, TopWord
-from searchEngine.models import InternetResult, Domain
 from search.models import SearchParameters, SearcherStatus, Parent
+from searchEngine.models import InternetResult, Domain
 from twitter.models import Tweet, TwitterUser
 
 logging.basicConfig(format='[%(asctime)s] %(message)s')

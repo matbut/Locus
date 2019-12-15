@@ -45,7 +45,7 @@ def retrieve_date(snippet):
     if snippet is None:
         return None
     try:
-        m = re.match(r"(?P<date>(\w|\s)+)\s...\s\w+", remove_diacritics(snippet))
+        m = re.match(r"(?P<date>(\w|\s)+)\s...\s.+", remove_diacritics(snippet))
         if m is None:
             return
         key = m.groupdict()

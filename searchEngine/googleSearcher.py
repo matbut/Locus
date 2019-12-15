@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import traceback
+from datetime import datetime
 from urllib import request
 from urllib.parse import quote
 
@@ -74,10 +75,11 @@ class Searcher(SyncConsumer):
                     continue
                 # send to InternetSearchManager
                 statusUpdate.get(LINK_MANAGER_NAME).queued(main_search_id)
+                date = patterns.retrieve_date(item['snippet'])
                 send_to_worker(self.channel_layer, sender=sender, where=LINK_MANAGER_NAME,
                                method='process_link', body={
                         'link': clean_url(item['link']),
-                        'date': item['snippet'],
+                        'date': datetime.timestamp(date) if date else None,
                         'parent': parent.to_dict(),
                         'search_id': main_search.id,
                         'snippet': item['snippet'],
