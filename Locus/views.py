@@ -130,6 +130,8 @@ class Data(APIView):
                 "page": google.page,
                 "date": google.date,
                 "link": google.link,
+                "title": google.title,
+                "snippet": google.snippet,
             }
         } for google in filter_objects(InternetResult, aggregation, date)]
 
@@ -245,6 +247,8 @@ class Graph(APIView):
                 "page": google.page,
                 "date": google.date,
                 "link": google.link,
+                "title": google.title,
+                "snippet": google.snippet,
             }
         } for google in InternetResult.objects.all()]
 

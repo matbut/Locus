@@ -72,7 +72,7 @@ function addGoogleRow(google) {
     old_tbody = document.getElementById("googleTable").getElementsByTagName("tbody").item(0);
     row = document.createElement("tr");
 
-    let fields = ["date", "page", "link"];
+    let fields = ["date", "page", "link", "title", "snippet"];
 
     for (let field of fields) {
         let cell = document.createElement("td");
