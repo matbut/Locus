@@ -33,4 +33,5 @@ urlpatterns = [
     path('api/graph', views.Graph.as_view()),
     path('api/tweet', views.GetTweet.as_view()),
     path('api/crawler', views.CrawlerStatus.as_view()),
+    path('api/userStats', views.UserStats.as_view()),
 ]

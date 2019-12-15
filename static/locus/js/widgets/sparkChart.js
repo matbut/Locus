@@ -12,7 +12,7 @@ Apex.dataLabels = {
 var sparkOptions = {
   chart: {
     type: 'area',
-    height: 160,
+    height: '100%',
     //width: '100%',
     //height: '100%',
     sparkline: {
@@ -35,7 +35,7 @@ var sparkOptions = {
   },
   colors: ['#008FFB'],
   title: {
-    text: 0,
+    text: '',
     offsetX: 0,
     style: {
       fontSize: '24px',

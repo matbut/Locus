@@ -226,7 +226,11 @@
 
       <div class="row">
         <div class="col-md-4">
-          <div class="card mb-4">
+          <div class="card mb-4" style="height: 340px">
+            <div class="card-header">
+              <i class="fas fa-chart-line"></i>
+              Time distribution
+            </div>
             <div class="card-body">
               <div id="spark1"></div>
             </div>
@@ -234,7 +238,11 @@
 
         </div>
         <div class="col-md-4">
-          <div class="card mb-4">
+          <div class="card mb-4" style="height: 340px">
+            <div class="card-header">
+              <i class="fas fa-chart-pie"></i>
+              Top domains
+            </div>
             <div class="card-body">
               <div id="donut"></div>
             </div>
@@ -242,9 +250,24 @@
         </div>
 
         <div class="col-md-4">
-          <div class="card mb-4">
+          <div class="card mb-4" style="height: 340px">
+            <div class="card-header">
+              <i class="fas fa-table"></i>
+              Top five top words
+            </div>
             <div class="card-body">
-              <div id="donut"></div>
+              <div class="table-responsive">
+                <table class="table table-bordered" id="databaseTable" width="100%" cellspacing="0">
+                  <tbody>
+                  {% for stat in stats %}
+                    <tr>
+                      <td>{{ stat.name }}</td>
+                      <td>{{ stat.count }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -353,6 +376,7 @@
 <script>var resultType = "article"</script>
 <script src="{% static "locus/js/demo/datatables-demo.js" %}"></script>
 <script src="{% static "locus/js/widgets/sparkChart.js" %}"></script>
+<script src="{% static "locus/js/widgets/donutChart.js" %}"></script>
 
 </body>
 
