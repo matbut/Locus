@@ -3,7 +3,9 @@ import logging
 import traceback
 from datetime import datetime
 
+import requests
 import twint
+from bs4 import BeautifulSoup
 from channels.consumer import SyncConsumer
 from django.db import transaction
 
@@ -154,6 +156,13 @@ class TwitterUrlSearcher(SyncConsumer):
             updater.failure(main_search_id)
 
 
+def retrieve_html_title_and_description(link):
+    page = requests.get(link)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    description = soup.find('meta',  property='og:description')
+    return soup.title.string if soup.title else None, description['content'] if description else None
+
+
 class TwitterTextSearcher(SyncConsumer):
     def __init__(self, scope):
         super().__init__(scope)
@@ -226,10 +235,13 @@ class TwitterTextSearcher(SyncConsumer):
 
     def send_to_internet_search_manager(self, links, parent, search_id):
         for link in links:
+            html_title, description = retrieve_html_title_and_description(link)
             statusUpdate.get(LINK_MANAGER_NAME).queued(search_id)
             send_to_worker(self.channel_layer, sender=self.name, where=LINK_MANAGER_NAME,
                            method='process_link', body={
                     'link': clean_url(link),
                     'parent': parent.to_dict(),
-                    'search_id': search_id
+                    'search_id': search_id,
+                    'title': html_title,
+                    'snippet': description,
                 })
