@@ -1,0 +1,6 @@
+FROM python:3.7
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /locus_dir_web
+WORKDIR /locus_dir_web
+ADD . /locus_dir_web/
+RUN pip3 install -r requirements.txt

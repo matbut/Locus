@@ -25,7 +25,7 @@ SECRET_KEY = 'ilq$1=zfns0$w5^5cq8dcs0eag%lj%$r+fhsgwa%8fr_-f(+e$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0']
 
 
 # Application definition
@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'locus_db',
         'USER': 'locus',
         'PASSWORD': 'locus',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '',
     }
 }
@@ -164,7 +164,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('localhost', 6379)]
+            'hosts': [('redis', 6378)]
         }
     }
 }

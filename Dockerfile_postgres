@@ -1,0 +1,19 @@
+FROM postgres
+
+RUN mkdir /locus_dir_db
+WORKDIR /locus_dir_db
+ADD ./resources /locus_dir_db/
+
+RUN apt-get update && apt-get install libpq-dev
+
+RUN mkdir ispell && \
+    tar xvjf sjp-ispell-pl-*-src.tar.bz2 --transform 's/sjp-ispell-pl-[0-9]*/ispell/' && \
+    cd ispell && \
+    sort -u -t/ +0f -1 +0 -T /usr/tmp -o polish.med polish.all && \
+    for a in polish.aff polish.med; do cat $a | iconv -f iso8859-2 -t utf-8 > $a.utf8; done && \
+    cp polish.aff.utf8 `pg_config --sharedir`/tsearch_data/polish.affix && \
+    cp polish.med.utf8 `pg_config --sharedir`/tsearch_data/polish.dict && \
+    touch `pg_config --sharedir`/tsearch_data/polish.stop
+
+WORKDIR /locus_dir_db   
+RUN mv postgresql_db_setup.sql /docker-entrypoint-initdb.d/ && mv postgresql_ispell_setup.sql /docker-entrypoint-initdb.d/
