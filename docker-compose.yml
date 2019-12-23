@@ -3,6 +3,7 @@ version: '3'
 services:
   redis:
     image: redis:latest
+    container_name: redis
     ports:
         - "6378:6379"
     command: redis-server
@@ -17,12 +18,11 @@ services:
     ports:
         - "5431:5432"
   web:
+    image: locus_project_web
     build:
         context: .
         dockerfile: Dockerfile_web
     command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && daphne -b 0.0.0.0 -p 8000 Locus.asgi:application"
-    #python3 manage.py runserver 0.0.0.0:8000"
-    #daphne -b 0.0.0.0 -p 8000 Locus.asgi:channel_layer
     container_name: locus_web
     volumes:
       - .:/locus_dir_web
@@ -32,11 +32,17 @@ services:
       - db
       - redis
   worker_twitter_url:
-    build:
-        context: .
-        dockerfile: Dockerfile_web
+    image: locus_project_web
     command: python manage.py runworker twitter_url_searcher
     container_name: locus_twitter_url_searcher
+    volumes:
+       - .:/locus_dir_web
+    depends_on:
+       - redis
+  workers_rest:
+    image: locus_project_web
+    command: python manage.py runworker db_ftsearcher db_url_searcher twitter_text_searcher google_searcher link_manager
+    container_name: locus_workers_rest
     volumes:
        - .:/locus_dir_web
     depends_on:

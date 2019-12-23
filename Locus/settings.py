@@ -136,7 +136,7 @@ MEDIA_ROOT = 'media'
 MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
-    '/var/www/static/',
+    #'/var/www/static/',
     os.path.join(BASE_DIR, 'node_modules'),
 ]
 
@@ -164,7 +164,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('redis', 6378)]
+            'hosts': [('redis', 6379)]
         }
     }
 }
