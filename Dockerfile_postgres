@@ -16,4 +16,4 @@ RUN mkdir ispell && \
     touch `pg_config --sharedir`/tsearch_data/polish.stop
 
 WORKDIR /locus_dir_db   
-RUN mv postgresql_db_setup.sql /docker-entrypoint-initdb.d/ && mv postgresql_ispell_setup.sql /docker-entrypoint-initdb.d/
+RUN mv mv postgresql_ispell_setup.sql /docker-entrypoint-initdb.d/

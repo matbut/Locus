@@ -22,7 +22,7 @@ services:
     build:
         context: .
         dockerfile: Dockerfile_web
-    command: bash -c "python3 manage.py makemigrations && python3 manage.py migrate && daphne -b 0.0.0.0 -p 8000 Locus.asgi:application"
+    command: bash -c "python3 manage.py collectstatic --noinput && python3 manage.py makemigrations && python3 manage.py migrate && daphne -b 0.0.0.0 -p 8000 Locus.asgi:application"
     container_name: locus_web
     volumes:
       - .:/locus_dir_web
@@ -47,3 +47,6 @@ services:
        - .:/locus_dir_web
     depends_on:
        - redis
+    environment:
+       - API_KEY=${API_KEY}
+       - ENGINE_ID=${ENGINE_ID}

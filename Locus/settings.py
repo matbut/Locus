@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'search.apps.SearchConfig',
     'twitter.apps.TweetCrawlerConfig',
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -85,9 +87,8 @@ WSGI_APPLICATION = 'Locus.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'locus_db',
-        'USER': 'locus',
-        'PASSWORD': 'locus',
+        'NAME': 'postgres',
+        'USER': 'postgres',
         'HOST': 'db',
         'PORT': '',
     }
@@ -130,14 +131,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_ROOT = 'static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
 STATIC_URL = '/static/'
-MEDIA_ROOT = 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media_files')
 MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
     #'/var/www/static/',
     os.path.join(BASE_DIR, 'node_modules'),
+    os.path.join(BASE_DIR, 'custom_static'),
 ]
 
 STATICFILES_FINDERS = (

@@ -5,6 +5,6 @@ paramSocket.onmessage = function(e) {
     displayMsgPartial();
     console.log("Some result are ready");
     setTimeout(function () {
-        window.location.href = "http://127.0.0.1:8000/graph";
+        window.location.href = "http://0.0.0.0:8000/graph";
     }, 3000);
 };

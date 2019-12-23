@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+import os
 import traceback
 from datetime import datetime
 from urllib import request
@@ -20,7 +21,7 @@ def run_query(title):
     query_raw = title
     query = quote(query_raw.encode('utf8'))
 
-    key, engine_id = patterns.retrieve_access_key()
+    key, engine_id = os.environ.get('API_KEY'), os.environ.get('ENGINE_ID')
     response = request.urlopen('https://www.googleapis.com/customsearch/v1?key={0}&cx={1}&q={2}'
                                .format(key, engine_id, query)).read()
     return json.loads(response)
