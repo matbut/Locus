@@ -1,6 +1,6 @@
 # Locus
 
-Components supporting discovery of information flow based on similarity and citation analysis.
+Python web application to support the discovery of information flow on the Internet from online articles. It uses various citation and similarity detection techniques to collect data from the Internet, Twitter and article database to create an relationship graph. Results are presented in tables with statistics and an interactive association graph.
 
 ## Table of Contents
 <!-- - [Features](#features) -->
