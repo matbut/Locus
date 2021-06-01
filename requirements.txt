@@ -70,6 +70,6 @@ txaio==18.8.1
 typing==3.7.4.1
 typing-extensions==3.7.4.1
 Unidecode==1.1.1
-urllib3==1.25.7
+urllib3==1.26.5
 yarl==1.3.0
 zope.interface==4.7.1
