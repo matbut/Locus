@@ -18,7 +18,7 @@ chardet==3.0.4
 constantly==15.1.0
 cryptography==2.8
 daphne==2.3.0
-Django==2.2.7
+Django==2.2.27
 django-appconf==1.0.3
 django-compressor==2.3
 django-compressor-toolkit==0.6.0
