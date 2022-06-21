@@ -42,7 +42,7 @@ joblib==0.14.0
 json-encoder==0.4.4
 msgpack==0.6.2
 multidict==4.5.2
-numpy==1.17.4
+numpy==1.22.0
 pandas==0.25.3
 psycopg2==2.8.4
 pycares==3.0.0
